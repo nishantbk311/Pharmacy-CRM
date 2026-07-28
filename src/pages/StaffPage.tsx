@@ -83,7 +83,7 @@ export const StaffPage: React.FC = () => {
   return (
     <div className="space-y-6">
       {/* Top Filter Bar */}
-      <div className="bg-white rounded-2xl p-4 sm:p-5 border border-slate-200/80 shadow-xs flex flex-col md:flex-row items-stretch md:items-center justify-between gap-4">
+      <div className="bg-white dark:bg-slate-900 rounded-2xl p-4 sm:p-5 border border-slate-200/80 dark:border-slate-800 shadow-xs flex flex-col md:flex-row items-stretch md:items-center justify-between gap-4">
         <div className="relative flex-1 max-w-md">
           <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
           <input
@@ -91,7 +91,7 @@ export const StaffPage: React.FC = () => {
             placeholder="Search staff by name, role, license..."
             value={searchQuery}
             onChange={e => setSearchQuery(e.target.value)}
-            className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-xs sm:text-sm text-slate-800 focus:outline-hidden focus:bg-white focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500"
+            className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs sm:text-sm text-slate-800 dark:text-slate-200 focus:outline-hidden focus:bg-white dark:focus:bg-slate-900 focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500"
           />
         </div>
 
@@ -99,7 +99,7 @@ export const StaffPage: React.FC = () => {
           <select
             value={roleFilter}
             onChange={e => setRoleFilter(e.target.value)}
-            className="px-3 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-xs font-semibold text-slate-700"
+            className="px-3 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs font-semibold text-slate-700 dark:text-slate-200 cursor-pointer"
           >
             <option value="all">All Staff Roles</option>
             <option value="Lead Pharmacist">Lead Pharmacists</option>
@@ -110,7 +110,7 @@ export const StaffPage: React.FC = () => {
 
           <button
             onClick={() => setAddModalOpen(true)}
-            className="px-4 py-2.5 rounded-xl bg-teal-600 text-white font-bold text-xs hover:bg-teal-700 transition-colors flex items-center justify-center gap-2"
+            className="px-4 py-2.5 rounded-xl bg-teal-600 hover:bg-teal-700 dark:bg-teal-500 dark:hover:bg-teal-600 text-white font-bold text-xs transition-colors flex items-center justify-center gap-2 cursor-pointer"
           >
             <Plus className="w-4 h-4" />
             <span>Add Staff Member</span>
@@ -123,7 +123,7 @@ export const StaffPage: React.FC = () => {
         {filteredStaff.map(member => (
           <div
             key={member.id}
-            className="bg-white rounded-2xl border border-slate-200/80 p-5 shadow-xs space-y-4 flex flex-col justify-between"
+            className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/80 dark:border-slate-800 p-5 shadow-xs space-y-4 flex flex-col justify-between"
           >
             <div className="space-y-3">
               <div className="flex items-start justify-between gap-3">
@@ -134,10 +134,10 @@ export const StaffPage: React.FC = () => {
                     className="w-12 h-12 rounded-2xl object-cover border-2 border-teal-500/30 shrink-0"
                   />
                   <div>
-                    <h3 className="font-bold text-slate-900 text-sm">
+                    <h3 className="font-bold text-slate-900 dark:text-slate-100 text-sm">
                       {member.firstName} {member.lastName}
                     </h3>
-                    <p className="text-xs text-teal-700 font-semibold">{member.role}</p>
+                    <p className="text-xs text-teal-700 dark:text-teal-400 font-semibold">{member.role}</p>
                   </div>
                 </div>
 
@@ -156,9 +156,9 @@ export const StaffPage: React.FC = () => {
                 </Badge>
               </div>
 
-              <div className="space-y-1.5 text-xs text-slate-600 pt-1">
-                <p className="flex items-center gap-2 font-mono text-slate-500">
-                  <Award className="w-4 h-4 text-teal-600 shrink-0" />
+              <div className="space-y-1.5 text-xs text-slate-600 dark:text-slate-300 pt-1">
+                <p className="flex items-center gap-2 font-mono text-slate-500 dark:text-slate-400">
+                  <Award className="w-4 h-4 text-teal-600 dark:text-teal-400 shrink-0" />
                   <span>License: {member.licenseNumber}</span>
                 </p>
                 <p className="flex items-center gap-2">
@@ -176,14 +176,14 @@ export const StaffPage: React.FC = () => {
               </div>
             </div>
 
-            <div className="pt-3 border-t border-slate-100 flex items-center justify-between text-xs">
+            <div className="pt-3 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between text-xs">
               <span className="text-slate-400">Joined: {member.joinedDate}</span>
               <button
                 onClick={() => toggleStatus(member.id, member.status)}
-                className={`px-3 py-1.5 rounded-lg font-bold transition-colors ${
+                className={`px-3 py-1.5 rounded-lg font-bold transition-colors cursor-pointer ${
                   member.status === 'On Duty'
-                    ? 'bg-rose-50 text-rose-700 hover:bg-rose-100'
-                    : 'bg-emerald-50 text-emerald-700 hover:bg-emerald-100'
+                    ? 'bg-rose-50 dark:bg-rose-950/60 text-rose-700 dark:text-rose-300 hover:bg-rose-100 dark:hover:bg-rose-900/60'
+                    : 'bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 hover:bg-emerald-100 dark:hover:bg-emerald-900/60'
                 }`}
               >
                 {member.status === 'On Duty' ? 'Set Off Duty' : 'Set On Duty'}
@@ -203,34 +203,34 @@ export const StaffPage: React.FC = () => {
         <form onSubmit={handleAddSubmit} className="space-y-3 text-xs">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
-              <label className="block font-semibold text-slate-700 mb-1">First Name *</label>
+              <label className="block font-semibold text-slate-700 dark:text-slate-300 mb-1">First Name *</label>
               <input
                 type="text"
                 required
                 value={firstName}
                 onChange={e => setFirstName(e.target.value)}
-                className="w-full px-3 py-2 rounded-xl border border-slate-200"
+                className="w-full px-3 py-2 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-slate-100"
               />
             </div>
             <div>
-              <label className="block font-semibold text-slate-700 mb-1">Last Name *</label>
+              <label className="block font-semibold text-slate-700 dark:text-slate-300 mb-1">Last Name *</label>
               <input
                 type="text"
                 required
                 value={lastName}
                 onChange={e => setLastName(e.target.value)}
-                className="w-full px-3 py-2 rounded-xl border border-slate-200"
+                className="w-full px-3 py-2 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-slate-100"
               />
             </div>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
-              <label className="block font-semibold text-slate-700 mb-1">Staff Role</label>
+              <label className="block font-semibold text-slate-700 dark:text-slate-300 mb-1">Staff Role</label>
               <select
                 value={role}
                 onChange={e => setRole(e.target.value as UserRole)}
-                className="w-full px-3 py-2 rounded-xl border border-slate-200"
+                className="w-full px-3 py-2 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-slate-100"
               >
                 <option value="Lead Pharmacist">Lead Pharmacist</option>
                 <option value="Staff Pharmacist">Staff Pharmacist</option>
@@ -239,43 +239,43 @@ export const StaffPage: React.FC = () => {
               </select>
             </div>
             <div>
-              <label className="block font-semibold text-slate-700 mb-1">License Number</label>
+              <label className="block font-semibold text-slate-700 dark:text-slate-300 mb-1">License Number</label>
               <input
                 type="text"
                 value={licenseNumber}
                 onChange={e => setLicenseNumber(e.target.value)}
-                className="w-full px-3 py-2 rounded-xl border border-slate-200 font-mono"
+                className="w-full px-3 py-2 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-slate-100 font-mono"
               />
             </div>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
-              <label className="block font-semibold text-slate-700 mb-1">Email</label>
+              <label className="block font-semibold text-slate-700 dark:text-slate-300 mb-1">Email</label>
               <input
                 type="email"
                 value={email}
                 onChange={e => setEmail(e.target.value)}
-                className="w-full px-3 py-2 rounded-xl border border-slate-200"
+                className="w-full px-3 py-2 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-slate-100"
               />
             </div>
             <div>
-              <label className="block font-semibold text-slate-700 mb-1">Phone</label>
+              <label className="block font-semibold text-slate-700 dark:text-slate-300 mb-1">Phone</label>
               <input
                 type="text"
                 value={phone}
                 onChange={e => setPhone(e.target.value)}
-                className="w-full px-3 py-2 rounded-xl border border-slate-200"
+                className="w-full px-3 py-2 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-slate-100"
               />
             </div>
           </div>
 
           <div>
-            <label className="block font-semibold text-slate-700 mb-1">Assigned Duty Shift</label>
+            <label className="block font-semibold text-slate-700 dark:text-slate-300 mb-1">Assigned Duty Shift</label>
             <select
               value={shift}
               onChange={e => setShift(e.target.value as any)}
-              className="w-full px-3 py-2 rounded-xl border border-slate-200"
+              className="w-full px-3 py-2 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-slate-100"
             >
               <option value="Morning (08:00 - 16:00)">Morning (08:00 - 16:00)</option>
               <option value="Evening (14:00 - 22:00)">Evening (14:00 - 22:00)</option>
@@ -284,17 +284,17 @@ export const StaffPage: React.FC = () => {
             </select>
           </div>
 
-          <div className="pt-3 border-t border-slate-100 flex justify-end gap-2">
+          <div className="pt-3 border-t border-slate-100 dark:border-slate-800 flex justify-end gap-2">
             <button
               type="button"
               onClick={() => setAddModalOpen(false)}
-              className="px-4 py-2 rounded-xl border border-slate-200 font-semibold"
+              className="px-4 py-2 rounded-xl border border-slate-200 dark:border-slate-700 font-semibold text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 cursor-pointer"
             >
               Cancel
             </button>
             <button
               type="submit"
-              className="px-5 py-2 rounded-xl bg-teal-600 text-white font-bold"
+              className="px-5 py-2 rounded-xl bg-teal-600 hover:bg-teal-700 dark:bg-teal-500 dark:hover:bg-teal-600 text-white font-bold cursor-pointer"
             >
               Save Staff Record
             </button>

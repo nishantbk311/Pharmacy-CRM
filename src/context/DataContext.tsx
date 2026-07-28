@@ -9,6 +9,7 @@ import {
   Prescription,
   ActivityLog,
   NotificationItem,
+  SystemUser,
 } from '../types';
 import {
   INITIAL_PATIENTS,
@@ -19,12 +20,14 @@ import {
   INITIAL_PRESCRIPTIONS,
   INITIAL_ACTIVITY_LOGS,
   MOCK_NOTIFICATIONS,
+  INITIAL_SYSTEM_USERS,
 } from '../mock/data';
 
 interface DataContextType {
   patients: Patient[];
   doctors: Doctor[];
   staff: Staff[];
+  systemUsers: SystemUser[];
   appointments: Appointment[];
   inquiries: Inquiry[];
   prescriptions: Prescription[];
@@ -43,6 +46,11 @@ interface DataContextType {
   // Staff actions
   addStaff: (staffMember: Omit<Staff, 'id' | 'joinedDate'>) => void;
   updateStaff: (id: string, updates: Partial<Staff>) => void;
+
+  // System User actions
+  addSystemUser: (user: Omit<SystemUser, 'id' | 'joinedDate'>) => void;
+  updateSystemUser: (id: string, updates: Partial<SystemUser>) => void;
+  deleteSystemUser: (id: string) => void;
   
   // Appointment actions
   addAppointment: (appointment: Omit<Appointment, 'id'>) => void;
@@ -54,6 +62,9 @@ interface DataContextType {
   addInquiryNote: (inquiryId: string, authorName: string, authorRole: string, text: string) => void;
   
   // Prescription actions
+  addPrescription: (rx: Omit<Prescription, 'id' | 'rxNumber' | 'prescribedDate'>) => void;
+  updatePrescription: (id: string, updates: Partial<Prescription>) => void;
+  deletePrescription: (id: string) => void;
   updatePrescriptionStatus: (id: string, status: Prescription['status']) => void;
   processRefill: (rxNumber: string) => void;
 
@@ -67,6 +78,7 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [patients, setPatients] = useState<Patient[]>(INITIAL_PATIENTS);
   const [doctors, setDoctors] = useState<Doctor[]>(INITIAL_DOCTORS);
   const [staff, setStaff] = useState<Staff[]>(INITIAL_STAFF);
+  const [systemUsers, setSystemUsers] = useState<SystemUser[]>(INITIAL_SYSTEM_USERS);
   const [appointments, setAppointments] = useState<Appointment[]>(INITIAL_APPOINTMENTS);
   const [inquiries, setInquiries] = useState<Inquiry[]>(INITIAL_INQUIRIES);
   const [prescriptions, setPrescriptions] = useState<Prescription[]>(INITIAL_PRESCRIPTIONS);
@@ -153,6 +165,28 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
     showToast('Staff schedule / role updated.');
   };
 
+  // System User handlers
+  const addSystemUser = (userData: Omit<SystemUser, 'id' | 'joinedDate'>) => {
+    const newSysUser: SystemUser = {
+      ...userData,
+      id: `sys-${Date.now().toString().slice(-4)}`,
+      joinedDate: new Date().toISOString().split('T')[0],
+    };
+    setSystemUsers(prev => [newSysUser, ...prev]);
+    addLog('Super Admin', 'Admin', 'Created System User', 'System', `Created user ${newSysUser.name} (${newSysUser.userId}) with role ${newSysUser.role}.`);
+    showToast(`User ${newSysUser.name} added successfully.`);
+  };
+
+  const updateSystemUser = (id: string, updates: Partial<SystemUser>) => {
+    setSystemUsers(prev => prev.map(u => (u.id === id ? { ...u, ...updates } : u)));
+    showToast('System user updated.');
+  };
+
+  const deleteSystemUser = (id: string) => {
+    setSystemUsers(prev => prev.filter(u => u.id !== id));
+    showToast('System user deleted.');
+  };
+
   // Appointment handlers
   const addAppointment = (aptData: Omit<Appointment, 'id'>) => {
     const newApt: Appointment = {
@@ -211,6 +245,30 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   // Prescription handlers
+  const addPrescription = (rxData: Omit<Prescription, 'id' | 'rxNumber' | 'prescribedDate'>) => {
+    const id = `rx-${Date.now().toString().slice(-4)}`;
+    const rxNumber = `RX-${Math.floor(100000 + Math.random() * 900000)}`;
+    const newRx: Prescription = {
+      ...rxData,
+      id,
+      rxNumber,
+      prescribedDate: new Date().toISOString().split('T')[0],
+    };
+    setPrescriptions(prev => [newRx, ...prev]);
+    addLog('Dr. Sarah Jenkins', 'Lead Pharmacist', 'Prescription Created', 'Prescription', `Created prescription ${rxNumber} for ${newRx.patientName}.`);
+    showToast(`Prescription ${rxNumber} created for ${newRx.patientName}.`);
+  };
+
+  const updatePrescription = (id: string, updates: Partial<Prescription>) => {
+    setPrescriptions(prev => prev.map(rx => (rx.id === id ? { ...rx, ...updates } : rx)));
+    showToast('Prescription updated successfully.');
+  };
+
+  const deletePrescription = (id: string) => {
+    setPrescriptions(prev => prev.filter(rx => rx.id !== id));
+    showToast('Prescription deleted.');
+  };
+
   const updatePrescriptionStatus = (id: string, status: Prescription['status']) => {
     setPrescriptions(prev => prev.map(rx => (rx.id === id ? { ...rx, status } : rx)));
     showToast(`Prescription status updated to ${status}.`);
@@ -220,7 +278,7 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setPrescriptions(prev =>
       prev.map(rx => {
         if (rx.rxNumber === rxNumber) {
-          const updatedRefills = Math.max(0, rx.refillsRemaining - 1);
+         const updatedRefills = Math.max(0, (rx.refillsRemaining ?? 0) - 1);
           return {
             ...rx,
             refillsRemaining: updatedRefills,
@@ -240,6 +298,7 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
         patients,
         doctors,
         staff,
+        systemUsers,
         appointments,
         inquiries,
         prescriptions,
@@ -252,11 +311,17 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
         updateDoctor,
         addStaff,
         updateStaff,
+        addSystemUser,
+        updateSystemUser,
+        deleteSystemUser,
         addAppointment,
         updateAppointmentStatus,
         addInquiry,
         updateInquiryStatus,
         addInquiryNote,
+        addPrescription,
+        updatePrescription,
+        deletePrescription,
         updatePrescriptionStatus,
         processRefill,
         showToast,

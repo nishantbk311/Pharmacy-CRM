@@ -3,7 +3,7 @@ import { BrowserRouter, Routes, Route, useNavigate, useLocation, Navigate } from
 import { motion, AnimatePresence } from 'motion/react';
 import { Toaster } from 'sonner';
 import { AuthProvider, useAuth } from './context/AuthContext';
-import { DataProvider, useData } from './context/DataContext';
+import { DataProvider } from './context/DataContext';
 import { ThemeProvider } from './context/ThemeContext';
 import { Sidebar } from './components/layout/Sidebar';
 import { Header } from './components/layout/Header';
@@ -16,6 +16,7 @@ import { AppointmentsPage } from './pages/AppointmentsPage';
 import { InquiriesPage } from './pages/InquiriesPage';
 import { PrescriptionsPage } from './pages/PrescriptionsPage';
 import { SettingsPage } from './pages/SettingsPage';
+import { UsersPage } from './pages/UsersPage';
 
 function AnimatedPageWrapper({ children }: { children: React.ReactNode; key?: React.Key }) {
   return (
@@ -157,6 +158,14 @@ function MainAppContent() {
                 element={
                   <AnimatedPageWrapper key="prescriptions">
                     <PrescriptionsPage />
+                  </AnimatedPageWrapper>
+                }
+              />
+              <Route
+                path="/users"
+                element={
+                  <AnimatedPageWrapper key="users">
+                    <UsersPage />
                   </AnimatedPageWrapper>
                 }
               />

@@ -1,4 +1,19 @@
-export type UserRole = 'Lead Pharmacist' | 'Staff Pharmacist' | 'Pharmacy Technician' | 'Store Manager';
+export interface SystemUser {
+  id: string;
+  userId: string;
+  name: string;
+  username: string;
+  email: string;
+  phone: string;
+  role: string;
+  status: 'Active' | 'Inactive' | 'Pending';
+  salary: string;
+  avatarUrl?: string;
+  joinedDate: string;
+  lastLoginAt?: string;
+}
+
+export type UserRole = 'Lead Pharmacist' | 'Staff Pharmacist' | 'Pharmacy Technician' | 'Store Manager' | 'Super Admin' | 'Supplier' | 'Admin' | 'User';
 
 export interface User {
   id: string;
@@ -140,7 +155,16 @@ export interface Inquiry {
   notes: InquiryNote[];
 }
 
-export type RxStatus = 'Ready for Pickup' | 'Processing' | 'Requires Review' | 'Out of Stock' | 'Filled';
+export type RxStatus =
+  | 'Pending Review'
+  | 'Confirmed'
+  | 'Completed'
+  | 'Cancelled'
+  | 'Ready for Pickup'
+  | 'Processing'
+  | 'Requires Review'
+  | 'Out of Stock'
+  | 'Filled';
 
 export interface InteractionFlag {
   drugName: string;
@@ -154,21 +178,27 @@ export interface Prescription {
   rxNumber: string;
   patientId: string;
   patientName: string;
-  patientDob: string;
+  patientDob?: string;
   doctorName: string;
-  doctorNpi: string;
+  doctorNpi?: string;
   drugName: string;
-  strength: string;
-  quantity: number;
-  refillsTotal: number;
-  refillsRemaining: number;
-  directions: string;
+  strength?: string;
+  quantity?: number;
+  refillsTotal?: number;
+  refillsRemaining?: number;
+  directions?: string;
+  dosage?: string;
+  frequency?: string;
+  route?: string;
+  duration?: string;
+  startDate?: string;
+  endDate?: string;
   status: RxStatus;
   prescribedDate: string;
-  fillDueDate: string;
-  copayAmount: number;
+  fillDueDate?: string;
+  copayAmount?: number;
   interactionFlags?: InteractionFlag[];
-  insuranceStatus: 'Approved' | 'Pending Prior Auth' | 'Rejected';
+  insuranceStatus?: 'Approved' | 'Pending Prior Auth' | 'Rejected';
 }
 
 export interface ActivityLog {

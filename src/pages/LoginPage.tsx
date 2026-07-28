@@ -37,7 +37,7 @@ export const LoginPage: React.FC = () => {
   const { theme, toggleTheme } = useTheme();
 
   // Factor 1 State
-  const [email, setEmail] = useState('sarah.jenkins@pharmacycrm.com');
+  const [email, setEmail] = useState('appsytech@gmail.com');
   const [password, setPassword] = useState('Admin@1234');
   const [showPassword, setShowPassword] = useState(false);
   const [keepSignedIn, setKeepSignedIn] = useState(true);
@@ -403,15 +403,15 @@ export const LoginPage: React.FC = () => {
                       <div className="flex items-center gap-2 flex-wrap text-xs">
                         <button
                           type="button"
-                          onClick={() => fillCredentials('sarah.jenkins@pharmacycrm.com', 'Admin@1234')}
-                          className="px-2.5 py-1 rounded-lg bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 transition-colors"
+                          onClick={() => fillCredentials('appsytech@gmail.com', 'Admin@1234')}
+                          className="px-2.5 py-1 rounded-lg bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 transition-colors cursor-pointer"
                         >
-                          <span className="font-semibold text-slate-900 dark:text-white">Demo Admin:</span> Admin@1234
+                          <span className="font-semibold text-slate-900 dark:text-white">Super Admin:</span> Admin@1234
                         </button>
                         <button
                           type="button"
-                          onClick={() => fillCredentials('marcus.vance@pharmacycrm.com', 'User@1234')}
-                          className="px-2.5 py-1 rounded-lg bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 transition-colors"
+                          onClick={() => fillCredentials('raj@gmail.com', 'User@1234')}
+                          className="px-2.5 py-1 rounded-lg bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 transition-colors cursor-pointer"
                         >
                           <span className="font-semibold text-slate-900 dark:text-white">Pharmacist:</span> User@1234
                         </button>

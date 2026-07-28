@@ -89,7 +89,7 @@ export const AppointmentsPage: React.FC<AppointmentsPageProps> = ({
   return (
     <div className="space-y-6">
       {/* Filters Toolbar */}
-      <div className="bg-white rounded-2xl p-4 sm:p-5 border border-slate-200/80 shadow-xs flex flex-col md:flex-row items-stretch md:items-center justify-between gap-4">
+      <div className="bg-white dark:bg-slate-900 rounded-2xl p-4 sm:p-5 border border-slate-200/80 dark:border-slate-800 shadow-xs flex flex-col md:flex-row items-stretch md:items-center justify-between gap-4">
         <div className="relative flex-1 max-w-md">
           <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
           <input
@@ -105,7 +105,7 @@ export const AppointmentsPage: React.FC<AppointmentsPageProps> = ({
           <select
             value={statusFilter}
             onChange={e => setStatusFilter(e.target.value)}
-            className="px-3 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs font-semibold text-slate-700 dark:text-slate-200"
+            className="px-3 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs font-semibold text-slate-700 dark:text-slate-200 cursor-pointer"
           >
             <option value="all">All Statuses</option>
             <option value="Scheduled">Scheduled</option>
@@ -117,7 +117,7 @@ export const AppointmentsPage: React.FC<AppointmentsPageProps> = ({
           <select
             value={typeFilter}
             onChange={e => setTypeFilter(e.target.value)}
-            className="px-3 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs font-semibold text-slate-700 dark:text-slate-200"
+            className="px-3 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs font-semibold text-slate-700 dark:text-slate-200 cursor-pointer"
           >
             <option value="all">All Consultation Types</option>
             <option value="MTM Consultation">MTM Consultation</option>
@@ -128,7 +128,7 @@ export const AppointmentsPage: React.FC<AppointmentsPageProps> = ({
 
           <button
             onClick={() => setBookingModalOpen(true)}
-            className="px-4 py-2.5 rounded-xl bg-sky-600 dark:bg-sky-500 text-white font-bold text-xs hover:bg-sky-700 dark:hover:bg-sky-600 transition-colors flex items-center gap-2"
+            className="px-4 py-2.5 rounded-xl bg-sky-600 dark:bg-sky-500 text-white font-bold text-xs hover:bg-sky-700 dark:hover:bg-sky-600 transition-colors flex items-center gap-2 cursor-pointer"
           >
             <Plus className="w-4 h-4" />
             <span>Book Consultation</span>
@@ -141,13 +141,13 @@ export const AppointmentsPage: React.FC<AppointmentsPageProps> = ({
         {filteredAppointments.map(apt => (
           <div
             key={apt.id}
-            className="bg-white rounded-2xl border border-slate-200/80 p-5 shadow-xs space-y-4 flex flex-col justify-between"
+            className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/80 dark:border-slate-800 p-5 shadow-xs space-y-4 flex flex-col justify-between"
           >
             <div className="space-y-3">
               <div className="flex items-start justify-between gap-3">
                 <div>
                   <div className="flex items-center gap-2">
-                    <span className="px-2.5 py-0.5 rounded-md bg-teal-50 text-teal-700 font-bold text-xs border border-teal-200">
+                    <span className="px-2.5 py-0.5 rounded-md bg-teal-50 dark:bg-teal-950/60 text-teal-700 dark:text-teal-300 font-bold text-xs border border-teal-200 dark:border-teal-800">
                       {apt.time} ({apt.durationMinutes} min)
                     </span>
                     <Badge
@@ -157,11 +157,11 @@ export const AppointmentsPage: React.FC<AppointmentsPageProps> = ({
                       {apt.isVirtual ? 'Virtual Telehealth' : 'In-Store Clinic'}
                     </Badge>
                   </div>
-                  <h3 className="font-bold text-slate-900 text-base mt-1.5">
+                  <h3 className="font-bold text-slate-900 dark:text-slate-100 text-base mt-1.5">
                     {apt.patientName}
                   </h3>
-                  <p className="text-xs text-slate-500 font-medium">
-                    Type: <span className="text-teal-700 font-semibold">{apt.type}</span>
+                  <p className="text-xs text-slate-500 dark:text-slate-400 font-medium">
+                    Type: <span className="text-teal-700 dark:text-teal-400 font-semibold">{apt.type}</span>
                   </p>
                 </div>
 
@@ -182,28 +182,28 @@ export const AppointmentsPage: React.FC<AppointmentsPageProps> = ({
                 </Badge>
               </div>
 
-              <div className="p-3 rounded-xl bg-slate-50 border border-slate-200/60 text-xs text-slate-600 space-y-1">
+              <div className="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200/60 dark:border-slate-800 text-xs text-slate-600 dark:text-slate-300 space-y-1">
                 <p className="flex items-center gap-2">
-                  <User className="w-3.5 h-3.5 text-teal-600" />
+                  <User className="w-3.5 h-3.5 text-teal-600 dark:text-teal-400" />
                   <span>Pharmacist: {apt.pharmacistName}</span>
                 </p>
                 <p className="flex items-center gap-2">
                   <Phone className="w-3.5 h-3.5 text-slate-400" />
                   <span>Patient Phone: {apt.patientPhone}</span>
                 </p>
-                <p className="text-slate-500 pt-1 border-t border-slate-200/60">
-                  <span className="font-semibold text-slate-700">Clinical Note:</span> {apt.notes}
+                <p className="text-slate-500 dark:text-slate-400 pt-1 border-t border-slate-200/60 dark:border-slate-800">
+                  <span className="font-semibold text-slate-700 dark:text-slate-200">Clinical Note:</span> {apt.notes}
                 </p>
               </div>
             </div>
 
-            <div className="pt-3 border-t border-slate-100 flex items-center justify-between text-xs">
+            <div className="pt-3 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between text-xs">
               <span className="text-slate-400 font-mono">Date: {apt.date}</span>
               <div className="flex items-center gap-1.5">
                 <select
                   value={apt.status}
                   onChange={e => updateAppointmentStatus(apt.id, e.target.value as any)}
-                  className="px-2.5 py-1.5 rounded-lg bg-slate-100 border border-slate-200 font-semibold text-slate-800"
+                  className="px-2.5 py-1.5 rounded-lg bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 font-semibold text-slate-800 dark:text-slate-200 cursor-pointer"
                 >
                   <option value="Scheduled">Scheduled</option>
                   <option value="In Progress">In Progress</option>
@@ -225,11 +225,11 @@ export const AppointmentsPage: React.FC<AppointmentsPageProps> = ({
       >
         <form onSubmit={handleBookingSubmit} className="space-y-3 text-xs">
           <div>
-            <label className="block font-semibold text-slate-700 mb-1">Select Patient *</label>
+            <label className="block font-semibold text-slate-700 dark:text-slate-300 mb-1">Select Patient *</label>
             <select
               value={patientId}
               onChange={e => setPatientId(e.target.value)}
-              className="w-full px-3 py-2 rounded-xl border border-slate-200"
+              className="w-full px-3 py-2 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-slate-100"
             >
               {patients.map(p => (
                 <option key={p.id} value={p.id}>
@@ -241,11 +241,11 @@ export const AppointmentsPage: React.FC<AppointmentsPageProps> = ({
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
-              <label className="block font-semibold text-slate-700 mb-1">Consultation Type</label>
+              <label className="block font-semibold text-slate-700 dark:text-slate-300 mb-1">Consultation Type</label>
               <select
                 value={type}
                 onChange={e => setType(e.target.value as AppointmentType)}
-                className="w-full px-3 py-2 rounded-xl border border-slate-200"
+                className="w-full px-3 py-2 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-slate-100"
               >
                 <option value="MTM Consultation">MTM Consultation</option>
                 <option value="Vaccination">Vaccination</option>
@@ -255,11 +255,11 @@ export const AppointmentsPage: React.FC<AppointmentsPageProps> = ({
               </select>
             </div>
             <div>
-              <label className="block font-semibold text-slate-700 mb-1">Assigned Pharmacist</label>
+              <label className="block font-semibold text-slate-700 dark:text-slate-300 mb-1">Assigned Pharmacist</label>
               <select
                 value={pharmacistName}
                 onChange={e => setPharmacistName(e.target.value)}
-                className="w-full px-3 py-2 rounded-xl border border-slate-200"
+                className="w-full px-3 py-2 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-slate-100"
               >
                 {staff
                   .filter(s => s.role.includes('Pharmacist'))
@@ -274,30 +274,30 @@ export const AppointmentsPage: React.FC<AppointmentsPageProps> = ({
 
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
             <div>
-              <label className="block font-semibold text-slate-700 mb-1">Date</label>
+              <label className="block font-semibold text-slate-700 dark:text-slate-300 mb-1">Date</label>
               <input
                 type="date"
                 value={date}
                 onChange={e => setDate(e.target.value)}
-                className="w-full px-3 py-2 rounded-xl border border-slate-200"
+                className="w-full px-3 py-2 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-slate-100"
               />
             </div>
             <div>
-              <label className="block font-semibold text-slate-700 mb-1">Time Slot</label>
+              <label className="block font-semibold text-slate-700 dark:text-slate-300 mb-1">Time Slot</label>
               <input
                 type="text"
                 value={time}
                 onChange={e => setTime(e.target.value)}
-                className="w-full px-3 py-2 rounded-xl border border-slate-200"
+                className="w-full px-3 py-2 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-slate-100"
               />
             </div>
             <div>
-              <label className="block font-semibold text-slate-700 mb-1">Duration (Min)</label>
+              <label className="block font-semibold text-slate-700 dark:text-slate-300 mb-1">Duration (Min)</label>
               <input
                 type="number"
                 value={duration}
                 onChange={e => setDuration(Number(e.target.value))}
-                className="w-full px-3 py-2 rounded-xl border border-slate-200"
+                className="w-full px-3 py-2 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-slate-100"
               />
             </div>
           </div>
@@ -308,35 +308,35 @@ export const AppointmentsPage: React.FC<AppointmentsPageProps> = ({
               id="virtualCheck"
               checked={isVirtual}
               onChange={e => setIsVirtual(e.target.checked)}
-              className="rounded-md border-slate-300 text-teal-600 focus:ring-teal-500"
+              className="rounded-md border-slate-300 dark:border-slate-700 text-teal-600 focus:ring-teal-500"
             />
-            <label htmlFor="virtualCheck" className="font-semibold text-slate-700 cursor-pointer">
+            <label htmlFor="virtualCheck" className="font-semibold text-slate-700 dark:text-slate-300 cursor-pointer">
               Enable Telehealth / Virtual Video Consultation Link
             </label>
           </div>
 
           <div>
-            <label className="block font-semibold text-slate-700 mb-1">Consultation Agenda / Notes</label>
+            <label className="block font-semibold text-slate-700 dark:text-slate-300 mb-1">Consultation Agenda / Notes</label>
             <textarea
               rows={2}
               value={notes}
               onChange={e => setNotes(e.target.value)}
               placeholder="e.g. Dosage adjustment review & blood pressure log check..."
-              className="w-full px-3 py-2 rounded-xl border border-slate-200"
+              className="w-full px-3 py-2 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-slate-100"
             />
           </div>
 
-          <div className="pt-3 border-t border-slate-100 flex justify-end gap-2">
+          <div className="pt-3 border-t border-slate-100 dark:border-slate-800 flex justify-end gap-2">
             <button
               type="button"
               onClick={() => setBookingModalOpen(false)}
-              className="px-4 py-2 rounded-xl border border-slate-200 font-semibold"
+              className="px-4 py-2 rounded-xl border border-slate-200 dark:border-slate-700 font-semibold text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 cursor-pointer"
             >
               Cancel
             </button>
             <button
               type="submit"
-              className="px-5 py-2 rounded-xl bg-teal-600 text-white font-bold"
+              className="px-5 py-2 rounded-xl bg-teal-600 hover:bg-teal-700 dark:bg-teal-500 dark:hover:bg-teal-600 text-white font-bold cursor-pointer"
             >
               Confirm Appointment
             </button>

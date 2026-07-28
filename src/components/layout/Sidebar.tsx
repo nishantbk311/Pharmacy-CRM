@@ -12,6 +12,7 @@ import {
   ShieldCheck,
   LogOut,
   Cross,
+  UserCog,
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { useData } from '../../context/DataContext';
@@ -31,7 +32,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
   const { inquiries, prescriptions } = useData();
 
   const openInquiriesCount = inquiries.filter(i => i.status === 'Open' || i.status === 'In Progress').length;
-  const pendingRefillsCount = prescriptions.filter(r => r.status === 'Requires Review' || r.status === 'Processing').length;
+  const pendingRefillsCount = prescriptions.filter(r => r.status === 'Pending Review' || r.status === 'Requires Review' || r.status === 'Processing').length;
 
   const navItems = [
     { id: 'dashboard', path: '/', label: 'Dashboard', icon: LayoutDashboard },
@@ -53,8 +54,9 @@ export const Sidebar: React.FC<SidebarProps> = ({
       label: 'Prescriptions',
       icon: Pill,
       badge: pendingRefillsCount > 0 ? pendingRefillsCount : undefined,
-      badgeColor: 'bg-emerald-600 text-white',
+      badgeColor: 'bg-blue-600 text-white',
     },
+    { id: 'users', path: '/users', label: 'Users', icon: UserCog },
     { id: 'settings', path: '/settings', label: 'Settings & 2FA', icon: Settings },
   ];
 
@@ -75,22 +77,22 @@ export const Sidebar: React.FC<SidebarProps> = ({
 
       {/* Sidebar Container */}
       <aside
-        className={`fixed top-0 bottom-0 left-0 z-40 w-64 bg-slate-900 text-slate-300 flex flex-col justify-between border-r border-slate-800 transition-transform duration-300 ease-in-out lg:translate-x-0 ${
+        className={`fixed top-0 bottom-0 left-0 z-40 w-64 bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300 flex flex-col justify-between border-r border-slate-200 dark:border-slate-800 transition-colors duration-200 lg:translate-x-0 ${
           isMobileOpen ? 'translate-x-0' : '-translate-x-full'
         }`}
       >
         <div>
           {/* Brand Header */}
-          <div className="flex items-center gap-3 px-6 h-18 border-b border-slate-800/80 bg-slate-950/40">
-            <div className="flex items-center justify-center w-10 h-10 rounded-xl bg-blue-600 text-slate-950 shadow-md">
+          <div className="flex items-center gap-3 px-6 h-18 border-b border-slate-200 dark:border-slate-800/80 bg-slate-50 dark:bg-slate-950/40">
+            <div className="flex items-center justify-center w-10 h-10 rounded-xl bg-blue-600 text-white shadow-md shadow-blue-600/20">
               <Cross className="w-6 h-6 stroke-[2.5]" />
             </div>
             <div>
-              <h1 className="text-base font-bold text-white tracking-tight leading-tight">
+              <h1 className="text-base font-bold text-slate-900 dark:text-white tracking-tight leading-tight">
                 Pharmacy CRM
               </h1>
-              <p className="text-[11px] font-medium text-sky-400 flex items-center gap-1">
-                <ShieldCheck className="w-3 h-3 text-emerald-400" />
+              <p className="text-[11px] font-medium text-sky-600 dark:text-sky-400 flex items-center gap-1">
+                <ShieldCheck className="w-3 h-3 text-blue-600 dark:text-blue-400" />
                 2FA Verified Portal
               </p>
             </div>
@@ -98,7 +100,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
 
           {/* Navigation Links */}
           <nav className="p-3 space-y-1 mt-3">
-            <div className="px-3 pb-2 text-[10px] font-semibold uppercase tracking-wider text-slate-500">
+            <div className="px-3 pb-2 text-[10px] font-semibold uppercase tracking-wider text-slate-400 dark:text-slate-500">
               Core CRM Modules
             </div>
             {navItems.map(item => {
@@ -113,12 +115,12 @@ export const Sidebar: React.FC<SidebarProps> = ({
                   onClick={() => handleSelect(item.path)}
                   className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-sm font-medium transition-all cursor-pointer ${
                     isActive
-                      ? 'bg-emerald-500/15 text-emerald-300 font-semibold border border-emerald-500/30'
-                      : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/60'
+                      ? 'bg-blue-600/10 dark:bg-blue-600/20 text-blue-700 dark:text-blue-300 font-semibold border border-blue-500/20 dark:border-blue-500/30'
+                      : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800/60'
                   }`}
                 >
                   <div className="flex items-center gap-3">
-                    <Icon className={`w-4 h-4 ${isActive ? 'text-sky-400' : 'text-slate-400'}`} />
+                    <Icon className={`w-4 h-4 ${isActive ? 'text-sky-600 dark:text-sky-400' : 'text-slate-500 dark:text-slate-400'}`} />
                     <span>{item.label}</span>
                   </div>
                   {item.badge !== undefined && (
@@ -135,8 +137,8 @@ export const Sidebar: React.FC<SidebarProps> = ({
         </div>
 
         {/* User Footer Profile & Logout */}
-        <div className="p-4 border-t border-slate-800/80 bg-slate-950/50">
-          <div className="flex items-center justify-between gap-3 p-2 rounded-xl bg-slate-800/40 border border-slate-700/50">
+        <div className="p-4 border-t border-slate-200 dark:border-slate-800/80 bg-slate-50 dark:bg-slate-950/50">
+          <div className="flex items-center justify-between gap-3 p-2 rounded-xl bg-white dark:bg-slate-800/40 border border-slate-200 dark:border-slate-700/50 shadow-xs dark:shadow-none">
             <div className="flex items-center gap-2.5 overflow-hidden">
               <img
                 src={user?.avatarUrl || 'https://images.unsplash.com/photo-1559839734-2b71ea197ec2?w=150'}
@@ -144,10 +146,10 @@ export const Sidebar: React.FC<SidebarProps> = ({
                 className="w-9 h-9 rounded-full object-cover border border-teal-500/40 shrink-0"
               />
               <div className="min-w-0">
-                <p className="text-xs font-semibold text-white truncate">
+                <p className="text-xs font-semibold text-slate-900 dark:text-white truncate">
                   {user?.name}
                 </p>
-                <p className="text-[11px] text-teal-400 truncate">
+                <p className="text-[11px] text-teal-600 dark:text-teal-400 truncate">
                   {user?.role}
                 </p>
               </div>
@@ -156,7 +158,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
             <button
               onClick={logout}
               title="Sign Out"
-              className="p-1.5 text-slate-400 hover:text-rose-400 hover:bg-rose-500/10 rounded-lg transition-colors shrink-0"
+              className="p-1.5 text-slate-400 hover:text-rose-600 dark:hover:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-500/10 rounded-lg transition-colors shrink-0"
             >
               <LogOut className="w-4 h-4" />
             </button>
