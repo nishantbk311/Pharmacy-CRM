@@ -15,6 +15,8 @@ import {
 } from 'lucide-react';
 import { useData } from '../context/DataContext';
 import { Prescription, RxStatus } from '../types';
+import { Modal } from '../components/common/Modal';
+import { ConfirmDeleteModal } from '../components/common/ConfirmDeleteModal';
 
 export const PrescriptionsPage: React.FC = () => {
   const {
@@ -40,6 +42,9 @@ export const PrescriptionsPage: React.FC = () => {
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   const [editingRx, setEditingRx] = useState<Prescription | null>(null);
 
+  // Modal State for Delete Confirmation
+  const [deletingRx, setDeletingRx] = useState<Prescription | null>(null);
+
   // Form State
   const [formData, setFormData] = useState({
     patientName: '',
@@ -51,7 +56,7 @@ export const PrescriptionsPage: React.FC = () => {
     duration: '7 days',
     startDate: new Date().toISOString().split('T')[0],
     endDate: new Date(Date.now() + 14 * 86400000).toISOString().split('T')[0],
-    status: 'Pending Review' as RxStatus,
+    status: 'Confirmed' as RxStatus,
   });
 
   // Calculate badge counts
@@ -138,7 +143,7 @@ export const PrescriptionsPage: React.FC = () => {
       duration: '7 days',
       startDate: new Date().toISOString().split('T')[0],
       endDate: new Date(Date.now() + 7 * 86400000).toISOString().split('T')[0],
-      status: 'Pending Review',
+      status: 'Confirmed',
     });
     setIsModalOpen(true);
   };
@@ -268,20 +273,6 @@ export const PrescriptionsPage: React.FC = () => {
           }`}
         >
           All
-        </button>
-
-        <button
-          onClick={() => setActiveTab('Pending Review')}
-          className={`px-3.5 py-2 rounded-full transition-all cursor-pointer whitespace-nowrap flex items-center gap-2 ${
-            activeTab === 'Pending Review'
-              ? 'bg-blue-600 text-white shadow-md'
-              : 'bg-white dark:bg-[#1e293b]/80 border border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800'
-          }`}
-        >
-          <span>Pending Review</span>
-          <span className="px-1.5 py-0.2 rounded-full bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-200 text-[10px] font-bold">
-            {countPending}
-          </span>
         </button>
 
         <button
@@ -523,50 +514,37 @@ export const PrescriptionsPage: React.FC = () => {
                         {rx.endDate || rx.fillDueDate || '2026-08-11'}
                       </td>
 
-                      {/* STATUS BADGE */}
+                      {/* STATUS BADGE / DROPDOWN */}
                       <td className="py-4 px-4 text-center whitespace-nowrap">
-                        {isPending && (
-                          <span className="inline-flex items-center justify-center px-3 py-1 rounded-full bg-amber-100 text-amber-900 dark:bg-amber-950/70 dark:text-amber-300 dark:border dark:border-amber-700/60 font-semibold text-xs whitespace-nowrap shadow-2xs">
-                            Pending Review
-                          </span>
-                        )}
-                        {isConfirmed && (
-                          <span className="inline-flex items-center justify-center px-3 py-1 rounded-full bg-emerald-100 text-emerald-900 dark:bg-emerald-950/70 dark:text-emerald-300 dark:border dark:border-emerald-700/60 font-semibold text-xs whitespace-nowrap shadow-2xs">
-                            Confirmed
-                          </span>
-                        )}
-                        {isCompleted && (
-                          <span className="inline-flex items-center justify-center px-3 py-1 rounded-full bg-sky-100 text-sky-900 dark:bg-sky-950/70 dark:text-sky-300 dark:border dark:border-sky-700/60 font-semibold text-xs whitespace-nowrap shadow-2xs">
-                            Completed
-                          </span>
-                        )}
-                        {isCancelled && (
-                          <span className="inline-flex items-center justify-center px-3 py-1 rounded-full bg-rose-100 text-rose-900 dark:bg-rose-950/70 dark:text-rose-300 dark:border dark:border-rose-700/60 font-semibold text-xs whitespace-nowrap shadow-2xs">
-                            Cancelled
-                          </span>
-                        )}
+                        <select
+                          value={
+                            isCompleted
+                              ? 'Completed'
+                              : isCancelled
+                              ? 'Cancelled'
+                              : 'Confirmed'
+                          }
+                          onChange={e => {
+                            const newStatus = e.target.value as 'Confirmed' | 'Completed' | 'Cancelled';
+                            updatePrescriptionStatus(rx.id, newStatus);
+                          }}
+                          className={`px-2 py-0.5 rounded-full font-bold text-[11px] border cursor-pointer focus:outline-none transition-colors shadow-2xs w-auto min-w-[88px] max-w-[105px] text-center ${
+                            isCompleted
+                              ? 'bg-sky-50 dark:bg-sky-950/70 text-sky-800 dark:text-sky-300 border-sky-300 dark:border-sky-700/60'
+                              : isCancelled
+                              ? 'bg-rose-50 dark:bg-rose-950/70 text-rose-800 dark:text-rose-300 border-rose-300 dark:border-rose-700/60'
+                              : 'bg-emerald-50 dark:bg-emerald-950/70 text-emerald-800 dark:text-emerald-300 border-emerald-300 dark:border-emerald-700/60'
+                          }`}
+                        >
+                          <option value="Confirmed" className="bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-100 font-medium">Confirmed</option>
+                          <option value="Completed" className="bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-100 font-medium">Completed</option>
+                          <option value="Cancelled" className="bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-100 font-medium">Cancelled</option>
+                        </select>
                       </td>
 
                       {/* ACTIONS */}
                       <td className="py-4 px-4 text-right whitespace-nowrap">
                         <div className="flex items-center justify-end gap-1.5 whitespace-nowrap">
-                          <button
-                            onClick={() =>
-                              updatePrescriptionStatus(rx.id, 'Confirmed')
-                            }
-                            className="px-2.5 py-1 rounded-lg bg-emerald-600 hover:bg-emerald-700 active:scale-95 text-white font-semibold text-xs transition-all cursor-pointer whitespace-nowrap shadow-2xs"
-                          >
-                            Confirm
-                          </button>
-
-                          <button
-                            onClick={() =>
-                              updatePrescriptionStatus(rx.id, 'Cancelled')
-                            }
-                            className="px-2.5 py-1 rounded-lg bg-slate-100 dark:bg-slate-800 hover:bg-rose-50 dark:hover:bg-rose-950/40 text-slate-700 hover:text-rose-600 dark:text-slate-300 dark:hover:text-rose-400 border border-slate-300 dark:border-slate-700/80 font-semibold text-xs transition-all cursor-pointer whitespace-nowrap"
-                          >
-                            Cancel
-                          </button>
 
                           <button
                             onClick={() => handleOpenEditModal(rx)}
@@ -577,7 +555,7 @@ export const PrescriptionsPage: React.FC = () => {
                           </button>
 
                           <button
-                            onClick={() => deletePrescription(rx.id)}
+                            onClick={() => setDeletingRx(rx)}
                             title="Delete Prescription"
                             className="p-1.5 text-slate-500 hover:text-rose-600 dark:text-slate-400 dark:hover:text-rose-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors cursor-pointer"
                           >
@@ -596,204 +574,216 @@ export const PrescriptionsPage: React.FC = () => {
 
       {/* Modal for Adding or Editing Prescriptions */}
       {isModalOpen && (
-        <div className="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-xs flex items-center justify-center p-4">
-          <div className="bg-[#0f172a] border border-slate-800 rounded-2xl w-full max-w-lg overflow-hidden shadow-2xl animate-in fade-in zoom-in-95 duration-200">
-            {/* Modal Header */}
-            <div className="flex items-center justify-between px-6 py-4 border-b border-slate-800 bg-[#0c1328]">
-              <h3 className="text-sm font-bold text-white">
-                {editingRx ? 'Edit Prescription' : 'Add New Prescription'}
-              </h3>
-              <button
-                onClick={() => setIsModalOpen(false)}
-                className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 cursor-pointer"
-              >
-                <X className="w-4 h-4" />
-              </button>
+        <Modal
+          isOpen={isModalOpen}
+          onClose={() => setIsModalOpen(false)}
+          title={editingRx ? 'Edit Prescription' : 'Add New Prescription'}
+          subtitle={editingRx ? `Rx#: ${editingRx.rxNumber}` : 'Create a new medical prescription record'}
+          icon={<FileText className="w-5 h-5 text-blue-600 dark:text-blue-400" />}
+          maxWidth="2xl"
+        >
+          <form onSubmit={handleSavePrescription} className="space-y-4 text-xs sm:text-sm">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div>
+                <label className="block text-slate-700 dark:text-slate-300 font-semibold mb-1 text-xs">
+                  Patient Name <span className="text-rose-500">*</span>
+                </label>
+                <input
+                  type="text"
+                  required
+                  value={formData.patientName}
+                  onChange={e =>
+                    setFormData({ ...formData, patientName: e.target.value })
+                  }
+                  placeholder="Patient Full Name"
+                  className="w-full bg-slate-50 dark:bg-[#182238] border border-slate-200 dark:border-[#283552] text-slate-900 dark:text-slate-100 rounded-xl px-3.5 py-2.5 text-xs sm:text-sm focus:outline-hidden focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 transition-all placeholder:text-slate-400 dark:placeholder:text-slate-500"
+                />
+              </div>
+
+              <div>
+                <label className="block text-slate-700 dark:text-slate-300 font-semibold mb-1 text-xs">
+                  Doctor Name <span className="text-rose-500">*</span>
+                </label>
+                <input
+                  type="text"
+                  required
+                  value={formData.doctorName}
+                  onChange={e =>
+                    setFormData({ ...formData, doctorName: e.target.value })
+                  }
+                  placeholder="Prescribing Doctor"
+                  className="w-full bg-slate-50 dark:bg-[#182238] border border-slate-200 dark:border-[#283552] text-slate-900 dark:text-slate-100 rounded-xl px-3.5 py-2.5 text-xs sm:text-sm focus:outline-hidden focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 transition-all placeholder:text-slate-400 dark:placeholder:text-slate-500"
+                />
+              </div>
             </div>
 
-            {/* Modal Body */}
-            <form onSubmit={handleSavePrescription} className="p-6 space-y-4">
-              <div className="grid grid-cols-2 gap-3 text-xs">
-                <div>
-                  <label className="block text-slate-400 font-semibold mb-1">
-                    Patient Name
-                  </label>
-                  <input
-                    type="text"
-                    required
-                    value={formData.patientName}
-                    onChange={e =>
-                      setFormData({ ...formData, patientName: e.target.value })
-                    }
-                    className="w-full bg-[#1e293b] border border-slate-700 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-blue-500"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-slate-400 font-semibold mb-1">
-                    Doctor Name
-                  </label>
-                  <input
-                    type="text"
-                    required
-                    value={formData.doctorName}
-                    onChange={e =>
-                      setFormData({ ...formData, doctorName: e.target.value })
-                    }
-                    className="w-full bg-[#1e293b] border border-slate-700 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-blue-500"
-                  />
-                </div>
-              </div>
-
-              <div className="grid grid-cols-2 gap-3 text-xs">
-                <div>
-                  <label className="block text-slate-400 font-semibold mb-1">
-                    Medicine Name
-                  </label>
-                  <input
-                    type="text"
-                    required
-                    value={formData.drugName}
-                    onChange={e =>
-                      setFormData({ ...formData, drugName: e.target.value })
-                    }
-                    className="w-full bg-[#1e293b] border border-slate-700 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-blue-500"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-slate-400 font-semibold mb-1">
-                    Dosage
-                  </label>
-                  <input
-                    type="text"
-                    required
-                    value={formData.dosage}
-                    onChange={e =>
-                      setFormData({ ...formData, dosage: e.target.value })
-                    }
-                    className="w-full bg-[#1e293b] border border-slate-700 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-blue-500"
-                  />
-                </div>
-              </div>
-
-              <div className="grid grid-cols-3 gap-3 text-xs">
-                <div>
-                  <label className="block text-slate-400 font-semibold mb-1">
-                    Frequency
-                  </label>
-                  <input
-                    type="text"
-                    required
-                    value={formData.frequency}
-                    onChange={e =>
-                      setFormData({ ...formData, frequency: e.target.value })
-                    }
-                    className="w-full bg-[#1e293b] border border-slate-700 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-blue-500"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-slate-400 font-semibold mb-1">
-                    Route
-                  </label>
-                  <input
-                    type="text"
-                    required
-                    value={formData.route}
-                    onChange={e =>
-                      setFormData({ ...formData, route: e.target.value })
-                    }
-                    className="w-full bg-[#1e293b] border border-slate-700 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-blue-500"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-slate-400 font-semibold mb-1">
-                    Duration
-                  </label>
-                  <input
-                    type="text"
-                    required
-                    value={formData.duration}
-                    onChange={e =>
-                      setFormData({ ...formData, duration: e.target.value })
-                    }
-                    className="w-full bg-[#1e293b] border border-slate-700 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-blue-500"
-                  />
-                </div>
-              </div>
-
-              <div className="grid grid-cols-2 gap-3 text-xs">
-                <div>
-                  <label className="block text-slate-400 font-semibold mb-1">
-                    Start Date
-                  </label>
-                  <input
-                    type="date"
-                    required
-                    value={formData.startDate}
-                    onChange={e =>
-                      setFormData({ ...formData, startDate: e.target.value })
-                    }
-                    className="w-full bg-[#1e293b] border border-slate-700 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-blue-500"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-slate-400 font-semibold mb-1">
-                    End Date
-                  </label>
-                  <input
-                    type="date"
-                    required
-                    value={formData.endDate}
-                    onChange={e =>
-                      setFormData({ ...formData, endDate: e.target.value })
-                    }
-                    className="w-full bg-[#1e293b] border border-slate-700 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-blue-500"
-                  />
-                </div>
-              </div>
-
-              <div className="text-xs">
-                <label className="block text-slate-400 font-semibold mb-1">
-                  Status
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div>
+                <label className="block text-slate-700 dark:text-slate-300 font-semibold mb-1 text-xs">
+                  Medicine Name <span className="text-rose-500">*</span>
                 </label>
-                <select
-                  value={formData.status}
+                <input
+                  type="text"
+                  required
+                  value={formData.drugName}
                   onChange={e =>
-                    setFormData({ ...formData, status: e.target.value as RxStatus })
+                    setFormData({ ...formData, drugName: e.target.value })
                   }
-                  className="w-full bg-[#1e293b] border border-slate-700 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-blue-500"
-                >
-                  <option value="Pending Review">Pending Review</option>
-                  <option value="Confirmed">Confirmed</option>
-                  <option value="Completed">Completed</option>
-                  <option value="Cancelled">Cancelled</option>
-                </select>
+                  placeholder="e.g. Paracetamol"
+                  className="w-full bg-slate-50 dark:bg-[#182238] border border-slate-200 dark:border-[#283552] text-slate-900 dark:text-slate-100 rounded-xl px-3.5 py-2.5 text-xs sm:text-sm focus:outline-hidden focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 transition-all placeholder:text-slate-400 dark:placeholder:text-slate-500"
+                />
               </div>
 
-              {/* Form Buttons */}
-              <div className="flex items-center justify-end gap-3 pt-3 border-t border-slate-800">
-                <button
-                  type="button"
-                  onClick={() => setIsModalOpen(false)}
-                  className="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-semibold text-xs cursor-pointer"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  className="px-5 py-2 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs cursor-pointer shadow-md"
-                >
-                  {editingRx ? 'Update Prescription' : 'Save Prescription'}
-                </button>
+              <div>
+                <label className="block text-slate-700 dark:text-slate-300 font-semibold mb-1 text-xs">
+                  Dosage <span className="text-rose-500">*</span>
+                </label>
+                <input
+                  type="text"
+                  required
+                  value={formData.dosage}
+                  onChange={e =>
+                    setFormData({ ...formData, dosage: e.target.value })
+                  }
+                  placeholder="e.g. 500mg"
+                  className="w-full bg-slate-50 dark:bg-[#182238] border border-slate-200 dark:border-[#283552] text-slate-900 dark:text-slate-100 rounded-xl px-3.5 py-2.5 text-xs sm:text-sm focus:outline-hidden focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 transition-all placeholder:text-slate-400 dark:placeholder:text-slate-500"
+                />
               </div>
-            </form>
-          </div>
-        </div>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+              <div>
+                <label className="block text-slate-700 dark:text-slate-300 font-semibold mb-1 text-xs">
+                  Frequency <span className="text-rose-500">*</span>
+                </label>
+                <input
+                  type="text"
+                  required
+                  value={formData.frequency}
+                  onChange={e =>
+                    setFormData({ ...formData, frequency: e.target.value })
+                  }
+                  placeholder="e.g. 2 times daily"
+                  className="w-full bg-slate-50 dark:bg-[#182238] border border-slate-200 dark:border-[#283552] text-slate-900 dark:text-slate-100 rounded-xl px-3.5 py-2.5 text-xs sm:text-sm focus:outline-hidden focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 transition-all placeholder:text-slate-400 dark:placeholder:text-slate-500"
+                />
+              </div>
+
+              <div>
+                <label className="block text-slate-700 dark:text-slate-300 font-semibold mb-1 text-xs">
+                  Route <span className="text-rose-500">*</span>
+                </label>
+                <input
+                  type="text"
+                  required
+                  value={formData.route}
+                  onChange={e =>
+                    setFormData({ ...formData, route: e.target.value })
+                  }
+                  placeholder="e.g. Oral"
+                  className="w-full bg-slate-50 dark:bg-[#182238] border border-slate-200 dark:border-[#283552] text-slate-900 dark:text-slate-100 rounded-xl px-3.5 py-2.5 text-xs sm:text-sm focus:outline-hidden focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 transition-all placeholder:text-slate-400 dark:placeholder:text-slate-500"
+                />
+              </div>
+
+              <div>
+                <label className="block text-slate-700 dark:text-slate-300 font-semibold mb-1 text-xs">
+                  Duration <span className="text-rose-500">*</span>
+                </label>
+                <input
+                  type="text"
+                  required
+                  value={formData.duration}
+                  onChange={e =>
+                    setFormData({ ...formData, duration: e.target.value })
+                  }
+                  placeholder="e.g. 7 days"
+                  className="w-full bg-slate-50 dark:bg-[#182238] border border-slate-200 dark:border-[#283552] text-slate-900 dark:text-slate-100 rounded-xl px-3.5 py-2.5 text-xs sm:text-sm focus:outline-hidden focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 transition-all placeholder:text-slate-400 dark:placeholder:text-slate-500"
+                />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div>
+                <label className="block text-slate-700 dark:text-slate-300 font-semibold mb-1 text-xs">
+                  Start Date <span className="text-rose-500">*</span>
+                </label>
+                <input
+                  type="date"
+                  required
+                  value={formData.startDate}
+                  onChange={e =>
+                    setFormData({ ...formData, startDate: e.target.value })
+                  }
+                  className="w-full bg-slate-50 dark:bg-[#182238] border border-slate-200 dark:border-[#283552] text-slate-900 dark:text-slate-100 rounded-xl px-3.5 py-2.5 text-xs sm:text-sm focus:outline-hidden focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 transition-all"
+                />
+              </div>
+
+              <div>
+                <label className="block text-slate-700 dark:text-slate-300 font-semibold mb-1 text-xs">
+                  End Date <span className="text-rose-500">*</span>
+                </label>
+                <input
+                  type="date"
+                  required
+                  value={formData.endDate}
+                  onChange={e =>
+                    setFormData({ ...formData, endDate: e.target.value })
+                  }
+                  className="w-full bg-slate-50 dark:bg-[#182238] border border-slate-200 dark:border-[#283552] text-slate-900 dark:text-slate-100 rounded-xl px-3.5 py-2.5 text-xs sm:text-sm focus:outline-hidden focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 transition-all"
+                />
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-slate-700 dark:text-slate-300 font-semibold mb-1 text-xs">
+                Status <span className="text-rose-500">*</span>
+              </label>
+              <select
+                value={formData.status}
+                onChange={e =>
+                  setFormData({ ...formData, status: e.target.value as RxStatus })
+                }
+                className="w-full bg-slate-50 dark:bg-[#182238] border border-slate-200 dark:border-[#283552] text-slate-900 dark:text-slate-100 rounded-xl px-3.5 py-2.5 text-xs sm:text-sm focus:outline-hidden focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 transition-all"
+              >
+                <option value="Confirmed">Confirmed</option>
+                <option value="Completed">Completed</option>
+                <option value="Cancelled">Cancelled</option>
+              </select>
+            </div>
+
+            {/* Form Buttons */}
+            <div className="flex items-center justify-end gap-3 pt-4 mt-4 border-t border-slate-200 dark:border-slate-800">
+              <button
+                type="button"
+                onClick={() => setIsModalOpen(false)}
+                className="px-4 py-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 hover:bg-slate-200 dark:hover:bg-slate-700/80 font-medium text-xs sm:text-sm transition-colors cursor-pointer"
+              >
+                Cancel
+              </button>
+              <button
+                type="submit"
+                className="px-5 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs sm:text-sm cursor-pointer shadow-md shadow-blue-500/20 transition-colors"
+              >
+                {editingRx ? 'Update Prescription' : 'Save Prescription'}
+              </button>
+            </div>
+          </form>
+        </Modal>
       )}
+
+      {/* Delete Confirmation Modal */}
+      <ConfirmDeleteModal
+        isOpen={deletingRx !== null}
+        onClose={() => setDeletingRx(null)}
+        onConfirm={() => {
+          if (deletingRx) {
+            deletePrescription(deletingRx.id);
+            setDeletingRx(null);
+          }
+        }}
+        title="Delete Prescription"
+        itemName={deletingRx ? `Rx #${deletingRx.rxNumber} (${deletingRx.patientName})` : ''}
+        description="Are you sure you want to delete this prescription? This action cannot be undone."
+      />
     </div>
   );
 };

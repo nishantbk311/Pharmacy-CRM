@@ -1,3 +1,13 @@
+export interface SystemRole {
+  id: string;
+  sn: number;
+  displayName: string;
+  keyName: string;
+  description: string;
+  status: 'Active' | 'Inactive';
+  permissions: string[];
+}
+
 export interface SystemUser {
   id: string;
   userId: string;
@@ -61,19 +71,26 @@ export interface Patient {
   mrn: string; // Medical Record Number
   firstName: string;
   lastName: string;
+  fullName?: string;
   dob: string;
   gender: 'Male' | 'Female' | 'Other';
+  bloodGroup?: string;
   phone: string;
   email: string;
   address: string;
+  city?: string;
+  state?: string;
+  doctor?: string;
+  medicalCondition?: string;
   insuranceProvider: string;
   insurancePolicyNumber: string;
+  status: 'Active' | 'Inactive';
+  treatmentStatus?: 'Not Started' | 'In Progress' | 'Completed' | 'On Hold';
   allergies: Allergy[];
   conditions: string[];
   activePrescriptionsCount: number;
   prescriptions: PatientRx[];
   registeredDate: string;
-  status: 'Active' | 'Inactive';
 }
 
 export interface Doctor {
@@ -226,3 +243,143 @@ export interface NavigationItem {
   iconName: string;
   badgeCount?: number;
 }
+
+export interface Supplier {
+  id: string;
+  code: string;
+  name: string;
+  contactPerson: string;
+  email: string;
+  phone: string;
+  categories: string[];
+  paymentTerms: string;
+  leadTimeDays: number;
+  rating: number;
+  status: 'Active' | 'Under Review' | 'Preferred' | 'Inactive';
+  address: string;
+}
+
+export interface Manufacturer {
+  id: string;
+  code: string;
+  name: string;
+  country: string;
+  fdaRegistrationNo: string;
+  qualityStatus: 'FDA Approved' | 'EU GMP' | 'ISO 9001' | 'Under Audit';
+  activeDrugLines: number;
+  contactEmail: string;
+  contactPhone: string;
+  status: 'Active' | 'Flagged' | 'Inactive';
+}
+
+export interface MedicineItem {
+  id: string;
+  ndcCode: string;
+  drugName: string;
+  genericName: string;
+  strength: string;
+  form: 'Tablet' | 'Capsule' | 'Liquid Injectable' | 'Ointment' | 'Inhaler';
+  schedule: 'Rx Only' | 'Schedule II' | 'Schedule IV' | 'OTC';
+  manufacturerName: string;
+  supplierName: string;
+  stockOnHand: number;
+  minThreshold: number;
+  unitCost: number;
+  retailPrice: number;
+  storage: 'Room Temp' | 'Refrigerated (2-8°C)' | 'Controlled Room';
+  expiryDate: string;
+  status: 'In Stock' | 'Low Stock' | 'Out of Stock';
+}
+
+export interface StockTransaction {
+  id: string;
+  transactionNo: string;
+  timestamp: string;
+  drugName: string;
+  batchNo: string;
+  type: 'Inbound Restock' | 'Prescription Dispensed' | 'Expired Waste' | 'Customer Return';
+  quantity: number;
+  previousStock: number;
+  newStock: number;
+  performedBy: string;
+  referenceNo: string;
+  verificationStatus: 'Verified' | 'Pending Audit';
+}
+
+export interface ActivityCategory {
+  id: string;
+  code: string;
+  name: string;
+  description: string;
+  color: string;
+  totalActivitiesCount: number;
+  status: 'Active' | 'Inactive';
+  createdAt: string;
+}
+
+export interface Activity {
+  id: string;
+  title: string;
+  activityCategory: string;
+  eventDate: string;
+  time: string;
+  location: string;
+  organizer: string;
+  maxParticipants: number;
+  registeredParticipants: number;
+  status: 'Upcoming' | 'In Progress' | 'Completed' | 'Cancelled';
+  description: string;
+}
+
+export interface BlogPost {
+  id: string;
+  title: string;
+  slug: string;
+  category: string;
+  authorName: string;
+  authorRole: string;
+  publishDate: string;
+  readTime: string;
+  status: 'Published' | 'Draft' | 'Archived';
+  excerpt: string;
+  content: string;
+  tags: string[];
+  viewsCount: number;
+  coverImageUrl?: string;
+}
+
+export interface PatientBillMedicineItem {
+  id: string;
+  medicineId?: string;
+  medicineName: string;
+  price: number;
+  qty: number;
+  subtotal: number;
+  discPercent: number;
+  discount: number;
+  vatPercent: number;
+  vat: number;
+  lineTotal: number;
+}
+
+export interface PatientBill {
+  id: string;
+  sn: number;
+  billNo: string;
+  patientId: string;
+  patientName: string;
+  billDate: string;
+  subTotal: number;
+  discountAmount: number;
+  vatAmount: number;
+  totalAmount: number;
+  paidAmount: number;
+  dueAmount: number;
+  status: 'Paid' | 'Partial' | 'Unpaid' | 'Due';
+  billedBy: string;
+  medicines: PatientBillMedicineItem[];
+  notes?: string;
+  createdAt: string;
+}
+
+

@@ -20,9 +20,10 @@ import {
 import { useData } from '../context/DataContext';
 import { SystemUser } from '../types';
 import { Modal } from '../components/common/Modal';
+import { ConfirmDeleteModal } from '../components/common/ConfirmDeleteModal';
 
 export const UsersPage: React.FC = () => {
-  const { systemUsers, addSystemUser, updateSystemUser, deleteSystemUser } = useData();
+  const { systemUsers, roles, addSystemUser, updateSystemUser, deleteSystemUser } = useData();
 
   // Filter Input States
   const [usernameFilter, setUsernameFilter] = useState('');
@@ -36,6 +37,7 @@ export const UsersPage: React.FC = () => {
   const [editModalOpen, setEditModalOpen] = useState(false);
   const [viewSalaryModalOpen, setViewSalaryModalOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState<SystemUser | null>(null);
+  const [deletingUser, setDeletingUser] = useState<SystemUser | null>(null);
 
   // New User Form State
   const [newUserId, setNewUserId] = useState(`M${10000 + systemUsers.length + 2}`);
@@ -99,6 +101,8 @@ export const UsersPage: React.FC = () => {
       .replace('T', ' ')
       .slice(0, 19);
 
+    const isSelectedRoleInactive = roles.find(r => r.displayName === newRole)?.status === 'Inactive';
+
     addSystemUser({
       userId: newUserId || `M${10000 + Math.floor(Math.random() * 9000)}`,
       name: newName,
@@ -106,7 +110,7 @@ export const UsersPage: React.FC = () => {
       email: newEmail,
       phone: newPhone || '9999999999',
       role: newRole,
-      status: newStatus,
+      status: isSelectedRoleInactive ? 'Inactive' : newStatus,
       salary: newSalary || 'View',
       avatarUrl: newAvatarUrl || undefined,
       lastLoginAt: currentFormattedTime,
@@ -154,13 +158,15 @@ export const UsersPage: React.FC = () => {
     e.preventDefault();
     if (!selectedUser) return;
 
+    const isSelectedRoleInactive = roles.find(r => r.displayName === editRole)?.status === 'Inactive';
+
     updateSystemUser(selectedUser.id, {
       name: editName,
       username: editUsername,
       email: editEmail,
       phone: editPhone,
       role: editRole,
-      status: editStatus,
+      status: isSelectedRoleInactive ? 'Inactive' : editStatus,
       salary: editSalary,
       avatarUrl: editAvatarUrl.trim() ? editAvatarUrl : undefined,
     });
@@ -261,14 +267,11 @@ export const UsersPage: React.FC = () => {
                 className="w-full px-3 py-2 rounded-xl bg-slate-50 dark:bg-[#111c38] border border-slate-300 dark:border-slate-700/70 text-xs text-slate-900 dark:text-slate-100 cursor-pointer focus:outline-none focus:border-blue-500 transition-colors"
               >
                 <option value="all">All</option>
-                <option value="Super Admin">Super Admin</option>
-                <option value="Supplier">Supplier</option>
-                <option value="Lead Pharmacist">Lead Pharmacist</option>
-                <option value="Staff Pharmacist">Staff Pharmacist</option>
-                <option value="Pharmacy Technician">Pharmacy Technician</option>
-                <option value="Store Manager">Store Manager</option>
-                <option value="Admin">Admin</option>
-                <option value="User">User</option>
+                {roles.map(r => (
+                  <option key={r.id} value={r.displayName}>
+                    {r.displayName}
+                  </option>
+                ))}
               </select>
             </div>
           </div>
@@ -370,23 +373,58 @@ export const UsersPage: React.FC = () => {
                     </td>
 
                     {/* ROLE */}
-                    <td className="py-3.5 px-4 text-slate-700 dark:text-slate-200 whitespace-nowrap">
-                      {user.role}
+                    <td className="py-3.5 px-4 whitespace-nowrap">
+                      <select
+                        value={user.role}
+                        onChange={e => {
+                          const newRoleName = e.target.value;
+                          const selectedRoleObj = roles.find(r => r.displayName === newRoleName);
+                          if (selectedRoleObj?.status === 'Inactive') {
+                            updateSystemUser(user.id, { role: newRoleName, status: 'Inactive' });
+                          } else {
+                            updateSystemUser(user.id, { role: newRoleName });
+                          }
+                        }}
+                        className="px-2.5 py-1 rounded-full text-[11px] font-semibold bg-slate-100 dark:bg-slate-800/90 text-slate-800 dark:text-slate-200 border border-slate-300 dark:border-slate-700 cursor-pointer focus:outline-none focus:border-blue-500 transition-colors"
+                      >
+                        {roles.map(r => (
+                          <option key={r.id} value={r.displayName} className="bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-100 font-medium">
+                            {r.displayName}{r.status === 'Inactive' ? ' (Inactive)' : ''}
+                          </option>
+                        ))}
+                        {!roles.some(r => r.displayName === user.role) && user.role && (
+                          <option value={user.role} className="bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-100 font-medium">
+                            {user.role}
+                          </option>
+                        )}
+                      </select>
                     </td>
 
                     {/* STATUS */}
                     <td className="py-3.5 px-4 whitespace-nowrap">
-                      <span
-                        className={`inline-block px-3 py-1 rounded-full text-[11px] font-medium border ${
+                      <select
+                        value={user.status}
+                        onChange={e => {
+                          const newStatus = e.target.value as 'Active' | 'Inactive' | 'Pending';
+                          const userRoleObj = roles.find(r => r.displayName === user.role);
+                          if (newStatus === 'Active' && userRoleObj?.status === 'Inactive') {
+                            alert(`Cannot activate user while their assigned role (${user.role}) is Inactive. Please activate the role first in Roles page.`);
+                            return;
+                          }
+                          updateSystemUser(user.id, { status: newStatus });
+                        }}
+                        className={`px-3 py-1 rounded-full text-[11px] font-semibold border cursor-pointer focus:outline-none transition-colors ${
                           user.status === 'Active'
-                            ? 'bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 border-emerald-200 dark:border-emerald-800/70'
+                            ? 'bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 border-emerald-300 dark:border-emerald-800/70'
                             : user.status === 'Inactive'
-                            ? 'bg-rose-50 dark:bg-rose-950/60 text-rose-700 dark:text-rose-300 border-rose-200 dark:border-rose-800/70'
-                            : 'bg-amber-50 dark:bg-amber-950/60 text-amber-700 dark:text-amber-300 border-amber-200 dark:border-amber-800/70'
+                            ? 'bg-rose-50 dark:bg-rose-950/60 text-rose-700 dark:text-rose-300 border-rose-300 dark:border-rose-800/70'
+                            : 'bg-amber-50 dark:bg-amber-950/60 text-amber-700 dark:text-amber-300 border-amber-300 dark:border-amber-800/70'
                         }`}
                       >
-                        {user.status}
-                      </span>
+                        <option value="Active" className="bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-100 font-medium">Active</option>
+                        <option value="Inactive" className="bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-100 font-medium">Inactive</option>
+                        <option value="Pending" className="bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-100 font-medium">Pending</option>
+                      </select>
                     </td>
 
                     {/* SALARY */}
@@ -411,7 +449,7 @@ export const UsersPage: React.FC = () => {
                         </button>
                         {user.role !== 'Super Admin' && (
                           <button
-                            onClick={() => handleDeleteUser(user.id, user.name)}
+                            onClick={() => setDeletingUser(user)}
                             className="p-1.5 rounded-lg text-slate-500 dark:text-slate-400 hover:text-rose-600 dark:hover:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/40 transition-colors cursor-pointer"
                             title="Delete User"
                           >
@@ -514,16 +552,13 @@ export const UsersPage: React.FC = () => {
               <select
                 value={newRole}
                 onChange={e => setNewRole(e.target.value)}
-                className="w-full px-3 py-2 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-slate-100"
+                className="w-full px-3 py-2 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-slate-100 cursor-pointer"
               >
-                <option value="Super Admin">Super Admin</option>
-                <option value="Supplier">Supplier</option>
-                <option value="Lead Pharmacist">Lead Pharmacist</option>
-                <option value="Staff Pharmacist">Staff Pharmacist</option>
-                <option value="Pharmacy Technician">Pharmacy Technician</option>
-                <option value="Store Manager">Store Manager</option>
-                <option value="Admin">Admin</option>
-                <option value="User">User</option>
+                {roles.map(r => (
+                  <option key={r.id} value={r.displayName}>
+                    {r.displayName}
+                  </option>
+                ))}
               </select>
             </div>
           </div>
@@ -705,16 +740,16 @@ export const UsersPage: React.FC = () => {
                 <select
                   value={editRole}
                   onChange={e => setEditRole(e.target.value)}
-                  className="w-full px-3 py-2 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-slate-100"
+                  className="w-full px-3 py-2 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-slate-100 cursor-pointer"
                 >
-                  <option value="Super Admin">Super Admin</option>
-                  <option value="Supplier">Supplier</option>
-                  <option value="Lead Pharmacist">Lead Pharmacist</option>
-                  <option value="Staff Pharmacist">Staff Pharmacist</option>
-                  <option value="Pharmacy Technician">Pharmacy Technician</option>
-                  <option value="Store Manager">Store Manager</option>
-                  <option value="Admin">Admin</option>
-                  <option value="User">User</option>
+                  {roles.map(r => (
+                    <option key={r.id} value={r.displayName}>
+                      {r.displayName}
+                    </option>
+                  ))}
+                  {!roles.some(r => r.displayName === editRole) && editRole && (
+                    <option value={editRole}>{editRole}</option>
+                  )}
                 </select>
               </div>
               <div>
@@ -803,6 +838,20 @@ export const UsersPage: React.FC = () => {
           </div>
         </Modal>
       )}
+
+      {/* Delete User Confirmation Modal */}
+      <ConfirmDeleteModal
+        isOpen={!!deletingUser}
+        onClose={() => setDeletingUser(null)}
+        onConfirm={() => {
+          if (deletingUser) {
+            deleteSystemUser(deletingUser.id);
+          }
+        }}
+        title="Delete System User"
+        itemName={deletingUser?.name}
+        description="Are you sure you want to delete this user account? Their system permissions will be revoked immediately."
+      />
     </div>
   );
 };
