@@ -27,7 +27,7 @@ export const InquiriesPage: React.FC<InquiriesPageProps> = ({
   inquiryModalOpen,
   setInquiryModalOpen,
 }) => {
-  const { inquiries, addInquiry, updateInquiryStatus, addInquiryNote, staff } = useData();
+  const { inquiries, addInquiry, updateInquiryStatus, addInquiryNote, staff, doctors } = useData();
 
   const [searchParams] = useSearchParams();
   const [searchQuery, setSearchQuery] = useState(() => searchParams.get('q') || '');
@@ -383,12 +383,21 @@ export const InquiriesPage: React.FC<InquiriesPageProps> = ({
             </div>
             <div>
               <label className="block font-semibold text-slate-700 dark:text-slate-300 mb-1">Prescribing Doctor</label>
-              <input
-                type="text"
+              <select
                 value={doctorName}
                 onChange={e => setDoctorName(e.target.value)}
-                className="w-full px-3 py-2 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-slate-100"
-              />
+                className="w-full px-3 py-2 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-slate-100 cursor-pointer"
+              >
+                <option value="">Select Doctor</option>
+                {doctors.map(doc => {
+                  const dName = `Dr. ${doc.firstName} ${doc.lastName}`;
+                  return (
+                    <option key={doc.id} value={dName}>
+                      {dName} ({doc.specialty})
+                    </option>
+                  );
+                })}
+              </select>
             </div>
           </div>
 

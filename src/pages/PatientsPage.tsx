@@ -36,7 +36,7 @@ export const PatientsPage: React.FC<PatientsPageProps> = ({
   registerModalOpen,
   setRegisterModalOpen,
 }) => {
-  const { patients, addPatient, updatePatient, deletePatient } = useData();
+  const { patients, doctors, addPatient, updatePatient, deletePatient } = useData();
 
   const [searchParams] = useSearchParams();
 
@@ -84,7 +84,7 @@ export const PatientsPage: React.FC<PatientsPageProps> = ({
   const [address, setAddress] = useState('Bhbairahawa , Rupandehi');
   const [city, setCity] = useState('Bhbairahawa');
   const [stateName, setStateName] = useState('bhw');
-  const [doctor, setDoctor] = useState('doctor');
+  const [doctor, setDoctor] = useState('Dr. Ajay Yadav');
   const [medicalCondition, setMedicalCondition] = useState('Normal');
   const [insuranceProvider, setInsuranceProvider] = useState('');
   const [insurancePolicyNumber, setInsurancePolicyNumber] = useState('');
@@ -676,13 +676,21 @@ export const PatientsPage: React.FC<PatientsPageProps> = ({
                 <label className="block font-semibold text-slate-800 dark:text-slate-200 mb-1.5 text-xs">
                   Doctor
                 </label>
-                <input
-                  type="text"
+                <select
                   value={editDoctor}
                   onChange={e => setEditDoctor(e.target.value)}
-                  placeholder="Assigned doctor"
-                  className="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 dark:bg-[#182238] border border-slate-200 dark:border-[#283552] text-slate-900 dark:text-slate-100 text-xs sm:text-sm focus:outline-hidden focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 transition-all"
-                />
+                  className="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 dark:bg-[#182238] border border-slate-200 dark:border-[#283552] text-slate-900 dark:text-slate-100 text-xs sm:text-sm focus:outline-hidden focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 transition-all cursor-pointer"
+                >
+                  <option value="">Select Doctor</option>
+                  {doctors.map(doc => {
+                    const docName = `Dr. ${doc.firstName} ${doc.lastName}`;
+                    return (
+                      <option key={doc.id} value={docName}>
+                        {docName} ({doc.specialty})
+                      </option>
+                    );
+                  })}
+                </select>
               </div>
 
               {/* Medical Condition */}
@@ -936,13 +944,21 @@ export const PatientsPage: React.FC<PatientsPageProps> = ({
               <label className="block font-semibold text-slate-800 dark:text-slate-200 mb-1.5 text-xs">
                 Doctor
               </label>
-              <input
-                type="text"
+              <select
                 value={doctor}
                 onChange={e => setDoctor(e.target.value)}
-                placeholder="doctor"
-                className="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 dark:bg-[#182238] border border-slate-200 dark:border-[#283552] text-slate-900 dark:text-slate-100 text-xs sm:text-sm focus:outline-hidden focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 transition-all"
-              />
+                className="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 dark:bg-[#182238] border border-slate-200 dark:border-[#283552] text-slate-900 dark:text-slate-100 text-xs sm:text-sm focus:outline-hidden focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 transition-all cursor-pointer"
+              >
+                <option value="">Select Doctor</option>
+                {doctors.map(doc => {
+                  const docName = `Dr. ${doc.firstName} ${doc.lastName}`;
+                  return (
+                    <option key={doc.id} value={docName}>
+                      {docName} ({doc.specialty})
+                    </option>
+                  );
+                })}
+              </select>
             </div>
 
             {/* 11. Medical Condition */}

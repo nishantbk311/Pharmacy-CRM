@@ -604,16 +604,24 @@ export const PrescriptionsPage: React.FC = () => {
                 <label className="block text-slate-700 dark:text-slate-300 font-semibold mb-1 text-xs">
                   Doctor Name <span className="text-rose-500">*</span>
                 </label>
-                <input
-                  type="text"
+                <select
                   required
                   value={formData.doctorName}
                   onChange={e =>
                     setFormData({ ...formData, doctorName: e.target.value })
                   }
-                  placeholder="Prescribing Doctor"
-                  className="w-full bg-slate-50 dark:bg-[#182238] border border-slate-200 dark:border-[#283552] text-slate-900 dark:text-slate-100 rounded-xl px-3.5 py-2.5 text-xs sm:text-sm focus:outline-hidden focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 transition-all placeholder:text-slate-400 dark:placeholder:text-slate-500"
-                />
+                  className="w-full bg-slate-50 dark:bg-[#182238] border border-slate-200 dark:border-[#283552] text-slate-900 dark:text-slate-100 rounded-xl px-3.5 py-2.5 text-xs sm:text-sm focus:outline-hidden focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 transition-all cursor-pointer"
+                >
+                  <option value="">Select Doctor</option>
+                  {doctors.map(doc => {
+                    const docName = `Dr. ${doc.firstName} ${doc.lastName}`;
+                    return (
+                      <option key={doc.id} value={docName}>
+                        {docName} ({doc.specialty})
+                      </option>
+                    );
+                  })}
+                </select>
               </div>
             </div>
 
