@@ -1,43 +1,23 @@
-import React, { useState, useMemo } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
 import {
-  SlidersHorizontal,
-  Plus,
-  Search,
-  User as UserIcon,
-  Calendar,
-  X,
-  Trash2,
-  FileText,
-  Printer,
-  ChevronRight,
-  Bold,
-  Italic,
-  Underline,
-  Strikethrough,
-  List,
-  ListOrdered,
-  AlignLeft,
-  AlignCenter,
-  AlignRight,
-  Link as LinkIcon,
-  Image as ImageIcon,
-  Quote,
-  Code,
-  RotateCcw,
-  CheckCircle2,
   ArrowLeft,
-  DollarSign,
-  Receipt,
-  Eye,
+  CheckCircle2,
   Pencil,
+  Plus,
+  Printer,
+  Receipt,
+  SlidersHorizontal,
+  Trash2,
+  User as UserIcon,
+  X
 } from 'lucide-react';
-import { useData } from '../context/DataContext';
-import { useAuth } from '../context/AuthContext';
-import { PatientBill, PatientBillMedicineItem } from '../types';
+import { type FC, type FormEvent, useMemo, useState } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { ConfirmDeleteModal } from '../components/common/ConfirmDeleteModal';
+import { useAuth } from '../context/AuthContext';
+import { useData } from '../context/DataContext';
+import { PatientBill, PatientBillMedicineItem } from '../types';
 
-export const PatientBillPage: React.FC = () => {
+export const PatientBillPage: FC = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const { user } = useAuth();
@@ -199,7 +179,7 @@ export const PatientBillPage: React.FC = () => {
   const editStatus: PatientBill['status'] =
     editDueAmount <= 0 ? 'Paid' : editNumPaid > 0 ? 'Partial' : 'Unpaid';
 
-  const handleSaveEditBill = (e: React.FormEvent) => {
+  const handleSaveEditBill = (e: FormEvent) => {
     e.preventDefault();
     if (!editingBill) return;
 
@@ -378,7 +358,7 @@ export const PatientBillPage: React.FC = () => {
   }, [computedItems, paidAmountInput]);
 
   // Handle Save Bill
-  const handleSaveBill = (e: React.FormEvent) => {
+  const handleSaveBill = (e: FormEvent) => {
     e.preventDefault();
     const patientObj = patients.find(p => p.id === selectedPatientId);
     if (!patientObj && !selectedPatientId) {
@@ -838,7 +818,7 @@ export const PatientBillPage: React.FC = () => {
         {/* Filter Input & Action Buttons in same row */}
         <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
           <div className="flex-1 space-y-1.5 w-full">
-            <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 flex items-center gap-1.5">
+            <label className="flex text-xs font-bold text-slate-700 dark:text-slate-300 items-center gap-1.5">
               <UserIcon className="w-3.5 h-3.5 text-blue-600 dark:text-sky-400" />
               Filter by Patient
             </label>

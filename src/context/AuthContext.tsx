@@ -1,7 +1,7 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import { createContext, useContext, useEffect, useState, type FC, type ReactNode } from 'react';
 import { toast } from 'sonner';
-import { User, AuthState } from '../types';
 import { INITIAL_USERS } from '../mock/data';
+import { AuthState, User } from '../types';
 
 interface AuthContextType extends AuthState {
   loginStep1: (email: string, pass: string, method?: 'authenticator' | 'email') => Promise<boolean>;
@@ -15,7 +15,7 @@ interface AuthContextType extends AuthState {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+export const AuthProvider: FC<{ children: ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(() => {
     const savedUser = localStorage.getItem('pharmacy_crm_user');
     return savedUser ? JSON.parse(savedUser) : INITIAL_USERS[0]; // Default logged in for smooth viewing, or initial state

@@ -1,24 +1,24 @@
-import React, { useState } from 'react';
 import {
-  Tag,
+  Calendar,
+  CheckCircle2,
+  Edit2,
+  Filter,
+  FolderOpen,
+  Layers,
   Plus,
   Search,
-  FolderOpen,
-  CheckCircle2,
-  XCircle,
-  Edit2,
+  Sparkles,
+  Tag,
   Trash2,
   X,
-  Layers,
-  Calendar,
-  Sparkles,
-  Filter,
+  XCircle,
 } from 'lucide-react';
+import { type FC, type FormEvent, useState } from 'react';
+import { ConfirmDeleteModal } from '../components/common/ConfirmDeleteModal';
 import { useData } from '../context/DataContext';
 import { ActivityCategory } from '../types';
-import { ConfirmDeleteModal } from '../components/common/ConfirmDeleteModal';
 
-export const ActivityCategoryPage: React.FC = () => {
+export const ActivityCategoryPage: FC = () => {
   const { activityCategories, addActivityCategory, updateActivityCategory, deleteActivityCategory, activities } = useData();
 
   const [searchQuery, setSearchQuery] = useState('');
@@ -51,7 +51,7 @@ export const ActivityCategoryPage: React.FC = () => {
     setIsModalOpen(true);
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
     if (!name.trim()) return;
 

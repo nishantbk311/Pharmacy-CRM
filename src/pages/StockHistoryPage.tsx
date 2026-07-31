@@ -1,24 +1,22 @@
-import React, { useState } from 'react';
 import {
-  History,
-  Plus,
-  Search,
-  Filter,
-  ArrowUpRight,
-  ArrowDownLeft,
-  AlertOctagon,
-  RotateCcw,
-  ShieldCheck,
-  Clock,
-  X,
-  FileSpreadsheet,
-  FileText,
-  Edit2,
+    AlertOctagon,
+    ArrowDownLeft,
+    ArrowUpRight,
+    Clock,
+    Edit2,
+    Filter,
+    History,
+    Plus,
+    RotateCcw,
+    Search,
+    ShieldCheck,
+    X
 } from 'lucide-react';
+import { type FC, type FormEvent, useState } from 'react';
 import { useData } from '../context/DataContext';
 import { StockTransaction } from '../types';
 
-export const StockHistoryPage: React.FC = () => {
+export const StockHistoryPage: FC = () => {
   const { stockTransactions, medicines, addStockTransaction, updateStockTransaction } = useData();
 
 const [searchQuery, setSearchQuery] = useState('');
@@ -71,7 +69,7 @@ const [searchQuery, setSearchQuery] = useState('');
     return matchesSearch && matchesType && matchesStatus;
   });
 
-  const handleLogStockSubmit = (e: React.FormEvent) => {
+  const handleLogStockSubmit = (e: FormEvent) => {
     e.preventDefault();
     if (!drugName || !batchNo) return;
 

@@ -1,28 +1,22 @@
-import React, { useState, useEffect } from 'react';
-import { useSearchParams } from 'react-router-dom';
 import {
-  CalendarCheck,
-  Search,
-  Plus,
-  Video,
-  MapPin,
-  Clock,
-  User,
-  Phone,
-  FileText,
-  CheckCircle,
+    Phone,
+    Plus,
+    Search,
+    User
 } from 'lucide-react';
-import { useData } from '../context/DataContext';
-import { Appointment, AppointmentType } from '../types';
-import { Modal } from '../components/common/Modal';
+import { type FC, type FormEvent, useEffect, useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { Badge } from '../components/common/Badge';
+import { Modal } from '../components/common/Modal';
+import { useData } from '../context/DataContext';
+import { AppointmentType } from '../types';
 
 interface AppointmentsPageProps {
   bookingModalOpen: boolean;
   setBookingModalOpen: (open: boolean) => void;
 }
 
-export const AppointmentsPage: React.FC<AppointmentsPageProps> = ({
+export const AppointmentsPage: FC<AppointmentsPageProps> = ({
   bookingModalOpen,
   setBookingModalOpen,
 }) => {
@@ -63,7 +57,7 @@ export const AppointmentsPage: React.FC<AppointmentsPageProps> = ({
     return matchesSearch && matchesStatus && matchesType;
   });
 
-  const handleBookingSubmit = (e: React.FormEvent) => {
+  const handleBookingSubmit = (e: FormEvent) => {
     e.preventDefault();
     const patientObj = patients.find(p => p.id === patientId) || patients[0];
 

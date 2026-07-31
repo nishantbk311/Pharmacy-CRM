@@ -1,45 +1,45 @@
-import React, { createContext, useContext, useState } from 'react';
+import { createContext, useContext, useState, type FC, type ReactNode } from 'react';
 import { toast } from 'sonner';
 import {
-  Patient,
-  Doctor,
-  Staff,
-  Appointment,
-  Inquiry,
-  Prescription,
-  ActivityLog,
-  NotificationItem,
-  SystemUser,
-  SystemRole,
-  Supplier,
-  Manufacturer,
-  MedicineItem,
-  StockTransaction,
-  ActivityCategory,
-  Activity,
-  BlogPost,
-  PatientBill,
-} from '../types';
-import {
-  INITIAL_PATIENTS,
-  INITIAL_DOCTORS,
-  INITIAL_STAFF,
-  INITIAL_APPOINTMENTS,
-  INITIAL_INQUIRIES,
-  INITIAL_PRESCRIPTIONS,
-  INITIAL_ACTIVITY_LOGS,
-  MOCK_NOTIFICATIONS,
-  INITIAL_SYSTEM_USERS,
-  INITIAL_ROLES,
-  INITIAL_SUPPLIERS,
-  INITIAL_MANUFACTURERS,
-  INITIAL_MEDICINES,
-  INITIAL_STOCK_TRANSACTIONS,
-  INITIAL_ACTIVITY_CATEGORIES,
-  INITIAL_ACTIVITIES,
-  INITIAL_BLOG_POSTS,
-  INITIAL_PATIENT_BILLS,
+    INITIAL_ACTIVITIES,
+    INITIAL_ACTIVITY_CATEGORIES,
+    INITIAL_ACTIVITY_LOGS,
+    INITIAL_APPOINTMENTS,
+    INITIAL_BLOG_POSTS,
+    INITIAL_DOCTORS,
+    INITIAL_INQUIRIES,
+    INITIAL_MANUFACTURERS,
+    INITIAL_MEDICINES,
+    INITIAL_PATIENT_BILLS,
+    INITIAL_PATIENTS,
+    INITIAL_PRESCRIPTIONS,
+    INITIAL_ROLES,
+    INITIAL_STAFF,
+    INITIAL_STOCK_TRANSACTIONS,
+    INITIAL_SUPPLIERS,
+    INITIAL_SYSTEM_USERS,
+    MOCK_NOTIFICATIONS,
 } from '../mock/data';
+import {
+    Activity,
+    ActivityCategory,
+    ActivityLog,
+    Appointment,
+    BlogPost,
+    Doctor,
+    Inquiry,
+    Manufacturer,
+    MedicineItem,
+    NotificationItem,
+    Patient,
+    PatientBill,
+    Prescription,
+    Staff,
+    StockTransaction,
+    Supplier,
+    SystemRole,
+    SystemUser,
+} from '../types';
 
 interface DataContextType {
   patients: Patient[];
@@ -145,7 +145,7 @@ interface DataContextType {
 
 const DataContext = createContext<DataContextType | undefined>(undefined);
 
-export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+export const DataProvider: FC<{ children: ReactNode }> = ({ children }) => {
   const [patients, setPatients] = useState<Patient[]>(INITIAL_PATIENTS);
   const [patientBills, setPatientBills] = useState<PatientBill[]>(INITIAL_PATIENT_BILLS);
   const [doctors, setDoctors] = useState<Doctor[]>(INITIAL_DOCTORS);

@@ -1,38 +1,34 @@
-import React, { useState, useEffect, useMemo } from 'react';
-import { useSearchParams } from 'react-router-dom';
 import {
-  Users,
-  Search,
-  Plus,
-  Phone,
-  Mail,
-  Trash2,
-  Edit2,
-  UserPlus,
-  MapPin,
-  Save,
-  RotateCcw,
-  SlidersHorizontal,
-  User,
   ClipboardList,
-  Tag,
   DollarSign,
-  Wallet,
+  Edit2,
   FileText,
+  Mail,
   Pill,
+  Plus,
+  RotateCcw,
+  Save,
+  SlidersHorizontal,
   Stethoscope,
+  Tag,
+  Trash2,
+  User,
+  UserPlus,
+  Wallet
 } from 'lucide-react';
+import { type FC, type FormEvent, useEffect, useMemo, useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
+import { ConfirmDeleteModal } from '../components/common/ConfirmDeleteModal';
+import { Modal } from '../components/common/Modal';
 import { useData } from '../context/DataContext';
 import { Patient } from '../types';
-import { Modal } from '../components/common/Modal';
-import { ConfirmDeleteModal } from '../components/common/ConfirmDeleteModal';
 
 interface PatientsPageProps {
   registerModalOpen: boolean;
   setRegisterModalOpen: (open: boolean) => void;
 }
 
-export const PatientsPage: React.FC<PatientsPageProps> = ({
+export const PatientsPage: FC<PatientsPageProps> = ({
   registerModalOpen,
   setRegisterModalOpen,
 }) => {
@@ -127,7 +123,7 @@ export const PatientsPage: React.FC<PatientsPageProps> = ({
     setEditTreatmentStatus(patient.treatmentStatus || 'Not Started');
   };
 
-  const handleEditSubmit = (e: React.FormEvent) => {
+  const handleEditSubmit = (e: FormEvent) => {
     e.preventDefault();
     if (!editingPatient || !editFullName.trim()) return;
 
@@ -178,7 +174,7 @@ export const PatientsPage: React.FC<PatientsPageProps> = ({
     });
   }, [patients, patientIdQuery, fullNameQuery, emailQuery, filterTreatmentStatus, filterStatus]);
 
-  const handleRegisterSubmit = (e: React.FormEvent) => {
+  const handleRegisterSubmit = (e: FormEvent) => {
     e.preventDefault();
     if (!fullName.trim()) return;
 

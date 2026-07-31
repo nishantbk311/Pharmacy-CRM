@@ -1,6 +1,6 @@
-import React from 'react';
+import { LucideIcon, TrendingDown, TrendingUp } from 'lucide-react';
 import { motion } from 'motion/react';
-import { LucideIcon, TrendingUp, TrendingDown } from 'lucide-react';
+import { type FC } from 'react';
 
 interface StatsCardProps {
   title: string;
@@ -17,7 +17,7 @@ interface StatsCardProps {
   id?: string;
 }
 
-export const StatsCard: React.FC<StatsCardProps> = ({
+export const StatsCard: FC<StatsCardProps> = ({
   title,
   value,
   subtitle,

@@ -1,37 +1,37 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { motion } from 'motion/react';
 import {
-  Users,
-  Stethoscope,
-  UserCheck,
-  CalendarCheck,
-  MessageSquareWarning,
-  Pill,
-  ArrowRight,
-  UserPlus,
-  Calendar,
-  HelpCircle,
-  Activity,
-  ShieldAlert,
+    Activity,
+    ArrowRight,
+    Calendar,
+    CalendarCheck,
+    HelpCircle,
+    MessageSquareWarning,
+    Pill,
+    ShieldAlert,
+    Stethoscope,
+    UserCheck,
+    UserPlus,
+    Users,
 } from 'lucide-react';
+import { motion } from 'motion/react';
+import { type FC, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
-  AreaChart,
-  Area,
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  ResponsiveContainer,
-  PieChart,
-  Pie,
-  Cell,
+    Area,
+    AreaChart,
+    Bar,
+    BarChart,
+    CartesianGrid,
+    Cell,
+    Pie,
+    PieChart,
+    ResponsiveContainer,
+    Tooltip,
+    XAxis,
+    YAxis,
 } from 'recharts';
-import { useData } from '../context/DataContext';
-import { StatsCard } from '../components/common/StatsCard';
 import { Badge } from '../components/common/Badge';
+import { StatsCard } from '../components/common/StatsCard';
+import { useData } from '../context/DataContext';
 
 interface DashboardPageProps {
   onQuickAction: (action: 'add_patient' | 'add_appointment' | 'add_inquiry' | 'add_doctor') => void;
@@ -47,7 +47,7 @@ const VOLUME_DATA = [
   { day: 'Sun', refills: 19, consultations: 4 },
 ];
 
-export const DashboardPage: React.FC<DashboardPageProps> = ({
+export const DashboardPage: FC<DashboardPageProps> = ({
   onQuickAction,
 }) => {
   const navigate = useNavigate();

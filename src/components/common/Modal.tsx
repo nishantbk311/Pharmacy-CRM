@@ -1,18 +1,18 @@
-import React, { useEffect } from 'react';
-import { motion, AnimatePresence } from 'motion/react';
 import { X } from 'lucide-react';
+import { AnimatePresence, motion } from 'motion/react';
+import { useEffect, type FC, type ReactNode } from 'react';
 
 interface ModalProps {
   isOpen: boolean;
   onClose: () => void;
   title: string;
   subtitle?: string;
-  icon?: React.ReactNode;
-  children: React.ReactNode;
+  icon?: ReactNode;
+  children: ReactNode;
   maxWidth?: 'sm' | 'md' | 'lg' | 'xl' | '2xl' | '3xl' | '4xl';
 }
 
-export const Modal: React.FC<ModalProps> = ({
+export const Modal: FC<ModalProps> = ({
   isOpen,
   onClose,
   title,

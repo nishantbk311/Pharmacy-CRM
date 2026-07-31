@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useEffect, useState } from 'react';
+import { createContext, useContext, useEffect, useState, type FC, type ReactNode } from 'react';
 
 type Theme = 'light' | 'dark';
 
@@ -10,7 +10,7 @@ interface ThemeContextType {
 
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
-export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+export const ThemeProvider: FC<{ children: ReactNode }> = ({ children }) => {
   const [theme, setThemeState] = useState<Theme>(() => {
     const saved = localStorage.getItem('pharmacy_theme') || localStorage.getItem('apothecary_theme');
     if (saved === 'dark' || saved === 'light') return saved;

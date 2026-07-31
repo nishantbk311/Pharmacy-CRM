@@ -1,25 +1,22 @@
-import React, { useState } from 'react';
 import {
+  AlertTriangle,
+  DollarSign,
+  Edit2,
+  Filter,
+  PackageX,
   Pill,
   Plus,
   Search,
-  Filter,
-  Trash2,
-  Edit2,
-  AlertTriangle,
-  PackageCheck,
-  PackageX,
   Thermometer,
-  ShieldAlert,
-  X,
-  Layers,
-  DollarSign,
+  Trash2,
+  X
 } from 'lucide-react';
+import { type FC, type FormEvent, useState } from 'react';
+import { ConfirmDeleteModal } from '../components/common/ConfirmDeleteModal';
 import { useData } from '../context/DataContext';
 import { MedicineItem } from '../types';
-import { ConfirmDeleteModal } from '../components/common/ConfirmDeleteModal';
 
-export const MedicinePage: React.FC = () => {
+export const MedicinePage: FC = () => {
   const { medicines, suppliers, manufacturers, addMedicine, updateMedicine, deleteMedicine } = useData();
 
   const [searchQuery, setSearchQuery] = useState('');
@@ -96,7 +93,7 @@ export const MedicinePage: React.FC = () => {
     return matchesSearch && matchesSchedule && matchesStatus;
   });
 
-  const handleAddMedicineSubmit = (e: React.FormEvent) => {
+  const handleAddMedicineSubmit = (e: FormEvent) => {
     e.preventDefault();
     if (!ndcCode || !drugName || !genericName) return;
 

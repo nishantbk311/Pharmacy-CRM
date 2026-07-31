@@ -1,33 +1,21 @@
-import React, { useState, useEffect } from 'react';
+import { Plus, Search, Send } from 'lucide-react';
+import { type FC, type FormEvent, useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import {
-  MessageSquareWarning,
-  Search,
-  Plus,
-  AlertTriangle,
-  Clock,
-  User,
-  Send,
-  CheckCircle2,
-  HelpCircle,
-  FileText,
-  ShieldAlert,
-} from 'lucide-react';
-import { useData } from '../context/DataContext';
-import { Inquiry, InquiryPriority, InquiryStatus, InquiryType } from '../types';
-import { Modal } from '../components/common/Modal';
 import { Badge } from '../components/common/Badge';
+import { Modal } from '../components/common/Modal';
+import { useData } from '../context/DataContext';
+import { Inquiry, InquiryPriority, InquiryType } from '../types';
 
 interface InquiriesPageProps {
   inquiryModalOpen: boolean;
   setInquiryModalOpen: (open: boolean) => void;
 }
 
-export const InquiriesPage: React.FC<InquiriesPageProps> = ({
+export const InquiriesPage: FC<InquiriesPageProps> = ({
   inquiryModalOpen,
   setInquiryModalOpen,
 }) => {
-  const { inquiries, addInquiry, updateInquiryStatus, addInquiryNote, staff, doctors } = useData();
+  const { inquiries, addInquiry, updateInquiryStatus, addInquiryNote, doctors } = useData();
 
   const [searchParams] = useSearchParams();
   const [searchQuery, setSearchQuery] = useState(() => searchParams.get('q') || '');
@@ -70,7 +58,7 @@ export const InquiriesPage: React.FC<InquiriesPageProps> = ({
     return matchesSearch && matchesStatus && matchesPriority;
   });
 
-  const handleInquirySubmit = (e: React.FormEvent) => {
+  const handleInquirySubmit = (e: FormEvent) => {
     e.preventDefault();
     if (!subject) return;
 
@@ -92,7 +80,7 @@ export const InquiriesPage: React.FC<InquiriesPageProps> = ({
     setDescription('');
   };
 
-  const handleAppendNote = (e: React.FormEvent) => {
+  const handleAppendNote = (e: FormEvent) => {
     e.preventDefault();
     if (!selectedInquiry || !noteText) return;
 

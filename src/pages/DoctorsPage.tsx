@@ -1,29 +1,27 @@
-import React, { useState, useEffect } from 'react';
-import { useSearchParams } from 'react-router-dom';
 import {
-  Stethoscope,
-  Search,
-  Plus,
-  Phone,
-  Mail,
-  Building,
-  FileText,
-  Star,
-  Send,
-  ShieldCheck,
-  HelpCircle,
+    Building,
+    HelpCircle,
+    Mail,
+    Phone,
+    Plus,
+    Search,
+    Send,
+    ShieldCheck,
+    Star
 } from 'lucide-react';
+import { type FC, type FormEvent, useEffect, useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
+import { Badge } from '../components/common/Badge';
+import { Modal } from '../components/common/Modal';
 import { useData } from '../context/DataContext';
 import { Doctor } from '../types';
-import { Modal } from '../components/common/Modal';
-import { Badge } from '../components/common/Badge';
 
 interface DoctorsPageProps {
   doctorModalOpen: boolean;
   setDoctorModalOpen: (open: boolean) => void;
 }
 
-export const DoctorsPage: React.FC<DoctorsPageProps> = ({
+export const DoctorsPage: FC<DoctorsPageProps> = ({
   doctorModalOpen,
   setDoctorModalOpen,
 }) => {
@@ -72,7 +70,7 @@ export const DoctorsPage: React.FC<DoctorsPageProps> = ({
     return matchesSearch && matchesSpecialty;
   });
 
-  const handleAddDoctor = (e: React.FormEvent) => {
+  const handleAddDoctor = (e: FormEvent) => {
     e.preventDefault();
     if (!firstName || !lastName) return;
 
@@ -95,7 +93,7 @@ export const DoctorsPage: React.FC<DoctorsPageProps> = ({
     setLastName('');
   };
 
-  const handleSendInquiry = (e: React.FormEvent) => {
+  const handleSendInquiry = (e: FormEvent) => {
     e.preventDefault();
     if (!inquiryDoctor || !inquirySubject) return;
 

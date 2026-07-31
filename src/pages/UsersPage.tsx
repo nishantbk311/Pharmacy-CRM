@@ -1,28 +1,24 @@
-import React, { useState } from 'react';
 import {
-  Plus,
-  SlidersHorizontal,
-  User as UserIcon,
-  Mail,
-  Phone,
-  Shield,
-  Tag,
-  Pencil,
-  Trash2,
-  ChevronRight,
-  UserCheck,
-  Eye,
-  Check,
-  X,
-  Upload,
-  Camera,
+    Camera,
+    Mail,
+    Pencil,
+    Phone,
+    Plus,
+    Shield,
+    SlidersHorizontal,
+    Tag,
+    Trash2,
+    Upload,
+    UserCheck,
+    User as UserIcon
 } from 'lucide-react';
+import { type ChangeEvent, type FC, type FormEvent, useState } from 'react';
+import { ConfirmDeleteModal } from '../components/common/ConfirmDeleteModal';
+import { Modal } from '../components/common/Modal';
 import { useData } from '../context/DataContext';
 import { SystemUser } from '../types';
-import { Modal } from '../components/common/Modal';
-import { ConfirmDeleteModal } from '../components/common/ConfirmDeleteModal';
 
-export const UsersPage: React.FC = () => {
+export const UsersPage: FC = () => {
   const { systemUsers, roles, addSystemUser, updateSystemUser, deleteSystemUser } = useData();
 
   // Filter Input States
@@ -92,7 +88,7 @@ export const UsersPage: React.FC = () => {
     return matchesUsername && matchesEmail && matchesPhone && matchesStatus && matchesRole;
   });
 
-  const handleAddSubmit = (e: React.FormEvent) => {
+  const handleAddSubmit = (e: FormEvent) => {
     e.preventDefault();
     if (!newName.trim() || !newEmail.trim()) return;
 
@@ -137,7 +133,7 @@ export const UsersPage: React.FC = () => {
     setEditModalOpen(true);
   };
 
-  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>, target: 'edit' | 'new') => {
+  const handleImageUpload = (e: ChangeEvent<HTMLInputElement>, target: 'edit' | 'new') => {
     const file = e.target.files?.[0];
     if (file) {
       const reader = new FileReader();
@@ -154,7 +150,7 @@ export const UsersPage: React.FC = () => {
     }
   };
 
-  const handleSaveEdit = (e: React.FormEvent) => {
+  const handleSaveEdit = (e: FormEvent) => {
     e.preventDefault();
     if (!selectedUser) return;
 

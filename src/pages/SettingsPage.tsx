@@ -1,23 +1,19 @@
-import React, { useState } from 'react';
-import { toast } from 'sonner';
 import {
-  ShieldCheck,
-  Smartphone,
-  Mail,
-  KeyRound,
-  QrCode,
-  Building,
-  Bell,
-  CheckCircle2,
-  Lock,
-  RefreshCw,
-  Copy,
-  Check,
+    Bell,
+    Building,
+    Check,
+    Copy,
+    Mail,
+    QrCode,
+    ShieldCheck,
+    Smartphone
 } from 'lucide-react';
-import { useAuth } from '../context/AuthContext';
+import { type FC, useState } from 'react';
+import { toast } from 'sonner';
 import { Badge } from '../components/common/Badge';
+import { useAuth } from '../context/AuthContext';
 
-export const SettingsPage: React.FC = () => {
+export const SettingsPage: FC = () => {
   const { user } = useAuth();
 
   const [twoFactorMethod, setTwoFactorMethod] = useState<'authenticator' | 'email'>(

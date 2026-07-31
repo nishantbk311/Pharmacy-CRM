@@ -1,24 +1,21 @@
-import React, { useState } from 'react';
 import {
-  Search,
-  Plus,
-  SlidersHorizontal,
-  User,
-  Stethoscope,
   ArrowRight,
-  Pencil,
-  Trash2,
-  X,
-  Check,
-  Ban,
   FileText,
+  Pencil,
+  Plus,
+  Search,
+  SlidersHorizontal,
+  Stethoscope,
+  Trash2,
+  User
 } from 'lucide-react';
+import { type FC, type FormEvent, useState } from 'react';
+import { ConfirmDeleteModal } from '../components/common/ConfirmDeleteModal';
+import { Modal } from '../components/common/Modal';
 import { useData } from '../context/DataContext';
 import { Prescription, RxStatus } from '../types';
-import { Modal } from '../components/common/Modal';
-import { ConfirmDeleteModal } from '../components/common/ConfirmDeleteModal';
 
-export const PrescriptionsPage: React.FC = () => {
+export const PrescriptionsPage: FC = () => {
   const {
     prescriptions,
     patients,
@@ -80,7 +77,7 @@ export const PrescriptionsPage: React.FC = () => {
     searchQuery !== '' ||
     appliedSearch !== '';
 
-  const handleSearchSubmit = (e?: React.FormEvent) => {
+  const handleSearchSubmit = (e?: FormEvent) => {
     if (e) e.preventDefault();
     setAppliedSearch(searchQuery);
   };
@@ -165,7 +162,7 @@ export const PrescriptionsPage: React.FC = () => {
     setIsModalOpen(true);
   };
 
-  const handleSavePrescription = (e: React.FormEvent) => {
+  const handleSavePrescription = (e: FormEvent) => {
     e.preventDefault();
     if (editingRx) {
       updatePrescription(editingRx.id, {

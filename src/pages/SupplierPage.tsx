@@ -1,28 +1,24 @@
-import React, { useState } from 'react';
 import {
-  Truck,
-  Plus,
-  Search,
-  Building2,
-  Phone,
-  Mail,
-  Star,
-  Filter,
-  Trash2,
-  Edit2,
-  ShieldCheck,
-  Clock,
-  Download,
-  X,
-  ExternalLink,
-  MapPin,
-  FileText,
+    Building2,
+    Clock,
+    Edit2,
+    Filter,
+    Mail,
+    Phone,
+    Plus,
+    Search,
+    ShieldCheck,
+    Star,
+    Trash2,
+    Truck,
+    X
 } from 'lucide-react';
+import { type FC, type FormEvent, useState } from 'react';
+import { ConfirmDeleteModal } from '../components/common/ConfirmDeleteModal';
 import { useData } from '../context/DataContext';
 import { Supplier } from '../types';
-import { ConfirmDeleteModal } from '../components/common/ConfirmDeleteModal';
 
-export const SupplierPage: React.FC = () => {
+export const SupplierPage: FC = () => {
   const { suppliers, addSupplier, updateSupplier, deleteSupplier } = useData();
 
   const [searchQuery, setSearchQuery] = useState('');
@@ -86,7 +82,7 @@ export const SupplierPage: React.FC = () => {
     return matchesSearch && matchesStatus && matchesCategory;
   });
 
-  const handleAddSupplierSubmit = (e: React.FormEvent) => {
+  const handleAddSupplierSubmit = (e: FormEvent) => {
     e.preventDefault();
     if (!name || !contactPerson || !email) return;
 

@@ -1,27 +1,23 @@
-import React, { useState } from 'react';
 import {
+  BookOpen,
+  CheckCircle2,
+  Clock,
+  Edit2,
+  Eye,
+  FileEdit,
   FileText,
+  Filter,
   Plus,
   Search,
-  Eye,
-  Clock,
-  User,
-  Tag,
-  CheckCircle2,
-  FileEdit,
-  Filter,
-  Edit2,
   Trash2,
-  X,
-  BookOpen,
-  Image as ImageIcon,
-  Calendar,
+  X
 } from 'lucide-react';
+import { type FC, type FormEvent, useState } from 'react';
+import { ConfirmDeleteModal } from '../components/common/ConfirmDeleteModal';
 import { useData } from '../context/DataContext';
 import { BlogPost } from '../types';
-import { ConfirmDeleteModal } from '../components/common/ConfirmDeleteModal';
 
-export const BlogPage: React.FC = () => {
+export const BlogPage: FC = () => {
   const { blogPosts, addBlogPost, updateBlogPost, deleteBlogPost } = useData();
 
   const [searchQuery, setSearchQuery] = useState('');
@@ -74,7 +70,7 @@ export const BlogPage: React.FC = () => {
     setIsModalOpen(true);
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
     if (!title.trim()) return;
 
@@ -273,7 +269,7 @@ export const BlogPage: React.FC = () => {
                   </div>
                 </div>
               ) : (
-                <div className="h-28 bg-gradient-to-r from-blue-600 to-sky-600 p-4 flex items-end justify-between relative">
+                <div className="h-28 bg-linear-to-r from-blue-600 to-sky-600 p-4 flex items-end justify-between relative">
                   <span className="text-white/80 font-bold text-xs uppercase tracking-wider">{post.category}</span>
                   <span className={`px-2.5 py-0.5 rounded-full text-[11px] font-bold border ${getStatusBadge(post.status)} bg-white/90`}>
                     {post.status}

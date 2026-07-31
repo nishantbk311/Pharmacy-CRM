@@ -1,21 +1,19 @@
-import React, { useState } from 'react';
 import {
-  ShieldCheck,
-  Plus,
-  SlidersHorizontal,
-  Search,
-  Edit2,
-  Trash2,
-  Lock,
-  CheckCircle2,
-  XCircle,
-  X,
-  Key,
-  Info,
+    CheckCircle2,
+    Edit2,
+    Key,
+    Plus,
+    Search,
+    ShieldCheck,
+    SlidersHorizontal,
+    Trash2,
+    X,
+    XCircle
 } from 'lucide-react';
+import { type FC, type FormEvent, useState } from 'react';
+import { ConfirmDeleteModal } from '../components/common/ConfirmDeleteModal';
 import { useData } from '../context/DataContext';
 import { SystemRole } from '../types';
-import { ConfirmDeleteModal } from '../components/common/ConfirmDeleteModal';
 
 const ALL_AVAILABLE_PERMISSIONS = [
   'All System Permissions',
@@ -36,7 +34,7 @@ const ALL_AVAILABLE_PERMISSIONS = [
   'Stock Alerts',
 ];
 
-export const RolesPage: React.FC = () => {
+export const RolesPage: FC = () => {
   const { roles, addRole, updateRole, deleteRole } = useData();
 
   // Filters & Search
@@ -106,7 +104,7 @@ export const RolesPage: React.FC = () => {
     setTempPermissions([...(role.permissions || [])]);
   };
 
-  const handleFormSubmit = (e: React.FormEvent) => {
+  const handleFormSubmit = (e: FormEvent) => {
     e.preventDefault();
     if (!displayName.trim() || !keyName.trim()) return;
 
@@ -176,7 +174,7 @@ export const RolesPage: React.FC = () => {
             {isFilterApplied && (
               <button
                 onClick={handleClearFilter}
-                className="px-3.5 h-[36px] rounded-xl bg-white dark:bg-[#1e293b] hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-200 border border-slate-300 dark:border-slate-700/80 text-xs font-semibold flex items-center justify-center gap-1.5 cursor-pointer transition-colors shadow-2xs shrink-0"
+                className="px-3.5 h-9 rounded-xl bg-white dark:bg-[#1e293b] hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-200 border border-slate-300 dark:border-slate-700/80 text-xs font-semibold flex items-center justify-center gap-1.5 cursor-pointer transition-colors shadow-2xs shrink-0"
               >
                 <SlidersHorizontal className="w-3.5 h-3.5" />
                 <span>Clear Filter</span>
@@ -185,7 +183,7 @@ export const RolesPage: React.FC = () => {
 
             <button
               onClick={handleOpenAddModal}
-              className="px-4 h-[36px] rounded-xl bg-blue-600 hover:bg-blue-500 active:scale-95 text-white text-xs font-bold flex items-center justify-center gap-1.5 cursor-pointer transition-all shadow-md shrink-0 whitespace-nowrap"
+              className="px-4 h-9 rounded-xl bg-blue-600 hover:bg-blue-500 active:scale-95 text-white text-xs font-bold flex items-center justify-center gap-1.5 cursor-pointer transition-all shadow-md shrink-0 whitespace-nowrap"
             >
               <Plus className="w-4 h-4" />
               <span>Add Role</span>
@@ -204,7 +202,7 @@ export const RolesPage: React.FC = () => {
             <select
               value={selectedStatus}
               onChange={e => setSelectedStatus(e.target.value)}
-              className="bg-white dark:bg-[#1e293b] border border-slate-300 dark:border-slate-700/80 rounded-xl px-3.5 h-[36px] text-xs font-semibold text-slate-800 dark:text-white focus:outline-none focus:border-blue-500 cursor-pointer min-w-[130px]"
+              className="bg-white dark:bg-[#1e293b] border border-slate-300 dark:border-slate-700/80 rounded-xl px-3.5 h-9 text-xs font-semibold text-slate-800 dark:text-white focus:outline-none focus:border-blue-500 cursor-pointer min-w-32.5"
             >
               <option value="All">All</option>
               <option value="Active">Active</option>
@@ -213,7 +211,7 @@ export const RolesPage: React.FC = () => {
           </div>
 
           {/* Real-time Search Query Input */}
-          <div className="flex flex-col flex-1 min-w-[200px]">
+          <div className="flex flex-col flex-1 min-w-50">
             <label className="text-[10px] font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1">
               Search Role
             </label>
@@ -224,7 +222,7 @@ export const RolesPage: React.FC = () => {
                 placeholder="Search by display name, key name, or description..."
                 value={searchQuery}
                 onChange={e => setSearchQuery(e.target.value)}
-                className="w-full bg-white dark:bg-[#1e293b] border border-slate-300 dark:border-slate-700/80 rounded-xl pl-9 pr-3.5 h-[36px] text-xs font-medium text-slate-800 dark:text-white focus:outline-none focus:border-blue-500 placeholder:text-slate-400 transition-colors"
+                className="w-full bg-white dark:bg-[#1e293b] border border-slate-300 dark:border-slate-700/80 rounded-xl pl-9 pr-3.5 h-9 text-xs font-medium text-slate-800 dark:text-white focus:outline-none focus:border-blue-500 placeholder:text-slate-400 transition-colors"
               />
             </div>
           </div>
@@ -236,12 +234,12 @@ export const RolesPage: React.FC = () => {
             <thead>
               <tr className="bg-slate-50 dark:bg-[#0f172a] border-b border-slate-200 dark:border-slate-800 text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
                 <th className="py-3 px-4 w-12 text-center">S.N</th>
-                <th className="py-3 px-4 min-w-[150px]">Display Name</th>
-                <th className="py-3 px-4 min-w-[140px]">Key Name</th>
-                <th className="py-3 px-4 min-w-[260px]">Description</th>
-                <th className="py-3 px-4 text-center min-w-[110px]">Status</th>
-                <th className="py-3 px-4 text-center min-w-[120px]">Permissions</th>
-                <th className="py-3 px-4 text-right min-w-[100px]">Action</th>
+                <th className="py-3 px-4 min-w-37.5">Display Name</th>
+                <th className="py-3 px-4 min-w-35">Key Name</th>
+                <th className="py-3 px-4 min-w-65">Description</th>
+                <th className="py-3 px-4 text-center min-w-27.5">Status</th>
+                <th className="py-3 px-4 text-center min-w-30">Permissions</th>
+                <th className="py-3 px-4 text-right min-w-25">Action</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-200 dark:divide-slate-800/70 text-xs font-medium text-slate-800 dark:text-slate-200">

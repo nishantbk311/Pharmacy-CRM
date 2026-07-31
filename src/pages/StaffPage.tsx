@@ -1,23 +1,19 @@
-import React, { useState, useEffect } from 'react';
-import { useSearchParams } from 'react-router-dom';
 import {
-  UserCheck,
-  Search,
-  Plus,
-  ShieldCheck,
-  Phone,
-  Mail,
-  Clock,
-  Award,
-  CheckCircle2,
-  XCircle,
+    Award,
+    Clock,
+    Mail,
+    Phone,
+    Plus,
+    Search
 } from 'lucide-react';
+import { type FC, type FormEvent, useEffect, useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
+import { Badge } from '../components/common/Badge';
+import { Modal } from '../components/common/Modal';
 import { useData } from '../context/DataContext';
 import { Staff, UserRole } from '../types';
-import { Modal } from '../components/common/Modal';
-import { Badge } from '../components/common/Badge';
 
-export const StaffPage: React.FC = () => {
+export const StaffPage: FC = () => {
   const { staff, addStaff, updateStaff } = useData();
 
   const [searchParams] = useSearchParams();
@@ -54,7 +50,7 @@ export const StaffPage: React.FC = () => {
     return matchSearch && matchRole;
   });
 
-  const handleAddSubmit = (e: React.FormEvent) => {
+  const handleAddSubmit = (e: FormEvent) => {
     e.preventDefault();
     if (!firstName || !lastName) return;
 

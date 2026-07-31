@@ -1,28 +1,28 @@
-import React, { useState, useEffect } from 'react';
-import { motion, AnimatePresence } from 'motion/react';
-import { toast } from 'sonner';
 import {
-  ShieldCheck,
-  Mail,
-  Lock,
-  Smartphone,
-  ArrowRight,
-  ArrowLeft,
-  Check,
-  Cross,
-  Users,
-  Eye,
-  EyeOff,
-  Info,
-  Sun,
-  Moon,
-  Shield,
-  RefreshCw,
+    ArrowLeft,
+    ArrowRight,
+    Check,
+    Cross,
+    Eye,
+    EyeOff,
+    Info,
+    Lock,
+    Mail,
+    Moon,
+    RefreshCw,
+    Shield,
+    ShieldCheck,
+    Smartphone,
+    Sun,
+    Users,
 } from 'lucide-react';
+import { AnimatePresence, motion } from 'motion/react';
+import { type FC, type FormEvent, type KeyboardEvent, useEffect, useState } from 'react';
+import { toast } from 'sonner';
 import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
 
-export const LoginPage: React.FC = () => {
+export const LoginPage: FC = () => {
   const {
     step,
     loginStep1,
@@ -69,7 +69,7 @@ export const LoginPage: React.FC = () => {
     return () => clearInterval(timer);
   }, [step, pendingMethod, resend2FACode]);
 
-  const handleFactor1Submit = async (e: React.FormEvent) => {
+  const handleFactor1Submit = async (e: FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
     setErrorMsg(null);
@@ -107,14 +107,14 @@ export const LoginPage: React.FC = () => {
     }
   };
 
-  const handleOtpKeyDown = (index: number, e: React.KeyboardEvent) => {
+  const handleOtpKeyDown = (index: number, e: KeyboardEvent) => {
     if (e.key === 'Backspace' && !otpDigits[index] && index > 0) {
       const prevInput = document.getElementById(`otp-input-${index - 1}`);
       prevInput?.focus();
     }
   };
 
-  const handleFactor2Submit = async (e: React.FormEvent) => {
+  const handleFactor2Submit = async (e: FormEvent) => {
     e.preventDefault();
     const code = otpDigits.join('');
     if (code.length < 6) {

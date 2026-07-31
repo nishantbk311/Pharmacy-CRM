@@ -1,20 +1,15 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import {
-  ChevronRight,
-  CreditCard,
-  DollarSign,
-  Search,
-  Plus,
-  CheckCircle2,
-  Clock,
-  AlertCircle,
-  Receipt,
-  Download,
+    AlertCircle,
+    CheckCircle2,
+    ChevronRight,
+    Plus,
+    Search
 } from 'lucide-react';
+import { type FC, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useData } from '../context/DataContext';
 
-export const PatientPaymentsPage: React.FC = () => {
+export const PatientPaymentsPage: FC = () => {
   const navigate = useNavigate();
   const { patientBills } = useData();
 

@@ -1,21 +1,21 @@
-import React, {  Suspense, useState, useEffect } from 'react';
+import { AnimatePresence, motion } from 'motion/react';
+import { Suspense, useEffect, useState, type ReactNode } from 'react';
 import {
-  BrowserRouter,
-  Routes,
-  Route,
-  useNavigate,
-  useLocation,
-  Navigate,
+    BrowserRouter,
+    Navigate,
+    Route,
+    Routes,
+    useLocation,
+    useNavigate,
 } from 'react-router-dom';
-import { motion, AnimatePresence } from 'motion/react';
 import { Toaster } from 'sonner';
 
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { DataProvider } from './context/DataContext';
 import { ThemeProvider } from './context/ThemeContext';
 
-import { Sidebar } from './components/layout/Sidebar';
 import { Header } from './components/layout/Header';
+import { Sidebar } from './components/layout/Sidebar';
 
 import { lazyNamed } from './helper/lazyNamed';
 
@@ -147,7 +147,7 @@ function PageLoader() {
 function AnimatedPageWrapper({
   children,
 }: {
-  children: React.ReactNode;
+  children: ReactNode;
 }) {
   return (
     <motion.div

@@ -1,19 +1,14 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import {
-  ChevronRight,
-  BarChart3,
-  Users,
-  FileText,
-  Calendar,
-  Download,
-  Filter,
-  CheckCircle2,
-  TrendingUp,
+    ChevronRight,
+    Download,
+    Filter,
+    TrendingUp
 } from 'lucide-react';
+import { type FC, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useData } from '../context/DataContext';
 
-export const PatientReportPage: React.FC = () => {
+export const PatientReportPage: FC = () => {
   const navigate = useNavigate();
   const { patients } = useData();
 

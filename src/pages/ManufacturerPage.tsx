@@ -1,25 +1,25 @@
-import React, { useState } from 'react';
 import {
+  Award,
   Building2,
-  Plus,
-  Search,
-  Filter,
-  Trash2,
+  CheckCircle,
   Edit2,
-  ShieldCheck,
+  FileCheck,
+  Filter,
   Globe,
   Mail,
   Phone,
+  Plus,
+  Search,
+  ShieldCheck,
+  Trash2,
   X,
-  Award,
-  CheckCircle,
-  FileCheck,
 } from 'lucide-react';
+import { type FC, type FormEvent, useState } from 'react';
+import { ConfirmDeleteModal } from '../components/common/ConfirmDeleteModal';
 import { useData } from '../context/DataContext';
 import { Manufacturer } from '../types';
-import { ConfirmDeleteModal } from '../components/common/ConfirmDeleteModal';
 
-export const ManufacturerPage: React.FC = () => {
+export const ManufacturerPage: FC = () => {
   const { manufacturers, addManufacturer, updateManufacturer, deleteManufacturer } = useData();
 
   const [searchQuery, setSearchQuery] = useState('');
@@ -78,7 +78,7 @@ export const ManufacturerPage: React.FC = () => {
     return matchesSearch && matchesQuality && matchesStatus;
   });
 
-  const handleAddManufacturerSubmit = (e: React.FormEvent) => {
+  const handleAddManufacturerSubmit = (e: FormEvent) => {
     e.preventDefault();
     if (!name || !fdaRegistrationNo) return;
 
