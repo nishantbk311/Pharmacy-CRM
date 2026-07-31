@@ -123,6 +123,28 @@ export interface Staff {
   joinedDate: string;
 }
 
+export type SalaryStatus = 'Paid' | 'Partially paid' | 'Unpaid';
+
+export interface StaffSalary {
+  id: string;
+  sn: number;
+  staffId: string;
+  staffName: string;
+  year: string;
+  month: string;
+  baseSalary: number;
+  bonus: number;
+  taxPercentage: number;
+  taxAmount: number;
+  advance: number;
+  totalSalary: number;
+  paidAmount: number;
+  remainingAmount: number;
+  paymentDate: string;
+  status: SalaryStatus;
+  createdAt: string;
+}
+
 export type AppointmentType = 'MTM Consultation' | 'Med Sync Review' | 'Vaccination' | 'Diabetes Management' | 'General Health Consultation';
 export type AppointmentStatus = 'Scheduled' | 'In Progress' | 'Completed' | 'Cancelled';
 

@@ -1,135 +1,118 @@
-import { AnimatePresence, motion } from 'motion/react';
-import { Suspense, useEffect, useState, type ReactNode } from 'react';
+import { AnimatePresence, motion } from "motion/react";
+import { Suspense, useEffect, useState, type ReactNode } from "react";
 import {
-    BrowserRouter,
-    Navigate,
-    Route,
-    Routes,
-    useLocation,
-    useNavigate,
-} from 'react-router-dom';
-import { Toaster } from 'sonner';
+  BrowserRouter,
+  Navigate,
+  Route,
+  Routes,
+  useLocation,
+  useNavigate,
+} from "react-router-dom";
+import { Toaster } from "sonner";
 
-import { AuthProvider, useAuth } from './context/AuthContext';
-import { DataProvider } from './context/DataContext';
-import { ThemeProvider } from './context/ThemeContext';
+import { AuthProvider, useAuth } from "./context/AuthContext";
+import { DataProvider } from "./context/DataContext";
+import { ThemeProvider } from "./context/ThemeContext";
 
-import { Header } from './components/layout/Header';
-import { Sidebar } from './components/layout/Sidebar';
+import { Header } from "./components/layout/Header";
+import { Sidebar } from "./components/layout/Sidebar";
 
-import { lazyNamed } from './helper/lazyNamed';
+import { lazyNamed } from "./helper/lazyNamed";
 
 // --------------------
 // Lazy Loaded Pages
 // --------------------
-const LoginPage = lazyNamed(
-  () => import("./pages/LoginPage"),
-  "LoginPage"
-);
+const LoginPage = lazyNamed(() => import("./pages/LoginPage"), "LoginPage");
 
 const DashboardPage = lazyNamed(
   () => import("./pages/DashboardPage"),
-  "DashboardPage"
+  "DashboardPage",
 );
 
 const PatientsPage = lazyNamed(
   () => import("./pages/PatientsPage"),
-  "PatientsPage"
+  "PatientsPage",
 );
 
 const DoctorsPage = lazyNamed(
   () => import("./pages/DoctorsPage"),
-  "DoctorsPage"
+  "DoctorsPage",
 );
 
-const StaffPage = lazyNamed(
-  () => import("./pages/StaffPage"),
-  "StaffPage"
-);
+const StaffPage = lazyNamed(() => import("./pages/StaffPage"), "StaffPage");
+const StaffSalaryPage = lazyNamed(() => import("./pages/StaffSalaryPage"), "StaffSalaryPage");
 
 const AppointmentsPage = lazyNamed(
   () => import("./pages/AppointmentsPage"),
-  "AppointmentsPage"
+  "AppointmentsPage",
 );
 
 const InquiriesPage = lazyNamed(
   () => import("./pages/InquiriesPage"),
-  "InquiriesPage"
+  "InquiriesPage",
 );
 
 const PrescriptionsPage = lazyNamed(
   () => import("./pages/PrescriptionsPage"),
-  "PrescriptionsPage"
+  "PrescriptionsPage",
 );
 
 const SettingsPage = lazyNamed(
   () => import("./pages/SettingsPage"),
-  "SettingsPage"
+  "SettingsPage",
 );
 
-const UsersPage = lazyNamed(
-  () => import("./pages/UsersPage"),
-  "UsersPage"
-);
+const UsersPage = lazyNamed(() => import("./pages/UsersPage"), "UsersPage");
 
-const RolesPage = lazyNamed(
-  () => import("./pages/RolesPage"),
-  "RolesPage"
-);
+const RolesPage = lazyNamed(() => import("./pages/RolesPage"), "RolesPage");
 
-const MenuPage = lazyNamed(
-  () => import("./pages/MenuPage"),
-  "MenuPage"
-);
+const MenuPage = lazyNamed(() => import("./pages/MenuPage"), "MenuPage");
 
 const SupplierPage = lazyNamed(
   () => import("./pages/SupplierPage"),
-  "SupplierPage"
+  "SupplierPage",
 );
 
 const ManufacturerPage = lazyNamed(
   () => import("./pages/ManufacturerPage"),
-  "ManufacturerPage"
+  "ManufacturerPage",
 );
 
 const MedicinePage = lazyNamed(
   () => import("./pages/MedicinePage"),
-  "MedicinePage"
+  "MedicinePage",
 );
 
 const StockHistoryPage = lazyNamed(
   () => import("./pages/StockHistoryPage"),
-  "StockHistoryPage"
+  "StockHistoryPage",
 );
 
 const ActivityCategoryPage = lazyNamed(
   () => import("./pages/ActivityCategoryPage"),
-  "ActivityCategoryPage"
+  "ActivityCategoryPage",
 );
 
 const ActivityPage = lazyNamed(
   () => import("./pages/ActivityPage"),
-  "ActivityPage"
+  "ActivityPage",
 );
 
-const BlogPage = lazyNamed(
-  () => import("./pages/BlogPage"),
-  "BlogPage"
-);
+const BlogPage = lazyNamed(() => import("./pages/BlogPage"), "BlogPage");
 
 const PatientBillPage = lazyNamed(
   () => import("./pages/PatientBillPage"),
-  "PatientBillPage"
+  "PatientBillPage",
 );
 
 const PatientReportPage = lazyNamed(
   () => import("./pages/PatientReportPage"),
-  "PatientReportPage"
+  "PatientReportPage",
 );
 
 const PatientPaymentsPage = lazyNamed(
   () => import("./pages/PatientPaymentsPage"),
-  "PatientPaymentsPage"
+  "PatientPaymentsPage",
 );
 
 // --------------------
@@ -144,11 +127,7 @@ function PageLoader() {
   );
 }
 
-function AnimatedPageWrapper({
-  children,
-}: {
-  children: ReactNode;
-}) {
+function AnimatedPageWrapper({ children }: { children: ReactNode }) {
   return (
     <motion.div
       initial={{ opacity: 0, y: 12 }}
@@ -175,30 +154,26 @@ function MainAppContent() {
   const [doctorModalOpen, setDoctorModalOpen] = useState(false);
 
   const handleQuickAction = (
-    action:
-      | 'add_patient'
-      | 'add_appointment'
-      | 'add_inquiry'
-      | 'add_doctor'
+    action: "add_patient" | "add_appointment" | "add_inquiry" | "add_doctor",
   ) => {
     switch (action) {
-      case 'add_patient':
-        navigate('/patients');
+      case "add_patient":
+        navigate("/patients");
         setPatientModalOpen(true);
         break;
 
-      case 'add_appointment':
-        navigate('/appointments');
+      case "add_appointment":
+        navigate("/appointments");
         setAppointmentModalOpen(true);
         break;
 
-      case 'add_inquiry':
-        navigate('/inquiries');
+      case "add_inquiry":
+        navigate("/inquiries");
         setInquiryModalOpen(true);
         break;
 
-      case 'add_doctor':
-        navigate('/doctors');
+      case "add_doctor":
+        navigate("/doctors");
         setDoctorModalOpen(true);
         break;
     }
@@ -206,14 +181,14 @@ function MainAppContent() {
 
   useEffect(() => {
     if (
-      (!isAuthenticated || step !== 'authenticated') &&
-      location.pathname !== '/'
+      (!isAuthenticated || step !== "authenticated") &&
+      location.pathname !== "/"
     ) {
-      navigate('/', { replace: true });
+      navigate("/", { replace: true });
     }
   }, [isAuthenticated, step, location.pathname, navigate]);
 
-  if (!isAuthenticated || step !== 'authenticated') {
+  if (!isAuthenticated || step !== "authenticated") {
     return (
       <Suspense fallback={<PageLoader />}>
         <LoginPage />
@@ -223,16 +198,11 @@ function MainAppContent() {
 
   return (
     <div className="min-h-screen bg-slate-100/70 dark:bg-slate-950 text-slate-900 dark:text-slate-100 font-sans antialiased flex flex-col transition-colors duration-200">
-      <Sidebar
-        isMobileOpen={isMobileOpen}
-        setIsMobileOpen={setIsMobileOpen}
-      />
+      <Sidebar isMobileOpen={isMobileOpen} setIsMobileOpen={setIsMobileOpen} />
 
       <div className="lg:pl-64 flex flex-1 min-w-0 flex-col">
         <Header
-          onMobileMenuToggle={() =>
-            setIsMobileOpen(!isMobileOpen)
-          }
+          onMobileMenuToggle={() => setIsMobileOpen(!isMobileOpen)}
           onQuickAction={handleQuickAction}
         />
 
@@ -240,244 +210,245 @@ function MainAppContent() {
           <Suspense fallback={<PageLoader />}>
             <AnimatePresence mode="wait">
               <Routes location={location}>
-  <Route
-    path="/"
-    element={
-      <AnimatedPageWrapper>
-        <DashboardPage onQuickAction={handleQuickAction} />
-      </AnimatedPageWrapper>
-    }
-  />
+                <Route
+                  path="/"
+                  element={
+                    <AnimatedPageWrapper>
+                      <DashboardPage onQuickAction={handleQuickAction} />
+                    </AnimatedPageWrapper>
+                  }
+                />
 
-  <Route
-    path="/patients"
-    element={
-      <AnimatedPageWrapper>
-        <PatientsPage
-          registerModalOpen={patientModalOpen}
-          setRegisterModalOpen={setPatientModalOpen}
-        />
-      </AnimatedPageWrapper>
-    }
-  />
+                <Route
+                  path="/patients"
+                  element={
+                    <AnimatedPageWrapper>
+                      <PatientsPage
+                        registerModalOpen={patientModalOpen}
+                        setRegisterModalOpen={setPatientModalOpen}
+                      />
+                    </AnimatedPageWrapper>
+                  }
+                />
 
-  <Route
-    path="/patients/bill"
-    element={
-      <AnimatedPageWrapper>
-        <PatientBillPage />
-      </AnimatedPageWrapper>
-    }
-  />
+                <Route
+                  path="/patients/bill"
+                  element={
+                    <AnimatedPageWrapper>
+                      <PatientBillPage />
+                    </AnimatedPageWrapper>
+                  }
+                />
 
-  <Route
-    path="/patients/bill/create"
-    element={
-      <AnimatedPageWrapper>
-        <PatientBillPage />
-      </AnimatedPageWrapper>
-    }
-  />
+                <Route
+                  path="/patients/bill/create"
+                  element={
+                    <AnimatedPageWrapper>
+                      <PatientBillPage />
+                    </AnimatedPageWrapper>
+                  }
+                />
 
-  <Route
-    path="/patients/reports"
-    element={
-      <AnimatedPageWrapper>
-        <PatientReportPage />
-      </AnimatedPageWrapper>
-    }
-  />
+                <Route
+                  path="/patients/reports"
+                  element={
+                    <AnimatedPageWrapper>
+                      <PatientReportPage />
+                    </AnimatedPageWrapper>
+                  }
+                />
 
-  <Route
-    path="/patients/payments"
-    element={
-      <AnimatedPageWrapper>
-        <PatientPaymentsPage />
-      </AnimatedPageWrapper>
-    }
-  />
+                <Route
+                  path="/patients/payments"
+                  element={
+                    <AnimatedPageWrapper>
+                      <PatientPaymentsPage />
+                    </AnimatedPageWrapper>
+                  }
+                />
 
-  <Route
-    path="/patients/appointments"
-    element={<Navigate to="/appointments" replace />}
-  />
+                <Route
+                  path="/patients/appointments"
+                  element={<Navigate to="/appointments" replace />}
+                />
 
-  <Route
-    path="/doctors"
-    element={
-      <AnimatedPageWrapper>
-        <DoctorsPage
-          doctorModalOpen={doctorModalOpen}
-          setDoctorModalOpen={setDoctorModalOpen}
-        />
-      </AnimatedPageWrapper>
-    }
-  />
+                <Route
+                  path="/doctors"
+                  element={
+                    <AnimatedPageWrapper>
+                      <DoctorsPage
+                        doctorModalOpen={doctorModalOpen}
+                        setDoctorModalOpen={setDoctorModalOpen}
+                      />
+                    </AnimatedPageWrapper>
+                  }
+                />
 
-  <Route
-    path="/staff"
-    element={
-      <AnimatedPageWrapper>
-        <StaffPage />
-      </AnimatedPageWrapper>
-    }
-  />
+                <Route
+                  path="/staff"
+                  element={
+                    <AnimatedPageWrapper>
+                      <StaffPage />
+                    </AnimatedPageWrapper>
+                  }
+                />
 
-  <Route
-    path="/appointments"
-    element={
-      <AnimatedPageWrapper>
-        <AppointmentsPage
-          bookingModalOpen={appointmentModalOpen}
-          setBookingModalOpen={setAppointmentModalOpen}
-        />
-      </AnimatedPageWrapper>
-    }
-  />
+                <Route
+                  path="/staff/salary"
+                  element={
+                    <AnimatedPageWrapper key="staff-salary">
+                      <StaffSalaryPage />
+                    </AnimatedPageWrapper>
+                  }
+                />
 
-  <Route
-    path="/inquiries"
-    element={
-      <AnimatedPageWrapper>
-        <InquiriesPage
-          inquiryModalOpen={inquiryModalOpen}
-          setInquiryModalOpen={setInquiryModalOpen}
-        />
-      </AnimatedPageWrapper>
-    }
-  />
+                <Route
+                  path="/appointments"
+                  element={
+                    <AnimatedPageWrapper>
+                      <AppointmentsPage
+                        bookingModalOpen={appointmentModalOpen}
+                        setBookingModalOpen={setAppointmentModalOpen}
+                      />
+                    </AnimatedPageWrapper>
+                  }
+                />
 
-  <Route
-    path="/prescriptions"
-    element={
-      <AnimatedPageWrapper>
-        <PrescriptionsPage />
-      </AnimatedPageWrapper>
-    }
-  />
+                <Route
+                  path="/inquiries"
+                  element={
+                    <AnimatedPageWrapper>
+                      <InquiriesPage
+                        inquiryModalOpen={inquiryModalOpen}
+                        setInquiryModalOpen={setInquiryModalOpen}
+                      />
+                    </AnimatedPageWrapper>
+                  }
+                />
 
-  <Route
-    path="/medicine/suppliers"
-    element={
-      <AnimatedPageWrapper>
-        <SupplierPage />
-      </AnimatedPageWrapper>
-    }
-  />
+                <Route
+                  path="/prescriptions"
+                  element={
+                    <AnimatedPageWrapper>
+                      <PrescriptionsPage />
+                    </AnimatedPageWrapper>
+                  }
+                />
 
-  <Route
-    path="/medicine/manufacturers"
-    element={
-      <AnimatedPageWrapper>
-        <ManufacturerPage />
-      </AnimatedPageWrapper>
-    }
-  />
+                <Route
+                  path="/medicine/suppliers"
+                  element={
+                    <AnimatedPageWrapper>
+                      <SupplierPage />
+                    </AnimatedPageWrapper>
+                  }
+                />
 
-  <Route
-    path="/medicine/items"
-    element={
-      <AnimatedPageWrapper>
-        <MedicinePage />
-      </AnimatedPageWrapper>
-    }
-  />
+                <Route
+                  path="/medicine/manufacturers"
+                  element={
+                    <AnimatedPageWrapper>
+                      <ManufacturerPage />
+                    </AnimatedPageWrapper>
+                  }
+                />
 
-  <Route
-    path="/medicine/stock-history"
-    element={
-      <AnimatedPageWrapper>
-        <StockHistoryPage />
-      </AnimatedPageWrapper>
-    }
-  />
+                <Route
+                  path="/medicine/items"
+                  element={
+                    <AnimatedPageWrapper>
+                      <MedicinePage />
+                    </AnimatedPageWrapper>
+                  }
+                />
 
-  <Route
-    path="/extra-events/activity-category"
-    element={
-      <AnimatedPageWrapper>
-        <ActivityCategoryPage />
-      </AnimatedPageWrapper>
-    }
-  />
+                <Route
+                  path="/medicine/stock-history"
+                  element={
+                    <AnimatedPageWrapper>
+                      <StockHistoryPage />
+                    </AnimatedPageWrapper>
+                  }
+                />
 
-  <Route
-    path="/extra-events/activity"
-    element={
-      <AnimatedPageWrapper>
-        <ActivityPage />
-      </AnimatedPageWrapper>
-    }
-  />
+                <Route
+                  path="/extra-events/activity-category"
+                  element={
+                    <AnimatedPageWrapper>
+                      <ActivityCategoryPage />
+                    </AnimatedPageWrapper>
+                  }
+                />
 
-  <Route
-    path="/extra-events/blog"
-    element={
-      <AnimatedPageWrapper>
-        <BlogPage />
-      </AnimatedPageWrapper>
-    }
-  />
+                <Route
+                  path="/extra-events/activity"
+                  element={
+                    <AnimatedPageWrapper>
+                      <ActivityPage />
+                    </AnimatedPageWrapper>
+                  }
+                />
 
-  <Route
-    path="/menu"
-    element={
-      <AnimatedPageWrapper>
-        <MenuPage />
-      </AnimatedPageWrapper>
-    }
-  />
+                <Route
+                  path="/extra-events/blog"
+                  element={
+                    <AnimatedPageWrapper>
+                      <BlogPage />
+                    </AnimatedPageWrapper>
+                  }
+                />
 
-  <Route
-    path="/configuration/menu"
-    element={<Navigate to="/menu" replace />}
-  />
+                <Route
+                  path="/menu"
+                  element={
+                    <AnimatedPageWrapper>
+                      <MenuPage />
+                    </AnimatedPageWrapper>
+                  }
+                />
 
-  <Route
-    path="/roles"
-    element={
-      <AnimatedPageWrapper>
-        <RolesPage />
-      </AnimatedPageWrapper>
-    }
-  />
+                <Route
+                  path="/configuration/menu"
+                  element={<Navigate to="/menu" replace />}
+                />
 
-  <Route
-    path="/users"
-    element={
-      <AnimatedPageWrapper>
-        <UsersPage />
-      </AnimatedPageWrapper>
-    }
-  />
+                <Route
+                  path="/roles"
+                  element={
+                    <AnimatedPageWrapper>
+                      <RolesPage />
+                    </AnimatedPageWrapper>
+                  }
+                />
 
-  <Route
-    path="/settings"
-    element={
-      <AnimatedPageWrapper>
-        <SettingsPage />
-      </AnimatedPageWrapper>
-    }
-  />
+                <Route
+                  path="/users"
+                  element={
+                    <AnimatedPageWrapper>
+                      <UsersPage />
+                    </AnimatedPageWrapper>
+                  }
+                />
 
-  <Route
-    path="*"
-    element={<Navigate to="/" replace />}
-  />
-</Routes>
+                <Route
+                  path="/settings"
+                  element={
+                    <AnimatedPageWrapper>
+                      <SettingsPage />
+                    </AnimatedPageWrapper>
+                  }
+                />
 
-          </AnimatePresence>
-        </Suspense>
-      </main>
+                <Route path="*" element={<Navigate to="/" replace />} />
+              </Routes>
+            </AnimatePresence>
+          </Suspense>
+        </main>
+      </div>
+
+      <Toaster position="bottom-right" richColors closeButton />
     </div>
-
-    <Toaster
-      position="bottom-right"
-      richColors
-      closeButton
-    />
-  </div>
-);
+  );
 }
 
 export default function App() {

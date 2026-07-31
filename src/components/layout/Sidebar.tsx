@@ -13,7 +13,6 @@ import {
   ShieldCheck,
   LogOut,
   Cross,
-  User,
   ChevronDown,
   ChevronRight,
 } from 'lucide-react';
@@ -45,6 +44,9 @@ export const Sidebar: React.FC<SidebarProps> = ({
   const [isPatientsOpen, setIsPatientsOpen] = useState<boolean>(
     location.pathname.startsWith('/patients')
   );
+  const [isStaffManageOpen, setIsStaffManageOpen] = useState<boolean>(
+    location.pathname.startsWith('/staff') || location.pathname.startsWith('/staff-salary')
+  );
   const [isConfigOpen, setIsConfigOpen] = useState<boolean>(false);
   const [isMedicineOpen, setIsMedicineOpen] = useState<boolean>(false);
   const [isExtraEventsOpen, setIsExtraEventsOpen] = useState<boolean>(false);
@@ -56,7 +58,6 @@ export const Sidebar: React.FC<SidebarProps> = ({
   const mainNavItems = [
     { id: 'dashboard', path: '/', label: 'Dashboard', icon: LayoutDashboard },
     { id: 'doctors', path: '/doctors', label: 'Doctors', icon: Stethoscope },
-    { id: 'staff', path: '/staff', label: 'Pharmacy Staff', icon: UserCheck },
     { id: 'appointments', path: '/appointments', label: 'Appointments', icon: CalendarCheck },
     {
       id: 'inquiries',
@@ -198,28 +199,77 @@ export const Sidebar: React.FC<SidebarProps> = ({
                 ? location.pathname === '/'
                 : location.pathname.startsWith(item.path);
               return (
-                <button
-                  key={item.id}
-                  id={`nav-item-${item.id}`}
-                  onClick={() => handleSelect(item.path)}
-                  className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-sm font-medium transition-all cursor-pointer ${
-                    isActive
-                      ? 'bg-blue-600/10 dark:bg-blue-600/20 text-blue-700 dark:text-blue-300 font-semibold border border-blue-500/20 dark:border-blue-500/30'
-                      : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800/60'
-                  }`}
-                >
-                  <div className="flex items-center gap-3">
-                    <Icon className={`w-4 h-4 ${isActive ? 'text-sky-600 dark:text-sky-400' : 'text-slate-500 dark:text-slate-400'}`} />
-                    <span>{item.label}</span>
-                  </div>
-                  {item.badge !== undefined && (
-                    <span
-                      className={`text-[11px] font-bold px-2 py-0.5 rounded-full ${item.badgeColor}`}
-                    >
-                      {item.badge}
-                    </span>
+                <React.Fragment key={item.id}>
+                  <button
+                    id={`nav-item-${item.id}`}
+                    onClick={() => handleSelect(item.path)}
+                    className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-sm font-medium transition-all cursor-pointer ${
+                      isActive
+                        ? 'bg-blue-600/10 dark:bg-blue-600/20 text-blue-700 dark:text-blue-300 font-semibold border border-blue-500/20 dark:border-blue-500/30'
+                        : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800/60'
+                    }`}
+                  >
+                    <div className="flex items-center gap-3">
+                      <Icon className={`w-4 h-4 ${isActive ? 'text-sky-600 dark:text-sky-400' : 'text-slate-500 dark:text-slate-400'}`} />
+                      <span>{item.label}</span>
+                    </div>
+                    {item.badge !== undefined && (
+                      <span
+                        className={`text-[11px] font-bold px-2 py-0.5 rounded-full ${item.badgeColor}`}
+                      >
+                        {item.badge}
+                      </span>
+                    )}
+                  </button>
+
+                  {item.id === 'doctors' && (
+                    <div className="pt-0.5">
+                      <button
+                        onClick={() => setIsStaffManageOpen(!isStaffManageOpen)}
+                        className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-sm font-medium transition-all cursor-pointer ${
+                          location.pathname.startsWith('/staff') || location.pathname.startsWith('/staff-salary')
+                            ? 'text-blue-600 dark:text-sky-400 font-bold'
+                            : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800/60'
+                        }`}
+                      >
+                        <div className="flex items-center gap-3">
+                          <UserCheck className="w-4 h-4 text-slate-500 dark:text-slate-400" />
+                          <span className="text-sm font-semibold">Staff Manage</span>
+                        </div>
+                        {isStaffManageOpen ? (
+                          <ChevronDown className="w-4 h-4 text-slate-400" />
+                        ) : (
+                          <ChevronRight className="w-4 h-4 text-slate-400" />
+                        )}
+                      </button>
+
+                      {isStaffManageOpen && (
+                        <div className="pl-11 pr-2 py-1 space-y-1">
+                          <button
+                            onClick={() => handleSelect('/staff')}
+                            className={`w-full text-left px-3 py-1.5 rounded-lg text-sm font-medium transition-all cursor-pointer ${
+                              location.pathname === '/staff'
+                                ? 'text-blue-600 dark:text-sky-400 font-semibold bg-blue-500/10 dark:bg-blue-600/20 border border-blue-500/30 dark:border-blue-500/40'
+                                : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800/40'
+                            }`}
+                          >
+                            Staff
+                          </button>
+                          <button
+                            onClick={() => handleSelect('/staff/salary')}
+                            className={`w-full text-left px-3 py-1.5 rounded-lg text-sm font-medium transition-all cursor-pointer ${
+                              location.pathname.startsWith('/staff/salary') || location.pathname === '/staff-salary'
+                                ? 'text-blue-600 dark:text-sky-400 font-semibold bg-blue-500/10 dark:bg-blue-600/20 border border-blue-500/30 dark:border-blue-500/40'
+                                : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800/40'
+                            }`}
+                          >
+                            Staff Salary
+                          </button>
+                        </div>
+                      )}
+                    </div>
                   )}
-                </button>
+                </React.Fragment>
               );
             })}
 

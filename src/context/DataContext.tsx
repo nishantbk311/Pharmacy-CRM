@@ -1,51 +1,69 @@
-import { createContext, useContext, useState, type FC, type ReactNode } from 'react';
+import React, { createContext, useContext, useState } from 'react';
 import { toast } from 'sonner';
 import {
-    INITIAL_ACTIVITIES,
-    INITIAL_ACTIVITY_CATEGORIES,
-    INITIAL_ACTIVITY_LOGS,
-    INITIAL_APPOINTMENTS,
-    INITIAL_BLOG_POSTS,
-    INITIAL_DOCTORS,
-    INITIAL_INQUIRIES,
-    INITIAL_MANUFACTURERS,
-    INITIAL_MEDICINES,
-    INITIAL_PATIENT_BILLS,
-    INITIAL_PATIENTS,
-    INITIAL_PRESCRIPTIONS,
-    INITIAL_ROLES,
-    INITIAL_STAFF,
-    INITIAL_STOCK_TRANSACTIONS,
-    INITIAL_SUPPLIERS,
-    INITIAL_SYSTEM_USERS,
-    MOCK_NOTIFICATIONS,
+  INITIAL_ACTIVITIES,
+  INITIAL_ACTIVITY_CATEGORIES,
+  INITIAL_ACTIVITY_LOGS,
+  INITIAL_APPOINTMENTS,
+  INITIAL_BLOG_POSTS,
+  INITIAL_DOCTORS,
+  INITIAL_INQUIRIES,
+  INITIAL_MANUFACTURERS,
+  INITIAL_MEDICINES,
+  INITIAL_PATIENT_BILLS,
+  INITIAL_PATIENTS,
+  INITIAL_PRESCRIPTIONS,
+  INITIAL_ROLES,
+  INITIAL_STAFF,
+  INITIAL_STAFF_SALARIES,
+  INITIAL_STOCK_TRANSACTIONS,
+  INITIAL_SUPPLIERS,
+  INITIAL_SYSTEM_USERS,
+  MOCK_NOTIFICATIONS,
 } from '../mock/data';
 import {
-    Activity,
-    ActivityCategory,
-    ActivityLog,
-    Appointment,
-    BlogPost,
-    Doctor,
-    Inquiry,
-    Manufacturer,
-    MedicineItem,
-    NotificationItem,
-    Patient,
-    PatientBill,
-    Prescription,
-    Staff,
-    StockTransaction,
-    Supplier,
-    SystemRole,
-    SystemUser,
+  Activity,
+  ActivityCategory,
+  ActivityLog,
+  Appointment,
+  BlogPost,
+  Doctor,
+  Inquiry,
+  Manufacturer,
+  MedicineItem,
+  NotificationItem,
+  Patient,
+  PatientBill,
+  Prescription,
+  Staff,
+  StaffSalary,
+  StockTransaction,
+  Supplier,
+  SystemRole,
+  SystemUser,
 } from '../types';
+
+const createId = (prefix: string) => `${prefix}-${Date.now().toString().slice(-4)}`;
+
+const formatDate = () => new Date().toISOString().split('T')[0];
+
+const formatTimestamp = () =>
+  new Date().toLocaleString([], {
+    month: '2-digit',
+    day: '2-digit',
+    year: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+  });
+
+const formatLongTimestamp = () => new Date().toLocaleString();
 
 interface DataContextType {
   patients: Patient[];
   patientBills: PatientBill[];
   doctors: Doctor[];
   staff: Staff[];
+  staffSalaries: StaffSalary[];
   systemUsers: SystemUser[];
   roles: SystemRole[];
   appointments: Appointment[];
@@ -113,6 +131,11 @@ interface DataContextType {
   addStaff: (staffMember: Omit<Staff, 'id' | 'joinedDate'>) => void;
   updateStaff: (id: string, updates: Partial<Staff>) => void;
 
+  // Staff Salary actions
+  addStaffSalary: (salary: Omit<StaffSalary, 'id' | 'sn' | 'createdAt'>) => void;
+  updateStaffSalary: (id: string, updates: Partial<StaffSalary>) => void;
+  deleteStaffSalary: (id: string) => void;
+
   // System User actions
   addSystemUser: (user: Omit<SystemUser, 'id' | 'joinedDate'>) => void;
   updateSystemUser: (id: string, updates: Partial<SystemUser>) => void;
@@ -145,11 +168,12 @@ interface DataContextType {
 
 const DataContext = createContext<DataContextType | undefined>(undefined);
 
-export const DataProvider: FC<{ children: ReactNode }> = ({ children }) => {
+export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [patients, setPatients] = useState<Patient[]>(INITIAL_PATIENTS);
   const [patientBills, setPatientBills] = useState<PatientBill[]>(INITIAL_PATIENT_BILLS);
   const [doctors, setDoctors] = useState<Doctor[]>(INITIAL_DOCTORS);
   const [staff, setStaff] = useState<Staff[]>(INITIAL_STAFF);
+  const [staffSalaries, setStaffSalaries] = useState<StaffSalary[]>(INITIAL_STAFF_SALARIES);
   const [systemUsers, setSystemUsers] = useState<SystemUser[]>(INITIAL_SYSTEM_USERS);
   const [roles, setRoles] = useState<SystemRole[]>(INITIAL_ROLES);
   const [appointments, setAppointments] = useState<Appointment[]>(INITIAL_APPOINTMENTS);
@@ -346,6 +370,30 @@ export const DataProvider: FC<{ children: ReactNode }> = ({ children }) => {
     showToast('Staff schedule / role updated.');
   };
 
+  // Staff Salary handlers
+  const addStaffSalary = (salaryData: Omit<StaffSalary, 'id' | 'sn' | 'createdAt'>) => {
+    const newSalary: StaffSalary = {
+      ...salaryData,
+      id: `sal-${Date.now()}`,
+      sn: staffSalaries.length + 1,
+      createdAt: new Date().toISOString().split('T')[0],
+    };
+    setStaffSalaries(prev => [newSalary, ...prev]);
+    showToast(`Salary record for ${newSalary.staffName} added successfully.`);
+  };
+
+  const updateStaffSalary = (id: string, updates: Partial<StaffSalary>) => {
+    setStaffSalaries(prev =>
+      prev.map(item => (item.id === id ? { ...item, ...updates } : item))
+    );
+    showToast('Salary record updated successfully.');
+  };
+
+  const deleteStaffSalary = (id: string) => {
+    setStaffSalaries(prev => prev.filter(item => item.id !== id));
+    showToast('Salary record deleted.');
+  };
+
   // System User handlers
   const addSystemUser = (userData: Omit<SystemUser, 'id' | 'joinedDate'>) => {
     const newSysUser: SystemUser = {
@@ -397,11 +445,9 @@ export const DataProvider: FC<{ children: ReactNode }> = ({ children }) => {
     // If role status changed to Inactive, automatically set associated users to Inactive
     if (updates.status === 'Inactive') {
       const roleName = updates.displayName || targetRole.displayName;
-      let affectedCount = 0;
       setSystemUsers(prev =>
         prev.map(u => {
           if (u.role === targetRole.displayName || u.role === roleName) {
-            affectedCount++;
             return { ...u, status: 'Inactive' };
           }
           return u;
@@ -516,7 +562,7 @@ export const DataProvider: FC<{ children: ReactNode }> = ({ children }) => {
     setPrescriptions(prev =>
       prev.map(rx => {
         if (rx.rxNumber === rxNumber) {
-          const updatedRefills = Math.max(0, rx.refillsRemaining ?? 0 - 1);
+          const updatedRefills = Math.max(0, (rx.refillsRemaining ?? 0) - 1);
           return {
             ...rx,
             refillsRemaining: updatedRefills,
@@ -638,6 +684,7 @@ export const DataProvider: FC<{ children: ReactNode }> = ({ children }) => {
         patientBills,
         doctors,
         staff,
+        staffSalaries,
         systemUsers,
         roles,
         appointments,
@@ -682,6 +729,9 @@ export const DataProvider: FC<{ children: ReactNode }> = ({ children }) => {
         updateDoctor,
         addStaff,
         updateStaff,
+        addStaffSalary,
+        updateStaffSalary,
+        deleteStaffSalary,
         addSystemUser,
         updateSystemUser,
         deleteSystemUser,
