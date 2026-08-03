@@ -1,21 +1,6 @@
 import React, { useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import {
-  LayoutDashboard,
-  Users,
-  Stethoscope,
-  UserCheck,
-  CalendarCheck,
-  Calendar,
-  MessageSquareWarning,
-  Pill,
-  Settings,
-  ShieldCheck,
-  LogOut,
-  Cross,
-  ChevronDown,
-  ChevronRight,
-} from 'lucide-react';
+import { LayoutDashboard, Users, Stethoscope, UserCheck, CalendarCheck, Calendar, MessageSquareWarning, Pill, Settings, ShieldCheck, LogOut, Cross, User, ChevronDown, ChevronRight } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { useData } from '../../context/DataContext';
 
@@ -44,6 +29,9 @@ export const Sidebar: React.FC<SidebarProps> = ({
   const [isPatientsOpen, setIsPatientsOpen] = useState<boolean>(
     location.pathname.startsWith('/patients')
   );
+  const [isDoctorOpen, setIsDoctorOpen] = useState<boolean>(
+    location.pathname.startsWith('/doctors') || location.pathname.startsWith('/doctor')
+  );
   const [isStaffManageOpen, setIsStaffManageOpen] = useState<boolean>(
     location.pathname.startsWith('/staff') || location.pathname.startsWith('/staff-salary')
   );
@@ -57,7 +45,6 @@ export const Sidebar: React.FC<SidebarProps> = ({
 
   const mainNavItems = [
     { id: 'dashboard', path: '/', label: 'Dashboard', icon: LayoutDashboard },
-    { id: 'doctors', path: '/doctors', label: 'Doctors', icon: Stethoscope },
     { id: 'appointments', path: '/appointments', label: 'Appointments', icon: CalendarCheck },
     {
       id: 'inquiries',
@@ -188,6 +175,64 @@ export const Sidebar: React.FC<SidebarProps> = ({
                   >
                     Patient Bill
                   </button>
+                  <button
+                    onClick={() => handleSelect('/patients/payments')}
+                    className={`w-full text-left px-3 py-1.5 rounded-lg text-sm font-medium transition-all cursor-pointer ${
+                      location.pathname.startsWith('/patients/payments')
+                        ? 'text-blue-600 dark:text-sky-400 font-semibold bg-blue-500/10 dark:bg-blue-600/20 border border-blue-500/30 dark:border-blue-500/40'
+                        : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800/40'
+                    }`}
+                  >
+                    Patient Payments
+                  </button>
+                </div>
+              )}
+            </div>
+
+            {/* Doctor Collapsible Parent Menu */}
+            <div className="pt-0.5">
+              <button
+                onClick={() => setIsDoctorOpen(!isDoctorOpen)}
+                className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-sm font-medium transition-all cursor-pointer ${
+                  location.pathname.startsWith('/doctors') || location.pathname.startsWith('/doctor')
+                    ? 'text-blue-600 dark:text-sky-400 font-bold'
+                    : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800/60'
+                }`}
+              >
+                <div className="flex items-center gap-3">
+                  <Stethoscope className="w-4 h-4 text-slate-500 dark:text-slate-400" />
+                  <span className="text-sm font-semibold">Doctor</span>
+                </div>
+                {isDoctorOpen ? (
+                  <ChevronDown className="w-4 h-4 text-slate-400" />
+                ) : (
+                  <ChevronRight className="w-4 h-4 text-slate-400" />
+                )}
+              </button>
+
+              {/* Doctor Submenu Items */}
+              {isDoctorOpen && (
+                <div className="pl-11 pr-2 py-1 space-y-1">
+                  <button
+                    onClick={() => handleSelect('/doctors')}
+                    className={`w-full text-left px-3 py-1.5 rounded-lg text-sm font-medium transition-all cursor-pointer ${
+                      location.pathname === '/doctors'
+                        ? 'text-blue-600 dark:text-sky-400 font-semibold bg-blue-500/10 dark:bg-blue-600/20 border border-blue-500/30 dark:border-blue-500/40'
+                        : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800/40'
+                    }`}
+                  >
+                    Doctor List
+                  </button>
+                  <button
+                    onClick={() => handleSelect('/doctors/payments')}
+                    className={`w-full text-left px-3 py-1.5 rounded-lg text-sm font-medium transition-all cursor-pointer ${
+                      location.pathname.startsWith('/doctors/payments') || location.pathname.startsWith('/doctor/payments')
+                        ? 'text-blue-600 dark:text-sky-400 font-semibold bg-blue-500/10 dark:bg-blue-600/20 border border-blue-500/30 dark:border-blue-500/40'
+                        : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800/40'
+                    }`}
+                  >
+                    Doctor Payments
+                  </button>
                 </div>
               )}
             </div>
@@ -221,57 +266,56 @@ export const Sidebar: React.FC<SidebarProps> = ({
                       </span>
                     )}
                   </button>
-
-                  {item.id === 'doctors' && (
-                    <div className="pt-0.5">
-                      <button
-                        onClick={() => setIsStaffManageOpen(!isStaffManageOpen)}
-                        className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-sm font-medium transition-all cursor-pointer ${
-                          location.pathname.startsWith('/staff') || location.pathname.startsWith('/staff-salary')
-                            ? 'text-blue-600 dark:text-sky-400 font-bold'
-                            : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800/60'
-                        }`}
-                      >
-                        <div className="flex items-center gap-3">
-                          <UserCheck className="w-4 h-4 text-slate-500 dark:text-slate-400" />
-                          <span className="text-sm font-semibold">Staff Manage</span>
-                        </div>
-                        {isStaffManageOpen ? (
-                          <ChevronDown className="w-4 h-4 text-slate-400" />
-                        ) : (
-                          <ChevronRight className="w-4 h-4 text-slate-400" />
-                        )}
-                      </button>
-
-                      {isStaffManageOpen && (
-                        <div className="pl-11 pr-2 py-1 space-y-1">
-                          <button
-                            onClick={() => handleSelect('/staff')}
-                            className={`w-full text-left px-3 py-1.5 rounded-lg text-sm font-medium transition-all cursor-pointer ${
-                              location.pathname === '/staff'
-                                ? 'text-blue-600 dark:text-sky-400 font-semibold bg-blue-500/10 dark:bg-blue-600/20 border border-blue-500/30 dark:border-blue-500/40'
-                                : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800/40'
-                            }`}
-                          >
-                            Staff
-                          </button>
-                          <button
-                            onClick={() => handleSelect('/staff/salary')}
-                            className={`w-full text-left px-3 py-1.5 rounded-lg text-sm font-medium transition-all cursor-pointer ${
-                              location.pathname.startsWith('/staff/salary') || location.pathname === '/staff-salary'
-                                ? 'text-blue-600 dark:text-sky-400 font-semibold bg-blue-500/10 dark:bg-blue-600/20 border border-blue-500/30 dark:border-blue-500/40'
-                                : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800/40'
-                            }`}
-                          >
-                            Staff Salary
-                          </button>
-                        </div>
-                      )}
-                    </div>
-                  )}
                 </React.Fragment>
               );
             })}
+
+            {/* Staff Manage Collapsible Parent Menu */}
+            <div className="pt-0.5">
+              <button
+                onClick={() => setIsStaffManageOpen(!isStaffManageOpen)}
+                className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-sm font-medium transition-all cursor-pointer ${
+                  location.pathname.startsWith('/staff') || location.pathname.startsWith('/staff-salary')
+                    ? 'text-blue-600 dark:text-sky-400 font-bold'
+                    : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800/60'
+                }`}
+              >
+                <div className="flex items-center gap-3">
+                  <UserCheck className="w-4 h-4 text-slate-500 dark:text-slate-400" />
+                  <span className="text-sm font-semibold">Staff Manage</span>
+                </div>
+                {isStaffManageOpen ? (
+                  <ChevronDown className="w-4 h-4 text-slate-400" />
+                ) : (
+                  <ChevronRight className="w-4 h-4 text-slate-400" />
+                )}
+              </button>
+
+              {isStaffManageOpen && (
+                <div className="pl-11 pr-2 py-1 space-y-1">
+                  <button
+                    onClick={() => handleSelect('/staff')}
+                    className={`w-full text-left px-3 py-1.5 rounded-lg text-sm font-medium transition-all cursor-pointer ${
+                      location.pathname === '/staff'
+                        ? 'text-blue-600 dark:text-sky-400 font-semibold bg-blue-500/10 dark:bg-blue-600/20 border border-blue-500/30 dark:border-blue-500/40'
+                        : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800/40'
+                    }`}
+                  >
+                    Staff
+                  </button>
+                  <button
+                    onClick={() => handleSelect('/staff/salary')}
+                    className={`w-full text-left px-3 py-1.5 rounded-lg text-sm font-medium transition-all cursor-pointer ${
+                      location.pathname.startsWith('/staff/salary') || location.pathname === '/staff-salary'
+                        ? 'text-blue-600 dark:text-sky-400 font-semibold bg-blue-500/10 dark:bg-blue-600/20 border border-blue-500/30 dark:border-blue-500/40'
+                        : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800/40'
+                    }`}
+                  >
+                    Staff Salary
+                  </button>
+                </div>
+              )}
+            </div>
 
             {/* Medicine Parent Menu with Submenu (Supplier, Manufacturer, Medicine, Stock History) */}
             <div className="pt-1">

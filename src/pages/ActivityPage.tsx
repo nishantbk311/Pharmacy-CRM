@@ -1,23 +1,10 @@
-import {
-  AlertCircle,
-  Calendar,
-  Clock,
-  Edit2,
-  Filter,
-  MapPin,
-  Plus,
-  Search,
-  Trash2,
-  User,
-  Users,
-  X
-} from 'lucide-react';
-import { type FC, type FormEvent, useState } from 'react';
-import { ConfirmDeleteModal } from '../components/common/ConfirmDeleteModal';
+import React, { useState } from 'react';
+import { Calendar, Plus, Search, MapPin, Clock, User, Users, AlertCircle, Filter, Edit2, Trash2, X } from 'lucide-react';
 import { useData } from '../context/DataContext';
 import { Activity } from '../types';
+import { ConfirmDeleteModal } from '../components/common/ConfirmDeleteModal';
 
-export const ActivityPage: FC = () => {
+export const ActivityPage: React.FC = () => {
   const { activities, activityCategories, addActivity, updateActivity, deleteActivity } = useData();
 
   const [searchQuery, setSearchQuery] = useState('');
@@ -69,7 +56,7 @@ export const ActivityPage: FC = () => {
     setIsModalOpen(true);
   };
 
-  const handleSubmit = (e: FormEvent) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!title.trim()) return;
 

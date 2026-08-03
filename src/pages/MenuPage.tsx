@@ -1,17 +1,7 @@
-import {
-    CheckSquare,
-    ChevronDown,
-    ChevronRight,
-    Info,
-    RotateCcw,
-    Save,
-    Search,
-    Shield,
-    Square,
-} from 'lucide-react';
-import { type FC, useMemo, useState } from 'react';
-import { toast } from 'sonner';
+import React, { useState, useMemo } from 'react';
+import { ChevronRight, ChevronDown, Search, CheckSquare, Square, RotateCcw, Save, Info, Shield } from 'lucide-react';
 import { useData } from '../context/DataContext';
+import { toast } from 'sonner';
 
 export type NodeType = 'MENU' | 'GROUP' | 'LIST' | 'PERMISSION';
 
@@ -848,7 +838,7 @@ const INITIAL_MENU_TREE: MenuTreeNode[] = [
   },
 ];
 
-export const MenuPage: FC = () => {
+export const MenuPage: React.FC = () => {
   const { roles } = useData();
 
   // Selected visible roles in "SHOW ROLES" filter bar

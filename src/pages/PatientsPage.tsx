@@ -1,37 +1,21 @@
-import {
-  ClipboardList,
-  DollarSign,
-  Edit2,
-  FileText,
-  Mail,
-  Pill,
-  Plus,
-  RotateCcw,
-  Save,
-  SlidersHorizontal,
-  Stethoscope,
-  Tag,
-  Trash2,
-  User,
-  UserPlus,
-  Wallet
-} from 'lucide-react';
-import { type FC, type FormEvent, useEffect, useMemo, useState } from 'react';
-import { useSearchParams } from 'react-router-dom';
-import { ConfirmDeleteModal } from '../components/common/ConfirmDeleteModal';
-import { Modal } from '../components/common/Modal';
+import React, { useState, useEffect, useMemo } from 'react';
+import { useSearchParams, useNavigate } from 'react-router-dom';
+import { Search, Plus, Phone, Mail, Trash2, Edit2, UserPlus, Save, RotateCcw, SlidersHorizontal, User, ClipboardList, Tag, DollarSign, Wallet, FileText, Pill, Stethoscope } from 'lucide-react';
 import { useData } from '../context/DataContext';
 import { Patient } from '../types';
+import { Modal } from '../components/common/Modal';
+import { ConfirmDeleteModal } from '../components/common/ConfirmDeleteModal';
 
 interface PatientsPageProps {
   registerModalOpen: boolean;
   setRegisterModalOpen: (open: boolean) => void;
 }
 
-export const PatientsPage: FC<PatientsPageProps> = ({
+export const PatientsPage: React.FC<PatientsPageProps> = ({
   registerModalOpen,
   setRegisterModalOpen,
 }) => {
+  const navigate = useNavigate();
   const { patients, doctors, addPatient, updatePatient, deletePatient } = useData();
 
   const [searchParams] = useSearchParams();
@@ -123,7 +107,7 @@ export const PatientsPage: FC<PatientsPageProps> = ({
     setEditTreatmentStatus(patient.treatmentStatus || 'Not Started');
   };
 
-  const handleEditSubmit = (e: FormEvent) => {
+  const handleEditSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!editingPatient || !editFullName.trim()) return;
 
@@ -174,7 +158,7 @@ export const PatientsPage: FC<PatientsPageProps> = ({
     });
   }, [patients, patientIdQuery, fullNameQuery, emailQuery, filterTreatmentStatus, filterStatus]);
 
-  const handleRegisterSubmit = (e: FormEvent) => {
+  const handleRegisterSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!fullName.trim()) return;
 
@@ -391,6 +375,9 @@ export const PatientsPage: FC<PatientsPageProps> = ({
                     <div className="flex items-center gap-1.5">
                       <button
                         type="button"
+                        onClick={() => {
+                          navigate(`/patients/bill?patient=${encodeURIComponent(patient.id)}`);
+                        }}
                         className="px-2.5 py-1 rounded-lg bg-emerald-100 text-emerald-800 hover:bg-emerald-200 dark:bg-[#073828] dark:text-[#38d39f] dark:border dark:border-[#0e5c42] font-semibold text-xs flex items-center gap-1 transition-colors cursor-pointer"
                       >
                         <DollarSign className="w-3.5 h-3.5" />
@@ -398,6 +385,10 @@ export const PatientsPage: FC<PatientsPageProps> = ({
                       </button>
                       <button
                         type="button"
+                        onClick={() => {
+                          const pName = patient.fullName || `${patient.firstName} ${patient.lastName}`;
+                          navigate(`/patients/payments?patient=${encodeURIComponent(pName)}`);
+                        }}
                         className="px-2.5 py-1 rounded-lg bg-amber-100 text-amber-800 hover:bg-amber-200 dark:bg-[#3d2b07] dark:text-[#f3ba42] dark:border dark:border-[#63470b] font-semibold text-xs flex items-center gap-1 transition-colors cursor-pointer"
                       >
                         <Wallet className="w-3.5 h-3.5" />

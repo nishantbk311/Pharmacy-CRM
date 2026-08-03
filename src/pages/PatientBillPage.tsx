@@ -1,25 +1,15 @@
-import {
-  ArrowLeft,
-  CheckCircle2,
-  Pencil,
-  Plus,
-  Printer,
-  Receipt,
-  SlidersHorizontal,
-  Trash2,
-  User as UserIcon,
-  X
-} from 'lucide-react';
-import { type FC, type FormEvent, useMemo, useState } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
-import { ConfirmDeleteModal } from '../components/common/ConfirmDeleteModal';
-import { useAuth } from '../context/AuthContext';
+import React, { useState, useMemo, useEffect } from 'react';
+import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
+import { SlidersHorizontal, Plus, Search, User as UserIcon, X, Trash2, Printer, CheckCircle2, ArrowLeft, Receipt, Pencil } from 'lucide-react';
 import { useData } from '../context/DataContext';
+import { useAuth } from '../context/AuthContext';
 import { PatientBill, PatientBillMedicineItem } from '../types';
+import { ConfirmDeleteModal } from '../components/common/ConfirmDeleteModal';
 
-export const PatientBillPage: FC = () => {
+export const PatientBillPage: React.FC = () => {
   const location = useLocation();
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
   const { user } = useAuth();
   const { patients, medicines, patientBills, addPatientBill, updatePatientBill, deletePatientBill } = useData();
 
@@ -28,6 +18,26 @@ export const PatientBillPage: FC = () => {
 
   // Filter state for list view
   const [selectedPatientFilter, setSelectedPatientFilter] = useState<string>('all');
+
+  // Sync patient filter from URL parameter
+  useEffect(() => {
+    const patientParam = searchParams.get('patient') || searchParams.get('patientId') || searchParams.get('q');
+    if (patientParam) {
+      const matched = patients.find(
+        p =>
+          p.id === patientParam ||
+          (p.fullName && p.fullName.toLowerCase() === patientParam.toLowerCase()) ||
+          `${p.firstName} ${p.lastName}`.toLowerCase() === patientParam.toLowerCase() ||
+          p.firstName.toLowerCase() === patientParam.toLowerCase()
+      );
+      if (matched) {
+        setSelectedPatientFilter(matched.id);
+        setSelectedPatientId(matched.id);
+      } else {
+        setSelectedPatientFilter(patientParam);
+      }
+    }
+  }, [searchParams, patients]);
 
   // View / Print modal state
   const [viewingBill, setViewingBill] = useState<PatientBill | null>(null);
@@ -179,7 +189,7 @@ export const PatientBillPage: FC = () => {
   const editStatus: PatientBill['status'] =
     editDueAmount <= 0 ? 'Paid' : editNumPaid > 0 ? 'Partial' : 'Unpaid';
 
-  const handleSaveEditBill = (e: FormEvent) => {
+  const handleSaveEditBill = (e: React.FormEvent) => {
     e.preventDefault();
     if (!editingBill) return;
 
@@ -358,7 +368,7 @@ export const PatientBillPage: FC = () => {
   }, [computedItems, paidAmountInput]);
 
   // Handle Save Bill
-  const handleSaveBill = (e: FormEvent) => {
+  const handleSaveBill = (e: React.FormEvent) => {
     e.preventDefault();
     const patientObj = patients.find(p => p.id === selectedPatientId);
     if (!patientObj && !selectedPatientId) {
@@ -416,15 +426,30 @@ export const PatientBillPage: FC = () => {
   // Filtered bills for list view
   const filteredBills = useMemo(() => {
     if (selectedPatientFilter === 'all') return patientBills;
-    return patientBills.filter(
-      b => b.patientId === selectedPatientFilter || b.patientName === selectedPatientFilter
+    const matchedPatient = patients.find(
+      p =>
+        p.id === selectedPatientFilter ||
+        (p.fullName && p.fullName.toLowerCase() === selectedPatientFilter.toLowerCase()) ||
+        `${p.firstName} ${p.lastName}`.toLowerCase() === selectedPatientFilter.toLowerCase()
     );
-  }, [patientBills, selectedPatientFilter]);
+    const filterId = matchedPatient ? matchedPatient.id : selectedPatientFilter;
+    const filterName = matchedPatient
+      ? matchedPatient.fullName || `${matchedPatient.firstName} ${matchedPatient.lastName}`
+      : selectedPatientFilter;
+
+    return patientBills.filter(
+      b =>
+        b.patientId === filterId ||
+        b.patientName.toLowerCase().includes(filterName.toLowerCase()) ||
+        filterName.toLowerCase().includes(b.patientName.toLowerCase())
+    );
+  }, [patientBills, selectedPatientFilter, patients]);
 
   const hasActiveFilter = selectedPatientFilter !== 'all';
 
   const handleClearFilter = () => {
     setSelectedPatientFilter('all');
+    setSearchParams({});
   };
 
   // Render CREATE BILL VIEW
@@ -818,13 +843,18 @@ export const PatientBillPage: FC = () => {
         {/* Filter Input & Action Buttons in same row */}
         <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
           <div className="flex-1 space-y-1.5 w-full">
-            <label className="flex text-xs font-bold text-slate-700 dark:text-slate-300 items-center gap-1.5">
+            <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 flex items-center gap-1.5">
               <UserIcon className="w-3.5 h-3.5 text-blue-600 dark:text-sky-400" />
               Filter by Patient
             </label>
             <select
               value={selectedPatientFilter}
-              onChange={e => setSelectedPatientFilter(e.target.value)}
+              onChange={e => {
+                setSelectedPatientFilter(e.target.value);
+                if (e.target.value === 'all') {
+                  setSearchParams({});
+                }
+              }}
               className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white text-xs focus:outline-hidden focus:ring-2 focus:ring-blue-500"
             >
               <option value="all">All patients</option>
@@ -1059,8 +1089,6 @@ export const PatientBillPage: FC = () => {
                 <span>${viewingBill.dueAmount.toFixed(2)}</span>
               </div>
             </div>
-
-
 
             <div className="flex justify-end gap-3 pt-2">
               <button

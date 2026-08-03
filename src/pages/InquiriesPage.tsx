@@ -1,21 +1,21 @@
-import { Plus, Search, Send } from 'lucide-react';
-import { type FC, type FormEvent, useEffect, useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { Badge } from '../components/common/Badge';
-import { Modal } from '../components/common/Modal';
+import { Search, Plus, Send } from 'lucide-react';
 import { useData } from '../context/DataContext';
 import { Inquiry, InquiryPriority, InquiryType } from '../types';
+import { Modal } from '../components/common/Modal';
+import { Badge } from '../components/common/Badge';
 
 interface InquiriesPageProps {
   inquiryModalOpen: boolean;
   setInquiryModalOpen: (open: boolean) => void;
 }
 
-export const InquiriesPage: FC<InquiriesPageProps> = ({
+export const InquiriesPage: React.FC<InquiriesPageProps> = ({
   inquiryModalOpen,
   setInquiryModalOpen,
 }) => {
-  const { inquiries, addInquiry, updateInquiryStatus, addInquiryNote, doctors } = useData();
+  const { inquiries, addInquiry, updateInquiryStatus, addInquiryNote, staff, doctors } = useData();
 
   const [searchParams] = useSearchParams();
   const [searchQuery, setSearchQuery] = useState(() => searchParams.get('q') || '');
@@ -58,7 +58,7 @@ export const InquiriesPage: FC<InquiriesPageProps> = ({
     return matchesSearch && matchesStatus && matchesPriority;
   });
 
-  const handleInquirySubmit = (e: FormEvent) => {
+  const handleInquirySubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!subject) return;
 
@@ -80,7 +80,7 @@ export const InquiriesPage: FC<InquiriesPageProps> = ({
     setDescription('');
   };
 
-  const handleAppendNote = (e: FormEvent) => {
+  const handleAppendNote = (e: React.FormEvent) => {
     e.preventDefault();
     if (!selectedInquiry || !noteText) return;
 

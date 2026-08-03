@@ -1,492 +1,414 @@
-import {
-  Award,
-  Building2,
-  CheckCircle,
-  Edit2,
-  FileCheck,
-  Filter,
-  Globe,
-  Mail,
-  Phone,
-  Plus,
-  Search,
-  ShieldCheck,
-  Trash2,
-  X,
-} from 'lucide-react';
-import { type FC, type FormEvent, useState } from 'react';
-import { ConfirmDeleteModal } from '../components/common/ConfirmDeleteModal';
+import React, { useState } from 'react';
+import { Factory, Plus, Phone, Mail, SlidersHorizontal, Trash2, Edit2, X, Eye } from 'lucide-react';
 import { useData } from '../context/DataContext';
 import { Manufacturer } from '../types';
+import { ConfirmDeleteModal } from '../components/common/ConfirmDeleteModal';
 
-export const ManufacturerPage: FC = () => {
+export const ManufacturerPage: React.FC = () => {
   const { manufacturers, addManufacturer, updateManufacturer, deleteManufacturer } = useData();
 
-  const [searchQuery, setSearchQuery] = useState('');
-  const [qualityFilter, setQualityFilter] = useState<string>('All');
-  const [statusFilter, setStatusFilter] = useState<string>('All');
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [editingMfg, setEditingMfg] = useState<Manufacturer | null>(null);
-  const [deletingMfg, setDeletingMfg] = useState<Manufacturer | null>(null);
+  // Filter States
+  const [filterName, setFilterName] = useState('');
+  const [filterPhone, setFilterPhone] = useState('');
+  const [filterEmail, setFilterEmail] = useState('');
 
-  // Form State
+  // Modal States
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [viewingManufacturer, setViewingManufacturer] = useState<Manufacturer | null>(null);
+  const [editingManufacturer, setEditingManufacturer] = useState<Manufacturer | null>(null);
+  const [deletingManufacturer, setDeletingManufacturer] = useState<Manufacturer | null>(null);
+
+  // Form Fields State
   const [name, setName] = useState('');
-  const [country, setCountry] = useState('United States');
-  const [fdaRegistrationNo, setFdaRegistrationNo] = useState('');
-  const [qualityStatus, setQualityStatus] = useState<Manufacturer['qualityStatus']>('FDA Approved');
-  const [activeDrugLines, setActiveDrugLines] = useState('12');
-  const [contactEmail, setContactEmail] = useState('');
-  const [contactPhone, setContactPhone] = useState('');
-  const [status, setStatus] = useState<Manufacturer['status']>('Active');
+  const [contactPerson, setContactPerson] = useState('');
+  const [phone, setPhone] = useState('');
+  const [email, setEmail] = useState('');
+  const [licenseNumber, setLicenseNumber] = useState('');
+  const [status, setStatus] = useState<'Active' | 'Inactive'>('Active');
 
   const openAddModal = () => {
-    setEditingMfg(null);
+    setEditingManufacturer(null);
     setName('');
-    setCountry('United States');
-    setFdaRegistrationNo('');
-    setQualityStatus('FDA Approved');
-    setActiveDrugLines('12');
-    setContactEmail('');
-    setContactPhone('');
+    setContactPerson('');
+    setPhone('');
+    setEmail('');
+    setLicenseNumber('');
     setStatus('Active');
     setIsModalOpen(true);
   };
 
   const openEditModal = (mfg: Manufacturer) => {
-    setEditingMfg(mfg);
+    setEditingManufacturer(mfg);
     setName(mfg.name);
-    setCountry(mfg.country);
-    setFdaRegistrationNo(mfg.fdaRegistrationNo);
-    setQualityStatus(mfg.qualityStatus);
-    setActiveDrugLines(mfg.activeDrugLines.toString());
-    setContactEmail(mfg.contactEmail || '');
-    setContactPhone(mfg.contactPhone || '');
-    setStatus(mfg.status);
+    setContactPerson(mfg.contactPerson || '');
+    setPhone(mfg.contactPhone || '');
+    setEmail(mfg.contactEmail || '');
+    setLicenseNumber(mfg.licenseNumber || mfg.fdaRegistrationNo || 'Nplis123456s');
+    setStatus(mfg.status === 'Inactive' ? 'Inactive' : 'Active');
     setIsModalOpen(true);
   };
 
+  const handleClearFilter = () => {
+    setFilterName('');
+    setFilterPhone('');
+    setFilterEmail('');
+  };
+
+  const hasFilter = Boolean(filterName.trim() || filterPhone.trim() || filterEmail.trim());
+
+  // Filtered Manufacturers List
   const filteredManufacturers = manufacturers.filter(mfg => {
-    const matchesSearch =
-      mfg.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      mfg.code.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      mfg.country.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      mfg.fdaRegistrationNo.toLowerCase().includes(searchQuery.toLowerCase());
+    const nameMatch = mfg.name.toLowerCase().includes(filterName.toLowerCase());
+    const phoneMatch = (mfg.contactPhone || '').toLowerCase().includes(filterPhone.toLowerCase());
+    const emailMatch = (mfg.contactEmail || '').toLowerCase().includes(filterEmail.toLowerCase());
 
-    const matchesQuality = qualityFilter === 'All' || mfg.qualityStatus === qualityFilter;
-    const matchesStatus = statusFilter === 'All' || mfg.status === statusFilter;
-
-    return matchesSearch && matchesQuality && matchesStatus;
+    return nameMatch && phoneMatch && emailMatch;
   });
 
-  const handleAddManufacturerSubmit = (e: FormEvent) => {
-    e.preventDefault();
-    if (!name || !fdaRegistrationNo) return;
+  const handleToggleStatus = (mfg: Manufacturer) => {
+    const newStatus = mfg.status === 'Active' ? 'Inactive' : 'Active';
+    updateManufacturer(mfg.id, { status: newStatus });
+  };
 
-    if (editingMfg) {
-      updateManufacturer(editingMfg.id, {
+  const handleSubmitForm = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!name.trim()) return;
+
+    if (editingManufacturer) {
+      updateManufacturer(editingManufacturer.id, {
         name,
-        country,
-        fdaRegistrationNo,
-        qualityStatus,
-        activeDrugLines: parseInt(activeDrugLines, 10) || 5,
-        contactEmail,
-        contactPhone,
+        contactPerson,
+        contactPhone: phone,
+        contactEmail: email,
+        licenseNumber,
+        fdaRegistrationNo: licenseNumber,
         status,
       });
     } else {
       addManufacturer({
         name,
-        country,
-        fdaRegistrationNo,
-        qualityStatus,
-        activeDrugLines: parseInt(activeDrugLines, 10) || 5,
-        contactEmail,
-        contactPhone,
+        contactPerson,
+        contactPhone: phone,
+        contactEmail: email,
+        licenseNumber,
+        fdaRegistrationNo: licenseNumber || 'FDA-REG-100',
+        country: 'Nepal',
+        qualityStatus: 'FDA Approved',
+        activeDrugLines: 10,
         status,
       });
     }
 
-    setName('');
-    setFdaRegistrationNo('');
-    setContactEmail('');
-    setContactPhone('');
-    setEditingMfg(null);
     setIsModalOpen(false);
   };
 
-  const fdaApprovedCount = manufacturers.filter(m => m.qualityStatus === 'FDA Approved').length;
-  const totalDrugLines = manufacturers.reduce((sum, m) => sum + m.activeDrugLines, 0);
-
   return (
     <div className="space-y-6">
-      {/* Header Banner */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white dark:bg-slate-900 p-6 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-xs">
-        <div>
-          <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-blue-600 dark:text-sky-400 mb-1">
-            <span>Medicine</span>
-            <span>/</span>
-            <span>Manufacturer Directory</span>
-          </div>
-          <h1 className="text-2xl font-bold text-slate-900 dark:text-white tracking-tight">
-            Pharmaceutical Manufacturers
+      {/* Main Card Container */}
+      <div className="bg-white dark:bg-[#0c1626] border border-slate-200/90 dark:border-slate-800/90 rounded-3xl p-5 sm:p-6 shadow-xs space-y-6">
+        {/* Title Row */}
+        <div className="flex items-center justify-between">
+          <h1 className="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white tracking-tight">
+            Manufacturer
           </h1>
-          <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
-            Track registered pharmaceutical producers, FDA registration IDs, quality standard certifications, and active drug lines.
-          </p>
         </div>
 
-        <div className="flex items-center gap-3">
-          <button
-            onClick={openAddModal}
-            className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-semibold text-sm transition-all shadow-md shadow-blue-600/20 cursor-pointer"
-          >
-            <Plus className="w-4 h-4 stroke-[2.5]" />
-            Register Manufacturer
-          </button>
-        </div>
-      </div>
-
-      {/* Metrics Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-xs">
-          <div className="flex items-center justify-between text-slate-500 dark:text-slate-400">
-            <span className="text-xs font-semibold uppercase tracking-wider">Registered Producers</span>
-            <div className="p-2 rounded-xl bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-sky-400">
-              <Building2 className="w-5 h-5" />
-            </div>
-          </div>
-          <p className="text-2xl font-extrabold text-slate-900 dark:text-white mt-2">{manufacturers.length}</p>
-          <span className="text-xs font-medium text-slate-500 dark:text-slate-400">Global drug lines</span>
-        </div>
-
-        <div className="p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-xs">
-          <div className="flex items-center justify-between text-slate-500 dark:text-slate-400">
-            <span className="text-xs font-semibold uppercase tracking-wider">FDA Approved</span>
-            <div className="p-2 rounded-xl bg-emerald-50 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400">
-              <ShieldCheck className="w-5 h-5" />
-            </div>
-          </div>
-          <p className="text-2xl font-extrabold text-slate-900 dark:text-white mt-2">{fdaApprovedCount}</p>
-          <span className="text-xs font-medium text-emerald-600 dark:text-emerald-400">Verified FDA status</span>
-        </div>
-
-        <div className="p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-xs">
-          <div className="flex items-center justify-between text-slate-500 dark:text-slate-400">
-            <span className="text-xs font-semibold uppercase tracking-wider">Active Drug Formulations</span>
-            <div className="p-2 rounded-xl bg-purple-50 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400">
-              <Award className="w-5 h-5" />
-            </div>
-          </div>
-          <p className="text-2xl font-extrabold text-slate-900 dark:text-white mt-2">{totalDrugLines}</p>
-          <span className="text-xs font-medium text-slate-500 dark:text-slate-400">Total cataloged SKUs</span>
-        </div>
-
-        <div className="p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-xs">
-          <div className="flex items-center justify-between text-slate-500 dark:text-slate-400">
-            <span className="text-xs font-semibold uppercase tracking-wider">Quality Audited</span>
-            <div className="p-2 rounded-xl bg-sky-50 dark:bg-sky-900/30 text-sky-600 dark:text-sky-400">
-              <FileCheck className="w-5 h-5" />
-            </div>
-          </div>
-          <p className="text-2xl font-extrabold text-slate-900 dark:text-white mt-2">100%</p>
-          <span className="text-xs font-medium text-slate-500 dark:text-slate-400">GMP compliant standards</span>
-        </div>
-      </div>
-
-      {/* Filter and Search Bar */}
-      <div className="flex flex-col md:flex-row items-center justify-between gap-4 bg-white dark:bg-slate-900 p-4 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-xs">
-        <div className="relative w-full md:w-80">
-          <Search className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
-          <input
-            type="text"
-            placeholder="Search manufacturer, FDA Reg #..."
-            value={searchQuery}
-            onChange={e => setSearchQuery(e.target.value)}
-            className="w-full pl-10 pr-4 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 dark:text-slate-100"
-          />
-        </div>
-
-        <div className="flex items-center gap-3 w-full md:w-auto">
-          <div className="flex items-center gap-2 text-xs font-medium text-slate-500 dark:text-slate-400">
-            <Filter className="w-4 h-4" />
-            <span>Filters:</span>
+        {/* Filter Inputs & Action Buttons Row */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 items-end">
+          {/* Manufacturer Name Input */}
+          <div>
+            <label className="block text-[11px] font-bold text-slate-500 dark:text-slate-400 mb-1 flex items-center gap-1.5">
+              <Factory className="w-3.5 h-3.5" />
+              <span>Manufacturer Name</span>
+            </label>
+            <input
+              type="text"
+              placeholder="Enter Manufacturer Name"
+              value={filterName}
+              onChange={e => setFilterName(e.target.value)}
+              className="w-full px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-800 bg-white dark:bg-[#081120] text-slate-900 dark:text-slate-200 text-xs font-medium focus:outline-hidden focus:ring-2 focus:ring-blue-500 shadow-xs"
+            />
           </div>
 
-          <select
-            value={qualityFilter}
-            onChange={e => setQualityFilter(e.target.value)}
-            className="px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-medium text-slate-700 dark:text-slate-200 focus:outline-none"
-          >
-            <option value="All">All Quality Grades</option>
-            <option value="FDA Approved">FDA Approved</option>
-            <option value="EU GMP">EU GMP</option>
-            <option value="ISO 9001">ISO 9001</option>
-            <option value="Under Audit">Under Audit</option>
-          </select>
+          {/* Phone Input */}
+          <div>
+            <label className="block text-[11px] font-bold text-slate-500 dark:text-slate-400 mb-1 flex items-center gap-1.5">
+              <Phone className="w-3.5 h-3.5" />
+              <span>Phone</span>
+            </label>
+            <input
+              type="text"
+              placeholder="Enter Phone"
+              value={filterPhone}
+              onChange={e => setFilterPhone(e.target.value)}
+              className="w-full px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-800 bg-white dark:bg-[#081120] text-slate-900 dark:text-slate-200 text-xs font-medium focus:outline-hidden focus:ring-2 focus:ring-blue-500 shadow-xs"
+            />
+          </div>
 
-          <select
-            value={statusFilter}
-            onChange={e => setStatusFilter(e.target.value)}
-            className="px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-medium text-slate-700 dark:text-slate-200 focus:outline-none"
-          >
-            <option value="All">All Statuses</option>
-            <option value="Active">Active</option>
-            <option value="Flagged">Flagged</option>
-            <option value="Inactive">Inactive</option>
-          </select>
+          {/* Email Input */}
+          <div>
+            <label className="block text-[11px] font-bold text-slate-500 dark:text-slate-400 mb-1 flex items-center gap-1.5">
+              <Mail className="w-3.5 h-3.5" />
+              <span>Email</span>
+            </label>
+            <input
+              type="text"
+              placeholder="Enter Email"
+              value={filterEmail}
+              onChange={e => setFilterEmail(e.target.value)}
+              className="w-full px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-800 bg-white dark:bg-[#081120] text-slate-900 dark:text-slate-200 text-xs font-medium focus:outline-hidden focus:ring-2 focus:ring-blue-500 shadow-xs"
+            />
+          </div>
+
+          {/* Action Buttons in same line */}
+          <div className="flex items-center gap-2">
+            {hasFilter && (
+              <button
+                type="button"
+                onClick={handleClearFilter}
+                className="px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-100 dark:bg-[#101b2d] text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white text-xs font-semibold flex items-center justify-center gap-1.5 transition-all cursor-pointer shadow-xs whitespace-nowrap"
+              >
+                <SlidersHorizontal className="w-3.5 h-3.5" />
+                <span>Clear</span>
+              </button>
+            )}
+
+            <button
+              type="button"
+              onClick={openAddModal}
+              className="w-full py-2 px-4 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-semibold text-xs flex items-center justify-center gap-1.5 transition-all cursor-pointer shadow-xs shadow-blue-500/20 whitespace-nowrap"
+            >
+              <Plus className="w-4 h-4 stroke-[2.5]" />
+              <span>Add Manufacturer</span>
+            </button>
+          </div>
         </div>
-      </div>
 
-      {/* Manufacturer Table */}
-      <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 overflow-hidden shadow-xs">
-        <div className="overflow-x-auto">
-          <table className="w-full text-left border-collapse text-sm">
-            <thead>
-              <tr className="border-b border-slate-200 dark:border-slate-800 bg-slate-50/80 dark:bg-slate-950/40 text-slate-500 dark:text-slate-400 text-xs font-semibold uppercase tracking-wider">
-                <th className="py-3.5 px-6">Manufacturer</th>
-                <th className="py-3.5 px-6">Country / HQ</th>
-                <th className="py-3.5 px-6">FDA Registration No</th>
-                <th className="py-3.5 px-6">Quality Status</th>
-                <th className="py-3.5 px-6">Active Drug Lines</th>
-                <th className="py-3.5 px-6">Contact Info</th>
-                <th className="py-3.5 px-6 text-right">Actions</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-slate-200 dark:divide-slate-800/80">
-              {filteredManufacturers.length === 0 ? (
-                <tr>
-                  <td colSpan={7} className="py-12 text-center text-slate-400 dark:text-slate-500 text-sm">
-                    No manufacturers found matching your search criteria.
-                  </td>
+        {/* Data Table */}
+        <div className="border border-slate-200/90 dark:border-slate-800/90 rounded-2xl overflow-hidden shadow-xs">
+          <div className="overflow-x-auto">
+            <table className="w-full text-left border-collapse text-xs">
+              <thead>
+                <tr className="border-b border-slate-200/90 dark:border-slate-800/90 bg-slate-50 dark:bg-[#0a1322] text-slate-500 dark:text-slate-400 font-bold uppercase tracking-wider text-[11px]">
+                  <th className="py-3 px-4 w-12 text-center">S.N</th>
+                  <th className="py-3 px-4">MANUFACTURER NAME</th>
+                  <th className="py-3 px-4">CONTACT PERSON</th>
+                  <th className="py-3 px-4">PHONE</th>
+                  <th className="py-3 px-4">EMAIL</th>
+                  <th className="py-3 px-4">LICENSE NUMBER</th>
+                  <th className="py-3 px-4 text-center">STATUS</th>
+                  <th className="py-3 px-4 text-center">ACTION</th>
                 </tr>
-              ) : (
-                filteredManufacturers.map(mfg => (
-                  <tr
-                    key={mfg.id}
-                    className="hover:bg-slate-50/60 dark:hover:bg-slate-800/40 transition-colors"
-                  >
-                    <td className="py-4 px-6">
-                      <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-xl bg-purple-50 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400 flex items-center justify-center shrink-0">
-                          <Building2 className="w-5 h-5" />
-                        </div>
-                        <div>
-                          <div className="font-semibold text-slate-900 dark:text-white">
-                            {mfg.name}
-                          </div>
-                          <div className="text-xs text-slate-400 font-mono mt-0.5">{mfg.code}</div>
-                        </div>
-                      </div>
-                    </td>
-
-                    <td className="py-4 px-6">
-                      <div className="flex items-center gap-1.5 text-slate-700 dark:text-slate-300 font-medium text-xs">
-                        <Globe className="w-3.5 h-3.5 text-slate-400" />
-                        <span>{mfg.country}</span>
-                      </div>
-                    </td>
-
-                    <td className="py-4 px-6 font-mono text-xs text-slate-600 dark:text-slate-300 font-medium">
-                      {mfg.fdaRegistrationNo}
-                    </td>
-
-                    <td className="py-4 px-6">
-                      <span
-                        className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold ${
-                          mfg.qualityStatus === 'FDA Approved'
-                            ? 'bg-emerald-50 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20'
-                            : mfg.qualityStatus === 'EU GMP'
-                            ? 'bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-sky-400 border border-blue-500/20'
-                            : 'bg-purple-50 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400 border border-purple-500/20'
-                        }`}
-                      >
-                        <CheckCircle className="w-3 h-3" />
-                        {mfg.qualityStatus}
-                      </span>
-                    </td>
-
-                    <td className="py-4 px-6 font-bold text-slate-800 dark:text-slate-200 text-xs">
-                      {mfg.activeDrugLines} formulations
-                    </td>
-
-                    <td className="py-4 px-6">
-                      <div className="text-xs text-slate-400 space-y-0.5">
-                        <div className="flex items-center gap-1">
-                          <Mail className="w-3 h-3" />
-                          <span>{mfg.contactEmail || 'N/A'}</span>
-                        </div>
-                        <div className="flex items-center gap-1">
-                          <Phone className="w-3 h-3" />
-                          <span>{mfg.contactPhone || 'N/A'}</span>
-                        </div>
-                      </div>
-                    </td>
-
-                    <td className="py-4 px-6 text-right">
-                      <div className="flex items-center justify-end gap-1">
-                        <button
-                          onClick={() => openEditModal(mfg)}
-                          className="p-2 text-slate-400 hover:text-blue-600 dark:hover:text-sky-400 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-lg transition-colors cursor-pointer"
-                          title="Edit Manufacturer"
-                        >
-                          <Edit2 className="w-4 h-4" />
-                        </button>
-                        <button
-                          onClick={() => setDeletingMfg(mfg)}
-                          className="p-2 text-slate-400 hover:text-rose-600 dark:hover:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-900/20 rounded-lg transition-colors cursor-pointer"
-                          title="Delete Manufacturer"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </button>
-                      </div>
+              </thead>
+              <tbody className="divide-y divide-slate-200 dark:divide-slate-800/80 bg-white dark:bg-[#0c1626]">
+                {filteredManufacturers.length === 0 ? (
+                  <tr>
+                    <td colSpan={8} className="py-10 text-center text-slate-400 dark:text-slate-500 font-medium">
+                      No manufacturers found.
                     </td>
                   </tr>
-                ))
-              )}
-            </tbody>
-          </table>
+                ) : (
+                  filteredManufacturers.map((mfg, idx) => {
+                    const isActive = mfg.status === 'Active';
+
+                    return (
+                      <tr
+                        key={mfg.id}
+                        className="hover:bg-slate-50/70 dark:hover:bg-slate-800/40 transition-colors"
+                      >
+                        <td className="py-3.5 px-4 text-center font-bold text-slate-500 dark:text-slate-400">
+                          {idx + 1}
+                        </td>
+                        <td className="py-3.5 px-4 font-semibold text-slate-900 dark:text-white">
+                          {mfg.name}
+                        </td>
+                        <td className="py-3.5 px-4 text-slate-700 dark:text-slate-300">
+                          {mfg.contactPerson || 'bibek'}
+                        </td>
+                        <td className="py-3.5 px-4 text-slate-700 dark:text-slate-300 font-mono">
+                          {mfg.contactPhone || 'N/A'}
+                        </td>
+                        <td className="py-3.5 px-4 text-slate-700 dark:text-slate-300 font-mono">
+                          {mfg.contactEmail || 'N/A'}
+                        </td>
+                        <td className="py-3.5 px-4 font-mono font-medium text-slate-800 dark:text-slate-200">
+                          {mfg.licenseNumber || mfg.fdaRegistrationNo || 'Nplis123456s'}
+                        </td>
+                        <td className="py-3.5 px-4 text-center">
+                          {/* Green Toggle Switch */}
+                          <button
+                            type="button"
+                            onClick={() => handleToggleStatus(mfg)}
+                            className={`relative inline-flex h-5 w-9 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-hidden ${
+                              isActive ? 'bg-emerald-500' : 'bg-slate-300 dark:bg-slate-700'
+                            }`}
+                            title={isActive ? 'Deactivate Manufacturer' : 'Activate Manufacturer'}
+                          >
+                            <span
+                              className={`pointer-events-none inline-block h-4 w-4 transform rounded-full bg-white shadow-xs ring-0 transition duration-200 ease-in-out ${
+                                isActive ? 'translate-x-4' : 'translate-x-0'
+                              }`}
+                            />
+                          </button>
+                        </td>
+                        <td className="py-3.5 px-4 text-center">
+                          <div className="flex items-center justify-center gap-1">
+                            <button
+                              onClick={() => setViewingManufacturer(mfg)}
+                              className="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
+                              title="View Manufacturer Details"
+                            >
+                              <Eye className="w-3.5 h-3.5" />
+                            </button>
+                            <button
+                              onClick={() => openEditModal(mfg)}
+                              className="p-1.5 rounded-lg text-slate-400 hover:text-blue-600 dark:hover:text-sky-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
+                              title="Edit Manufacturer"
+                            >
+                              <Edit2 className="w-3.5 h-3.5" />
+                            </button>
+                            <button
+                              onClick={() => setDeletingManufacturer(mfg)}
+                              className="p-1.5 rounded-lg text-slate-400 hover:text-rose-600 dark:hover:text-rose-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
+                              title="Delete Manufacturer"
+                            >
+                              <Trash2 className="w-3.5 h-3.5" />
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    );
+                  })
+                )}
+              </tbody>
+            </table>
+          </div>
         </div>
       </div>
 
-      {/* Register Manufacturer Modal */}
+      {/* Add / Edit Manufacturer Modal */}
       {isModalOpen && (
         <div
           className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs"
-          onClick={(e) => {
+          onClick={e => {
             if (e.target === e.currentTarget) setIsModalOpen(false);
           }}
         >
-          <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-2xl max-w-lg w-full p-6 space-y-5 animate-in fade-in zoom-in-95 duration-150">
+          <div className="bg-white dark:bg-[#0c1626] border border-slate-200 dark:border-slate-800 rounded-3xl shadow-2xl max-w-lg w-full p-6 space-y-5 animate-in fade-in zoom-in-95 duration-150">
             <div className="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-slate-800">
               <div className="flex items-center gap-2.5">
-                <div className="p-2 rounded-xl bg-purple-50 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400">
-                  <Building2 className="w-5 h-5" />
+                <div className="p-2 rounded-xl bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-sky-400">
+                  <Factory className="w-5 h-5" />
                 </div>
                 <h3 className="text-lg font-bold text-slate-900 dark:text-white">
-                  {editingMfg ? 'Edit Manufacturer' : 'Register Manufacturer'}
+                  {editingManufacturer ? 'Edit Manufacturer' : 'Add Manufacturer'}
                 </h3>
               </div>
               <button
                 onClick={() => setIsModalOpen(false)}
-                className="p-1.5 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 rounded-lg"
+                className="p-1.5 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 rounded-lg cursor-pointer"
               >
                 <X className="w-5 h-5" />
               </button>
             </div>
 
-            <form onSubmit={handleAddManufacturerSubmit} className="space-y-4">
+            <form onSubmit={handleSubmitForm} className="space-y-4">
               <div>
-                <label className="block text-xs font-semibold uppercase text-slate-500 mb-1">
+                <label className="block text-xs font-bold text-slate-600 dark:text-slate-400 mb-1">
                   Manufacturer Name *
                 </label>
                 <input
                   type="text"
                   required
-                  placeholder="e.g. Novartis AG"
+                  placeholder="e.g. Nepal Pharmacy Pvt Ltd"
                   value={name}
                   onChange={e => setName(e.target.value)}
-                  className="w-full px-3.5 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 text-slate-900 dark:text-white"
+                  className="w-full px-3.5 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-medium focus:outline-hidden focus:ring-2 focus:ring-blue-500 text-slate-900 dark:text-white"
                 />
               </div>
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-xs font-semibold uppercase text-slate-500 mb-1">
-                    Country / Origin *
+                  <label className="block text-xs font-bold text-slate-600 dark:text-slate-400 mb-1">
+                    Contact Person
                   </label>
                   <input
                     type="text"
-                    required
-                    placeholder="e.g. United States"
-                    value={country}
-                    onChange={e => setCountry(e.target.value)}
-                    className="w-full px-3.5 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 text-slate-900 dark:text-white"
+                    placeholder="e.g. bibek"
+                    value={contactPerson}
+                    onChange={e => setContactPerson(e.target.value)}
+                    className="w-full px-3.5 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-medium focus:outline-hidden focus:ring-2 focus:ring-blue-500 text-slate-900 dark:text-white"
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-semibold uppercase text-slate-500 mb-1">
-                    FDA Registration No *
+                  <label className="block text-xs font-bold text-slate-600 dark:text-slate-400 mb-1">
+                    Phone *
                   </label>
                   <input
                     type="text"
                     required
-                    placeholder="FDA-REG-10928"
-                    value={fdaRegistrationNo}
-                    onChange={e => setFdaRegistrationNo(e.target.value)}
-                    className="w-full px-3.5 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 text-slate-900 dark:text-white"
+                    placeholder="e.g. 9829010709"
+                    value={phone}
+                    onChange={e => setPhone(e.target.value)}
+                    className="w-full px-3.5 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-medium focus:outline-hidden focus:ring-2 focus:ring-blue-500 text-slate-900 dark:text-white"
                   />
                 </div>
               </div>
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-xs font-semibold uppercase text-slate-500 mb-1">
-                    Quality Standard
-                  </label>
-                  <select
-                    value={qualityStatus}
-                    onChange={e => setQualityStatus(e.target.value as Manufacturer['qualityStatus'])}
-                    className="w-full px-3.5 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm focus:outline-none text-slate-900 dark:text-white"
-                  >
-                    <option value="FDA Approved">FDA Approved</option>
-                    <option value="EU GMP">EU GMP</option>
-                    <option value="ISO 9001">ISO 9001</option>
-                    <option value="Under Audit">Under Audit</option>
-                  </select>
-                </div>
-                <div>
-                  <label className="block text-xs font-semibold uppercase text-slate-500 mb-1">
-                    Active Drug Lines
-                  </label>
-                  <input
-                    type="number"
-                    value={activeDrugLines}
-                    onChange={e => setActiveDrugLines(e.target.value)}
-                    className="w-full px-3.5 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 text-slate-900 dark:text-white"
-                  />
-                </div>
-              </div>
-
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="block text-xs font-semibold uppercase text-slate-500 mb-1">
-                    Contact Email
+                  <label className="block text-xs font-bold text-slate-600 dark:text-slate-400 mb-1">
+                    Email
                   </label>
                   <input
                     type="email"
-                    placeholder="contact@manufacturer.com"
-                    value={contactEmail}
-                    onChange={e => setContactEmail(e.target.value)}
-                    className="w-full px-3.5 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 text-slate-900 dark:text-white"
+                    placeholder="e.g. bhwrs@gmail.com"
+                    value={email}
+                    onChange={e => setEmail(e.target.value)}
+                    className="w-full px-3.5 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-medium focus:outline-hidden focus:ring-2 focus:ring-blue-500 text-slate-900 dark:text-white"
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-semibold uppercase text-slate-500 mb-1">
-                    Contact Phone
+                  <label className="block text-xs font-bold text-slate-600 dark:text-slate-400 mb-1">
+                    License Number
                   </label>
                   <input
                     type="text"
-                    placeholder="(800) 223-0182"
-                    value={contactPhone}
-                    onChange={e => setContactPhone(e.target.value)}
-                    className="w-full px-3.5 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 text-slate-900 dark:text-white"
+                    placeholder="e.g. Nplis123456s"
+                    value={licenseNumber}
+                    onChange={e => setLicenseNumber(e.target.value)}
+                    className="w-full px-3.5 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-medium focus:outline-hidden focus:ring-2 focus:ring-blue-500 text-slate-900 dark:text-white"
                   />
                 </div>
               </div>
 
-              <div className="flex items-center justify-end gap-3 pt-3">
+              <div>
+                <label className="block text-xs font-bold text-slate-600 dark:text-slate-400 mb-1">
+                  Status
+                </label>
+                <select
+                  value={status}
+                  onChange={e => setStatus(e.target.value as 'Active' | 'Inactive')}
+                  className="w-full px-3.5 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-medium focus:outline-hidden text-slate-900 dark:text-white"
+                >
+                  <option value="Active">Active</option>
+                  <option value="Inactive">Inactive</option>
+                </select>
+              </div>
+
+              <div className="flex items-center justify-end gap-3 pt-3 border-t border-slate-100 dark:border-slate-800">
                 <button
                   type="button"
                   onClick={() => setIsModalOpen(false)}
-                  className="px-4 py-2 rounded-xl text-sm font-semibold text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 cursor-pointer"
+                  className="px-4 py-2 rounded-xl text-xs font-semibold text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 cursor-pointer"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="px-5 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold shadow-md shadow-blue-600/20 cursor-pointer"
+                  className="px-5 py-2 rounded-xl bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold shadow-xs shadow-blue-500/20 cursor-pointer"
                 >
-                  {editingMfg ? 'Save Changes' : 'Register Manufacturer'}
+                  {editingManufacturer ? 'Save Changes' : 'Add Manufacturer'}
                 </button>
               </div>
             </form>
@@ -494,18 +416,87 @@ export const ManufacturerPage: FC = () => {
         </div>
       )}
 
-      {/* Delete Manufacturer Confirmation Modal */}
+      {/* View Details Modal */}
+      {viewingManufacturer && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs"
+          onClick={e => {
+            if (e.target === e.currentTarget) setViewingManufacturer(null);
+          }}
+        >
+          <div className="bg-white dark:bg-[#0c1626] border border-slate-200 dark:border-slate-800 rounded-3xl shadow-2xl max-w-md w-full p-6 space-y-4 animate-in fade-in zoom-in-95 duration-150">
+            <div className="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-slate-800">
+              <h3 className="text-base font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                <Factory className="w-4 h-4 text-blue-500" />
+                Manufacturer Details
+              </h3>
+              <button
+                onClick={() => setViewingManufacturer(null)}
+                className="p-1 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 rounded-lg cursor-pointer"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            <div className="space-y-3 text-xs">
+              <div>
+                <span className="text-slate-400 block mb-0.5">Manufacturer Name:</span>
+                <span className="font-bold text-slate-900 dark:text-white text-sm">{viewingManufacturer.name}</span>
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <span className="text-slate-400 block mb-0.5">Contact Person:</span>
+                  <span className="font-semibold text-slate-800 dark:text-slate-200">{viewingManufacturer.contactPerson || 'bibek'}</span>
+                </div>
+                <div>
+                  <span className="text-slate-400 block mb-0.5">Phone:</span>
+                  <span className="font-semibold text-slate-800 dark:text-slate-200 font-mono">{viewingManufacturer.contactPhone || 'N/A'}</span>
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <span className="text-slate-400 block mb-0.5">Email:</span>
+                  <span className="font-semibold text-slate-800 dark:text-slate-200 font-mono">{viewingManufacturer.contactEmail || 'N/A'}</span>
+                </div>
+                <div>
+                  <span className="text-slate-400 block mb-0.5">License Number:</span>
+                  <span className="font-semibold text-slate-800 dark:text-slate-200 font-mono">{viewingManufacturer.licenseNumber || viewingManufacturer.fdaRegistrationNo || 'Nplis123456s'}</span>
+                </div>
+              </div>
+              <div>
+                <span className="text-slate-400 block mb-0.5">Status:</span>
+                <span className={`inline-block px-2.5 py-0.5 rounded-full text-[11px] font-bold ${
+                  viewingManufacturer.status === 'Active' ? 'bg-emerald-500/20 text-emerald-500' : 'bg-slate-500/20 text-slate-400'
+                }`}>
+                  {viewingManufacturer.status}
+                </span>
+              </div>
+            </div>
+
+            <div className="pt-3 border-t border-slate-100 dark:border-slate-800 flex justify-end">
+              <button
+                onClick={() => setViewingManufacturer(null)}
+                className="px-4 py-1.5 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 text-xs font-bold cursor-pointer"
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Delete Confirmation Modal */}
       <ConfirmDeleteModal
-        isOpen={!!deletingMfg}
-        onClose={() => setDeletingMfg(null)}
+        isOpen={!!deletingManufacturer}
+        onClose={() => setDeletingManufacturer(null)}
         onConfirm={() => {
-          if (deletingMfg) {
-            deleteManufacturer(deletingMfg.id);
+          if (deletingManufacturer) {
+            deleteManufacturer(deletingManufacturer.id);
           }
         }}
-        title="Delete Manufacturer Record"
-        itemName={deletingMfg?.name}
-        description="Are you sure you want to delete this manufacturer? This action cannot be undone and will affect pharmaceutical catalog tracking."
+        title="Delete Manufacturer"
+        itemName={deletingManufacturer?.name}
+        description="Are you sure you want to delete this manufacturer?"
       />
     </div>
   );

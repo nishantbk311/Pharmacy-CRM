@@ -1,24 +1,6 @@
-import React, { useState, useMemo } from 'react';
-import {
-  Plus,
-  Search,
-  RotateCcw,
-  User,
-  Calendar,
-  Tag,
-  CreditCard,
-  DollarSign,
-  CheckCircle2,
-  AlertCircle,
-  Pencil,
-  Trash2,
-  Eye,
-  X,
-  Check,
-  Building2,
-  Coins,
-  ChevronDown,
-} from 'lucide-react';
+import React, { useState, useMemo, useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
+import { Plus, Search, RotateCcw, User, Calendar, Tag, CreditCard, DollarSign, CheckCircle2, AlertCircle, Pencil, Trash2, Eye, X, Check, Building2, Coins, ChevronDown } from 'lucide-react';
 import { useData } from '../context/DataContext';
 import { StaffSalary, SalaryStatus } from '../types';
 
@@ -31,12 +13,32 @@ export const StaffSalaryPage: React.FC = () => {
     deleteStaffSalary,
   } = useData();
 
+  const [searchParams, setSearchParams] = useSearchParams();
+
   // Filters state
   const [selectedStaff, setSelectedStaff] = useState<string>('All');
   const [selectedYear, setSelectedYear] = useState<string>('All');
   const [selectedMonth, setSelectedMonth] = useState<string>('All');
   const [selectedStatus, setSelectedStatus] = useState<string>('All');
   const [searchTerm, setSearchTerm] = useState<string>('');
+
+  // Sync staff selection from URL search parameter (e.g. ?staff=... or ?staffId=... or ?q=...)
+  useEffect(() => {
+    const staffParam = searchParams.get('staff') || searchParams.get('staffId') || searchParams.get('q');
+    if (staffParam) {
+      const matched = staff.find(
+        s =>
+          s.id === staffParam ||
+          `${s.firstName} ${s.lastName}`.toLowerCase() === staffParam.toLowerCase() ||
+          s.firstName.toLowerCase() === staffParam.toLowerCase()
+      );
+      if (matched) {
+        setSelectedStaff(`${matched.firstName} ${matched.lastName}`);
+      } else {
+        setSelectedStaff(staffParam);
+      }
+    }
+  }, [searchParams, staff]);
 
   // Check if any filter is currently applied
   const isFilterApplied = useMemo(() => {
@@ -78,6 +80,7 @@ export const StaffSalaryPage: React.FC = () => {
     setSelectedMonth('All');
     setSelectedStatus('All');
     setSearchTerm('');
+    setSearchParams({});
   };
 
   // Available unique years for dropdown filter
@@ -439,10 +442,10 @@ export const StaffSalaryPage: React.FC = () => {
       </div>
 
       {/* Filter Toolbar Section */}
-      <div className="bg-white dark:bg-slate-800/90 border border-slate-200 dark:border-slate-700/60 rounded-2xl p-4 sm:p-5 shadow-xs space-y-4">
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+      <div className="bg-white dark:bg-slate-800/90 border border-slate-200 dark:border-slate-700/60 rounded-2xl p-4 sm:p-5 shadow-xs">
+        <div className="flex flex-col lg:flex-row items-stretch lg:items-end gap-3">
           {/* Staff Filter */}
-          <div className="relative">
+          <div className="relative min-w-[140px] flex-1">
             <label className="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1">
               Staff
             </label>
@@ -451,7 +454,7 @@ export const StaffSalaryPage: React.FC = () => {
               <select
                 value={selectedStaff}
                 onChange={e => setSelectedStaff(e.target.value)}
-                className="w-full bg-slate-50 dark:bg-slate-900/80 border border-slate-200 dark:border-slate-700 rounded-xl pl-9 pr-9 py-2 text-sm text-slate-800 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 appearance-none cursor-pointer"
+                className="w-full bg-slate-50 dark:bg-slate-900/80 border border-slate-200 dark:border-slate-700 rounded-xl pl-9 pr-8 py-2 text-sm text-slate-800 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 appearance-none cursor-pointer"
               >
                 <option value="All">All Staff</option>
                 {staff.map(s => (
@@ -460,12 +463,12 @@ export const StaffSalaryPage: React.FC = () => {
                   </option>
                 ))}
               </select>
-              <ChevronDown className="w-4 h-4 text-slate-400 absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+              <ChevronDown className="w-4 h-4 text-slate-400 absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
             </div>
           </div>
 
           {/* Year Filter */}
-          <div className="relative">
+          <div className="relative min-w-[120px]">
             <label className="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1">
               Year
             </label>
@@ -474,7 +477,7 @@ export const StaffSalaryPage: React.FC = () => {
               <select
                 value={selectedYear}
                 onChange={e => setSelectedYear(e.target.value)}
-                className="w-full bg-slate-50 dark:bg-slate-900/80 border border-slate-200 dark:border-slate-700 rounded-xl pl-9 pr-9 py-2 text-sm text-slate-800 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 appearance-none cursor-pointer"
+                className="w-full bg-slate-50 dark:bg-slate-900/80 border border-slate-200 dark:border-slate-700 rounded-xl pl-9 pr-8 py-2 text-sm text-slate-800 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 appearance-none cursor-pointer"
               >
                 <option value="All">All Years</option>
                 {availableYears.map(yr => (
@@ -482,16 +485,13 @@ export const StaffSalaryPage: React.FC = () => {
                     {yr}
                   </option>
                 ))}
-                <option value="2028–2029">2028–2029</option>
-                <option value="2025–2026">2025–2026</option>
-                <option value="1994–1234">1994–1234</option>
               </select>
-              <ChevronDown className="w-4 h-4 text-slate-400 absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+              <ChevronDown className="w-4 h-4 text-slate-400 absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
             </div>
           </div>
 
           {/* Month Filter */}
-          <div className="relative">
+          <div className="relative min-w-[130px]">
             <label className="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1">
               Month
             </label>
@@ -500,7 +500,7 @@ export const StaffSalaryPage: React.FC = () => {
               <select
                 value={selectedMonth}
                 onChange={e => setSelectedMonth(e.target.value)}
-                className="w-full bg-slate-50 dark:bg-slate-900/80 border border-slate-200 dark:border-slate-700 rounded-xl pl-9 pr-9 py-2 text-sm text-slate-800 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 appearance-none cursor-pointer"
+                className="w-full bg-slate-50 dark:bg-slate-900/80 border border-slate-200 dark:border-slate-700 rounded-xl pl-9 pr-8 py-2 text-sm text-slate-800 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 appearance-none cursor-pointer"
               >
                 <option value="All">All Months</option>
                 {monthsList.map(m => (
@@ -509,12 +509,12 @@ export const StaffSalaryPage: React.FC = () => {
                   </option>
                 ))}
               </select>
-              <ChevronDown className="w-4 h-4 text-slate-400 absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+              <ChevronDown className="w-4 h-4 text-slate-400 absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
             </div>
           </div>
 
           {/* Status Filter */}
-          <div className="relative">
+          <div className="relative min-w-[130px]">
             <label className="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1">
               Status
             </label>
@@ -523,21 +523,19 @@ export const StaffSalaryPage: React.FC = () => {
               <select
                 value={selectedStatus}
                 onChange={e => setSelectedStatus(e.target.value)}
-                className="w-full bg-slate-50 dark:bg-slate-900/80 border border-slate-200 dark:border-slate-700 rounded-xl pl-9 pr-9 py-2 text-sm text-slate-800 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 appearance-none cursor-pointer"
+                className="w-full bg-slate-50 dark:bg-slate-900/80 border border-slate-200 dark:border-slate-700 rounded-xl pl-9 pr-8 py-2 text-sm text-slate-800 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 appearance-none cursor-pointer"
               >
                 <option value="All">All Statuses</option>
                 <option value="Paid">Paid</option>
                 <option value="Partially paid">Partially paid</option>
                 <option value="Unpaid">Unpaid</option>
               </select>
-              <ChevronDown className="w-4 h-4 text-slate-400 absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+              <ChevronDown className="w-4 h-4 text-slate-400 absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
             </div>
           </div>
-        </div>
 
-        {/* Action / Search Row */}
-        <div className="flex flex-col sm:flex-row items-center justify-between gap-3 pt-2 border-t border-slate-200 dark:border-slate-700/50">
-          <div className="relative flex-1 w-full">
+          {/* Search Box */}
+          <div className="relative flex-1 min-w-[180px]">
             <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
             <input
               type="text"
@@ -548,11 +546,12 @@ export const StaffSalaryPage: React.FC = () => {
             />
           </div>
 
-          <div className="flex items-center gap-2 w-full sm:w-auto justify-end">
+          {/* Action Buttons */}
+          <div className="flex items-center gap-2 shrink-0">
             {isFilterApplied && (
               <button
                 onClick={handleClearFilters}
-                className="inline-flex items-center justify-center gap-2 px-3.5 py-2 bg-slate-100 hover:bg-slate-200 dark:bg-slate-700/60 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 text-sm font-medium rounded-xl border border-slate-200 dark:border-slate-600/60 transition-all cursor-pointer whitespace-nowrap"
+                className="inline-flex items-center justify-center gap-2 px-3.5 py-2 bg-slate-100 hover:bg-slate-200 dark:bg-slate-700/60 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 text-sm font-medium rounded-xl border border-slate-200 dark:border-slate-600/60 transition-all cursor-pointer whitespace-nowrap h-[38px]"
                 title="Clear Filters"
               >
                 <RotateCcw className="w-4 h-4" />
@@ -562,7 +561,7 @@ export const StaffSalaryPage: React.FC = () => {
 
             <button
               onClick={handleOpenAddModal}
-              className="inline-flex items-center justify-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white text-sm font-semibold rounded-xl transition-all shadow-md cursor-pointer whitespace-nowrap"
+              className="inline-flex items-center justify-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white text-sm font-semibold rounded-xl transition-all shadow-md cursor-pointer whitespace-nowrap h-[38px]"
             >
               <Plus className="w-4 h-4" />
               Add Salary

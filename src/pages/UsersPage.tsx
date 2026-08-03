@@ -1,24 +1,11 @@
-import {
-    Camera,
-    Mail,
-    Pencil,
-    Phone,
-    Plus,
-    Shield,
-    SlidersHorizontal,
-    Tag,
-    Trash2,
-    Upload,
-    UserCheck,
-    User as UserIcon
-} from 'lucide-react';
-import { type ChangeEvent, type FC, type FormEvent, useState } from 'react';
-import { ConfirmDeleteModal } from '../components/common/ConfirmDeleteModal';
-import { Modal } from '../components/common/Modal';
+import React, { useState } from 'react';
+import { Plus, SlidersHorizontal, User as UserIcon, Mail, Phone, Shield, Tag, Pencil, Trash2, UserCheck, Upload, Camera } from 'lucide-react';
 import { useData } from '../context/DataContext';
 import { SystemUser } from '../types';
+import { Modal } from '../components/common/Modal';
+import { ConfirmDeleteModal } from '../components/common/ConfirmDeleteModal';
 
-export const UsersPage: FC = () => {
+export const UsersPage: React.FC = () => {
   const { systemUsers, roles, addSystemUser, updateSystemUser, deleteSystemUser } = useData();
 
   // Filter Input States
@@ -88,7 +75,7 @@ export const UsersPage: FC = () => {
     return matchesUsername && matchesEmail && matchesPhone && matchesStatus && matchesRole;
   });
 
-  const handleAddSubmit = (e: FormEvent) => {
+  const handleAddSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!newName.trim() || !newEmail.trim()) return;
 
@@ -133,7 +120,7 @@ export const UsersPage: FC = () => {
     setEditModalOpen(true);
   };
 
-  const handleImageUpload = (e: ChangeEvent<HTMLInputElement>, target: 'edit' | 'new') => {
+  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>, target: 'edit' | 'new') => {
     const file = e.target.files?.[0];
     if (file) {
       const reader = new FileReader();
@@ -150,7 +137,7 @@ export const UsersPage: FC = () => {
     }
   };
 
-  const handleSaveEdit = (e: FormEvent) => {
+  const handleSaveEdit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!selectedUser) return;
 

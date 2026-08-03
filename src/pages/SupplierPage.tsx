@@ -1,558 +1,435 @@
-import {
-    Building2,
-    Clock,
-    Edit2,
-    Filter,
-    Mail,
-    Phone,
-    Plus,
-    Search,
-    ShieldCheck,
-    Star,
-    Trash2,
-    Truck,
-    X
-} from 'lucide-react';
-import { type FC, type FormEvent, useState } from 'react';
-import { ConfirmDeleteModal } from '../components/common/ConfirmDeleteModal';
+import React, { useState } from 'react';
+import { Truck, Plus, Phone, Mail, SlidersHorizontal, Trash2, Edit2, X, Eye } from 'lucide-react';
 import { useData } from '../context/DataContext';
 import { Supplier } from '../types';
+import { ConfirmDeleteModal } from '../components/common/ConfirmDeleteModal';
 
-export const SupplierPage: FC = () => {
+export const SupplierPage: React.FC = () => {
   const { suppliers, addSupplier, updateSupplier, deleteSupplier } = useData();
 
-  const [searchQuery, setSearchQuery] = useState('');
-  const [statusFilter, setStatusFilter] = useState<string>('All');
-  const [categoryFilter, setCategoryFilter] = useState<string>('All');
+  // Filter States
+  const [filterName, setFilterName] = useState('');
+  const [filterPhone, setFilterPhone] = useState('');
+  const [filterEmail, setFilterEmail] = useState('');
+
+  // Modal States
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [viewingSupplier, setViewingSupplier] = useState<Supplier | null>(null);
   const [editingSupplier, setEditingSupplier] = useState<Supplier | null>(null);
   const [deletingSupplier, setDeletingSupplier] = useState<Supplier | null>(null);
 
-  // Modal Form State
+  // Form Fields State
   const [name, setName] = useState('');
   const [contactPerson, setContactPerson] = useState('');
-  const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
-  const [categoriesInput, setCategoriesInput] = useState('');
-  const [paymentTerms, setPaymentTerms] = useState('Net 30');
-  const [leadTimeDays, setLeadTimeDays] = useState('2.0');
-  const [status, setStatus] = useState<Supplier['status']>('Active');
+  const [email, setEmail] = useState('');
   const [address, setAddress] = useState('');
+  const [supplierBusinessNumber, setSupplierBusinessNumber] = useState('');
+  const [status, setStatus] = useState<'Active' | 'Inactive'>('Active');
 
   const openAddModal = () => {
     setEditingSupplier(null);
     setName('');
     setContactPerson('');
-    setEmail('');
     setPhone('');
-    setCategoriesInput('');
-    setPaymentTerms('Net 30');
-    setLeadTimeDays('2.0');
-    setStatus('Active');
+    setEmail('');
     setAddress('');
+    setSupplierBusinessNumber('');
+    setStatus('Active');
     setIsModalOpen(true);
   };
 
   const openEditModal = (sup: Supplier) => {
     setEditingSupplier(sup);
     setName(sup.name);
-    setContactPerson(sup.contactPerson);
-    setEmail(sup.email);
-    setPhone(sup.phone);
-    setCategoriesInput(sup.categories.join(', '));
-    setPaymentTerms(sup.paymentTerms);
-    setLeadTimeDays(sup.leadTimeDays.toString());
-    setStatus(sup.status);
+    setContactPerson(sup.contactPerson || '');
+    setPhone(sup.phone || '');
+    setEmail(sup.email || '');
     setAddress(sup.address || '');
+    setSupplierBusinessNumber(sup.supplierBusinessNumber || '344343');
+    setStatus(sup.status === 'Inactive' ? 'Inactive' : 'Active');
     setIsModalOpen(true);
   };
 
-  // Filtered Suppliers
+  const handleClearFilter = () => {
+    setFilterName('');
+    setFilterPhone('');
+    setFilterEmail('');
+  };
+
+  const hasFilter = Boolean(filterName.trim() || filterPhone.trim() || filterEmail.trim());
+
+  // Filtered Suppliers List
   const filteredSuppliers = suppliers.filter(sup => {
-    const matchesSearch =
-      sup.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      sup.code.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      sup.contactPerson.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      sup.email.toLowerCase().includes(searchQuery.toLowerCase());
+    const nameMatch = sup.name.toLowerCase().includes(filterName.toLowerCase());
+    const phoneMatch = (sup.phone || '').toLowerCase().includes(filterPhone.toLowerCase());
+    const emailMatch = (sup.email || '').toLowerCase().includes(filterEmail.toLowerCase());
 
-    const matchesStatus = statusFilter === 'All' || sup.status === statusFilter;
-    const matchesCategory =
-      categoryFilter === 'All' || sup.categories.some(c => c.toLowerCase().includes(categoryFilter.toLowerCase()));
-
-    return matchesSearch && matchesStatus && matchesCategory;
+    return nameMatch && phoneMatch && emailMatch;
   });
 
-  const handleAddSupplierSubmit = (e: FormEvent) => {
-    e.preventDefault();
-    if (!name || !contactPerson || !email) return;
+  const handleToggleStatus = (sup: Supplier) => {
+    const newStatus = sup.status === 'Active' ? 'Inactive' : 'Active';
+    updateSupplier(sup.id, { status: newStatus });
+  };
 
-    const categoriesArray = categoriesInput
-      ? categoriesInput.split(',').map(c => c.trim()).filter(Boolean)
-      : ['Generics'];
+  const handleSubmitForm = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!name.trim()) return;
 
     if (editingSupplier) {
       updateSupplier(editingSupplier.id, {
         name,
         contactPerson,
-        email,
         phone,
-        categories: categoriesArray,
-        paymentTerms,
-        leadTimeDays: parseFloat(leadTimeDays) || 2,
-        status,
+        email,
         address,
+        supplierBusinessNumber,
+        status,
       });
     } else {
       addSupplier({
         name,
         contactPerson,
-        email,
         phone,
-        categories: categoriesArray,
-        paymentTerms,
-        leadTimeDays: parseFloat(leadTimeDays) || 2,
-        rating: 4.8,
-        status,
+        email,
         address,
+        supplierBusinessNumber,
+        status,
+        categories: ['Generics'],
+        paymentTerms: 'Net 30',
+        leadTimeDays: 2.0,
+        rating: 4.8,
       });
     }
 
-    // Reset Form
-    setName('');
-    setContactPerson('');
-    setEmail('');
-    setPhone('');
-    setCategoriesInput('');
-    setAddress('');
-    setEditingSupplier(null);
     setIsModalOpen(false);
   };
 
-  const preferredCount = suppliers.filter(s => s.status === 'Preferred').length;
-  const activeCount = suppliers.filter(s => s.status === 'Active' || s.status === 'Preferred').length;
-  const avgLeadTime = (
-    suppliers.reduce((acc, curr) => acc + curr.leadTimeDays, 0) / (suppliers.length || 1)
-  ).toFixed(1);
-
   return (
     <div className="space-y-6">
-      {/* Top Header Banner */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white dark:bg-slate-900 p-6 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-xs">
-        <div>
-          <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-blue-600 dark:text-sky-400 mb-1">
-            <span>Medicine</span>
-            <span>/</span>
-            <span>Supplier Management</span>
-          </div>
-          <h1 className="text-2xl font-bold text-slate-900 dark:text-white tracking-tight">
-            Pharmaceutical Suppliers
+      {/* Top Header Card Container */}
+      <div className="bg-white dark:bg-[#0c1626] border border-slate-200/90 dark:border-slate-800/90 rounded-3xl p-5 sm:p-6 shadow-xs space-y-6">
+        {/* Title Row */}
+        <div className="flex items-center justify-between">
+          <h1 className="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white tracking-tight">
+            Supplier
           </h1>
-          <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
-            Maintain verified drug distributors, contract terms, delivery lead times, and fulfillment ratings.
-          </p>
         </div>
 
-        <div className="flex items-center gap-3">
-          <button
-            onClick={openAddModal}
-            className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-semibold text-sm transition-all shadow-md shadow-blue-600/20 cursor-pointer"
-          >
-            <Plus className="w-4 h-4 stroke-[2.5]" />
-            Add Supplier
-          </button>
-        </div>
-      </div>
-
-      {/* Metrics Row */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-xs">
-          <div className="flex items-center justify-between text-slate-500 dark:text-slate-400">
-            <span className="text-xs font-semibold uppercase tracking-wider">Total Suppliers</span>
-            <div className="p-2 rounded-xl bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-sky-400">
-              <Truck className="w-5 h-5" />
-            </div>
-          </div>
-          <p className="text-2xl font-extrabold text-slate-900 dark:text-white mt-2">{suppliers.length}</p>
-          <span className="text-xs font-medium text-slate-500 dark:text-slate-400">Verified distributors</span>
-        </div>
-
-        <div className="p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-xs">
-          <div className="flex items-center justify-between text-slate-500 dark:text-slate-400">
-            <span className="text-xs font-semibold uppercase tracking-wider">Preferred Partners</span>
-            <div className="p-2 rounded-xl bg-emerald-50 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400">
-              <ShieldCheck className="w-5 h-5" />
-            </div>
-          </div>
-          <p className="text-2xl font-extrabold text-slate-900 dark:text-white mt-2">{preferredCount}</p>
-          <span className="text-xs font-medium text-emerald-600 dark:text-emerald-400">High fulfillment rate</span>
-        </div>
-
-        <div className="p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-xs">
-          <div className="flex items-center justify-between text-slate-500 dark:text-slate-400">
-            <span className="text-xs font-semibold uppercase tracking-wider">Active Distributors</span>
-            <div className="p-2 rounded-xl bg-sky-50 dark:bg-sky-900/30 text-sky-600 dark:text-sky-400">
-              <Building2 className="w-5 h-5" />
-            </div>
-          </div>
-          <p className="text-2xl font-extrabold text-slate-900 dark:text-white mt-2">{activeCount}</p>
-          <span className="text-xs font-medium text-slate-500 dark:text-slate-400">Active contracts</span>
-        </div>
-
-        <div className="p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-xs">
-          <div className="flex items-center justify-between text-slate-500 dark:text-slate-400">
-            <span className="text-xs font-semibold uppercase tracking-wider">Avg Lead Time</span>
-            <div className="p-2 rounded-xl bg-purple-50 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400">
-              <Clock className="w-5 h-5" />
-            </div>
-          </div>
-          <p className="text-2xl font-extrabold text-slate-900 dark:text-white mt-2">{avgLeadTime} Days</p>
-          <span className="text-xs font-medium text-slate-500 dark:text-slate-400">Order to pharmacy arrival</span>
-        </div>
-      </div>
-
-      {/* Filter and Search Bar */}
-      <div className="flex flex-col md:flex-row items-center justify-between gap-4 bg-white dark:bg-slate-900 p-4 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-xs">
-        {/* Search Input */}
-        <div className="relative w-full md:w-80">
-          <Search className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
-          <input
-            type="text"
-            placeholder="Search suppliers, code, contact..."
-            value={searchQuery}
-            onChange={e => setSearchQuery(e.target.value)}
-            className="w-full pl-10 pr-4 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 dark:text-slate-100"
-          />
-        </div>
-
-        {/* Filter Dropdowns */}
-        <div className="flex items-center gap-3 w-full md:w-auto">
-          <div className="flex items-center gap-2 text-xs font-medium text-slate-500 dark:text-slate-400">
-            <Filter className="w-4 h-4" />
-            <span>Filters:</span>
+        {/* Filter Inputs & Action Buttons Row */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 items-end">
+          {/* Supplier Name Input */}
+          <div>
+            <label className="block text-[11px] font-bold text-slate-500 dark:text-slate-400 mb-1 flex items-center gap-1.5">
+              <Truck className="w-3.5 h-3.5" />
+              <span>Supplier Name</span>
+            </label>
+            <input
+              type="text"
+              placeholder="Enter Name"
+              value={filterName}
+              onChange={e => setFilterName(e.target.value)}
+              className="w-full px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-800 bg-white dark:bg-[#081120] text-slate-900 dark:text-slate-200 text-xs font-medium focus:outline-hidden focus:ring-2 focus:ring-blue-500 shadow-xs"
+            />
           </div>
 
-          <select
-            value={statusFilter}
-            onChange={e => setStatusFilter(e.target.value)}
-            className="px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-medium text-slate-700 dark:text-slate-200 focus:outline-none"
-          >
-            <option value="All">All Statuses</option>
-            <option value="Preferred">Preferred</option>
-            <option value="Active">Active</option>
-            <option value="Under Review">Under Review</option>
-            <option value="Inactive">Inactive</option>
-          </select>
+          {/* Phone Input */}
+          <div>
+            <label className="block text-[11px] font-bold text-slate-500 dark:text-slate-400 mb-1 flex items-center gap-1.5">
+              <Phone className="w-3.5 h-3.5" />
+              <span>Phone</span>
+            </label>
+            <input
+              type="text"
+              placeholder="Enter Phone"
+              value={filterPhone}
+              onChange={e => setFilterPhone(e.target.value)}
+              className="w-full px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-800 bg-white dark:bg-[#081120] text-slate-900 dark:text-slate-200 text-xs font-medium focus:outline-hidden focus:ring-2 focus:ring-blue-500 shadow-xs"
+            />
+          </div>
 
-          <select
-            value={categoryFilter}
-            onChange={e => setCategoryFilter(e.target.value)}
-            className="px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-medium text-slate-700 dark:text-slate-200 focus:outline-none"
-          >
-            <option value="All">All Categories</option>
-            <option value="Generics">Generics</option>
-            <option value="Brand Biologics">Brand Biologics</option>
-            <option value="OTC">OTC & First Aid</option>
-            <option value="Medical Devices">Medical Devices</option>
-          </select>
+          {/* Email Input */}
+          <div>
+            <label className="block text-[11px] font-bold text-slate-500 dark:text-slate-400 mb-1 flex items-center gap-1.5">
+              <Mail className="w-3.5 h-3.5" />
+              <span>Email</span>
+            </label>
+            <input
+              type="text"
+              placeholder="Enter Email"
+              value={filterEmail}
+              onChange={e => setFilterEmail(e.target.value)}
+              className="w-full px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-800 bg-white dark:bg-[#081120] text-slate-900 dark:text-slate-200 text-xs font-medium focus:outline-hidden focus:ring-2 focus:ring-blue-500 shadow-xs"
+            />
+          </div>
+
+          {/* Action Buttons in same line */}
+          <div className="flex items-center gap-2">
+            {hasFilter && (
+              <button
+                type="button"
+                onClick={handleClearFilter}
+                className="px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-100 dark:bg-[#101b2d] text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white text-xs font-semibold flex items-center justify-center gap-1.5 transition-all cursor-pointer shadow-xs whitespace-nowrap"
+              >
+                <SlidersHorizontal className="w-3.5 h-3.5" />
+                <span>Clear</span>
+              </button>
+            )}
+
+            <button
+              type="button"
+              onClick={openAddModal}
+              className="w-full py-2 px-4 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-semibold text-xs flex items-center justify-center gap-1.5 transition-all cursor-pointer shadow-xs shadow-blue-500/20 whitespace-nowrap"
+            >
+              <Plus className="w-4 h-4 stroke-[2.5]" />
+              <span>Add Supplier</span>
+            </button>
+          </div>
         </div>
-      </div>
 
-      {/* Supplier List Table */}
-      <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 overflow-hidden shadow-xs">
-        <div className="overflow-x-auto">
-          <table className="w-full text-left border-collapse text-sm">
-            <thead>
-              <tr className="border-b border-slate-200 dark:border-slate-800 bg-slate-50/80 dark:bg-slate-950/40 text-slate-500 dark:text-slate-400 text-xs font-semibold uppercase tracking-wider">
-                <th className="py-3.5 px-6">Supplier & Code</th>
-                <th className="py-3.5 px-6">Contact Person</th>
-                <th className="py-3.5 px-6">Supply Categories</th>
-                <th className="py-3.5 px-6">Payment Terms</th>
-                <th className="py-3.5 px-6">Avg Lead Time</th>
-                <th className="py-3.5 px-6">Status</th>
-                <th className="py-3.5 px-6 text-right">Actions</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-slate-200 dark:divide-slate-800/80">
-              {filteredSuppliers.length === 0 ? (
-                <tr>
-                  <td colSpan={7} className="py-12 text-center text-slate-400 dark:text-slate-500 text-sm">
-                    No suppliers match your search query or filters.
-                  </td>
+        {/* Data Table */}
+        <div className="border border-slate-200/90 dark:border-slate-800/90 rounded-2xl overflow-hidden shadow-xs">
+          <div className="overflow-x-auto">
+            <table className="w-full text-left border-collapse text-xs">
+              <thead>
+                <tr className="border-b border-slate-200/90 dark:border-slate-800/90 bg-slate-50 dark:bg-[#0a1322] text-slate-500 dark:text-slate-400 font-bold uppercase tracking-wider text-[11px]">
+                  <th className="py-3 px-4 w-12 text-center">S.N</th>
+                  <th className="py-3 px-4">SUPPLIER NAME</th>
+                  <th className="py-3 px-4">PHONE</th>
+                  <th className="py-3 px-4">CONTACT PERSON</th>
+                  <th className="py-3 px-4">EMAIL</th>
+                  <th className="py-3 px-4">ADDRESS</th>
+                  <th className="py-3 px-4 text-center">STATUS</th>
+                  <th className="py-3 px-4">SUPPLIER BUSINESS NUMBER</th>
+                  <th className="py-3 px-4 text-center">ACTION</th>
                 </tr>
-              ) : (
-                filteredSuppliers.map(sup => (
-                  <tr
-                    key={sup.id}
-                    className="hover:bg-slate-50/60 dark:hover:bg-slate-800/40 transition-colors"
-                  >
-                    <td className="py-4 px-6">
-                      <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-xl bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-sky-400 flex items-center justify-center shrink-0">
-                          <Truck className="w-5 h-5" />
-                        </div>
-                        <div>
-                          <div className="font-semibold text-slate-900 dark:text-white">
-                            {sup.name}
-                          </div>
-                          <div className="text-xs text-slate-400 font-mono flex items-center gap-1.5 mt-0.5">
-                            <span>{sup.code}</span>
-                            <span>•</span>
-                            <span className="flex items-center gap-1 text-amber-500 font-semibold">
-                              <Star className="w-3 h-3 fill-amber-400 text-amber-400" />
-                              {sup.rating}
-                            </span>
-                          </div>
-                        </div>
-                      </div>
-                    </td>
-
-                    <td className="py-4 px-6">
-                      <div className="font-medium text-slate-800 dark:text-slate-200">
-                        {sup.contactPerson}
-                      </div>
-                      <div className="text-xs text-slate-400 space-y-0.5 mt-0.5">
-                        <div className="flex items-center gap-1">
-                          <Mail className="w-3 h-3" />
-                          <span>{sup.email}</span>
-                        </div>
-                        <div className="flex items-center gap-1">
-                          <Phone className="w-3 h-3" />
-                          <span>{sup.phone}</span>
-                        </div>
-                      </div>
-                    </td>
-
-                    <td className="py-4 px-6">
-                      <div className="flex flex-wrap gap-1">
-                        {sup.categories.map((cat, idx) => (
-                          <span
-                            key={idx}
-                            className="px-2 py-0.5 rounded-md bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 text-[11px] font-medium"
-                          >
-                            {cat}
-                          </span>
-                        ))}
-                      </div>
-                    </td>
-
-                    <td className="py-4 px-6 text-slate-700 dark:text-slate-300 font-medium text-xs">
-                      {sup.paymentTerms}
-                    </td>
-
-                    <td className="py-4 px-6 text-slate-700 dark:text-slate-300 font-semibold text-xs">
-                      {sup.leadTimeDays} days
-                    </td>
-
-                    <td className="py-4 px-6">
-                      <span
-                        className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold ${
-                          sup.status === 'Preferred'
-                            ? 'bg-emerald-50 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20'
-                            : sup.status === 'Active'
-                            ? 'bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-sky-400 border border-blue-500/20'
-                            : 'bg-amber-50 dark:bg-amber-900/30 text-amber-600 dark:text-amber-400 border border-amber-500/20'
-                        }`}
-                      >
-                        <span className="w-1.5 h-1.5 rounded-full bg-current" />
-                        {sup.status}
-                      </span>
-                    </td>
-
-                    <td className="py-4 px-6 text-right">
-                      <div className="flex items-center justify-end gap-1">
-                        <button
-                          onClick={() => openEditModal(sup)}
-                          className="p-2 text-slate-400 hover:text-blue-600 dark:hover:text-sky-400 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-lg transition-colors cursor-pointer"
-                          title="Edit Supplier"
-                        >
-                          <Edit2 className="w-4 h-4" />
-                        </button>
-                        <button
-                          onClick={() => setDeletingSupplier(sup)}
-                          className="p-2 text-slate-400 hover:text-rose-600 dark:hover:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-900/20 rounded-lg transition-colors cursor-pointer"
-                          title="Delete Supplier"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </button>
-                      </div>
+              </thead>
+              <tbody className="divide-y divide-slate-200 dark:divide-slate-800/80 bg-white dark:bg-[#0c1626]">
+                {filteredSuppliers.length === 0 ? (
+                  <tr>
+                    <td colSpan={9} className="py-10 text-center text-slate-400 dark:text-slate-500 font-medium">
+                      No suppliers found.
                     </td>
                   </tr>
-                ))
-              )}
-            </tbody>
-          </table>
+                ) : (
+                  filteredSuppliers.map((sup, idx) => {
+                    const isActive = sup.status === 'Active' || sup.status === 'Preferred';
+
+                    return (
+                      <tr
+                        key={sup.id}
+                        className="hover:bg-slate-50/70 dark:hover:bg-slate-800/40 transition-colors"
+                      >
+                        <td className="py-3.5 px-4 text-center font-bold text-slate-500 dark:text-slate-400">
+                          {idx + 1}
+                        </td>
+                        <td className="py-3.5 px-4 font-semibold text-slate-900 dark:text-white">
+                          {sup.name}
+                        </td>
+                        <td className="py-3.5 px-4 text-slate-700 dark:text-slate-300 font-mono">
+                          {sup.phone || 'N/A'}
+                        </td>
+                        <td className="py-3.5 px-4 text-slate-700 dark:text-slate-300">
+                          {sup.contactPerson || 'N/A'}
+                        </td>
+                        <td className="py-3.5 px-4 text-slate-700 dark:text-slate-300 font-mono">
+                          {sup.email || 'N/A'}
+                        </td>
+                        <td className="py-3.5 px-4 text-slate-700 dark:text-slate-300">
+                          {sup.address || 'N/A'}
+                        </td>
+                        <td className="py-3.5 px-4 text-center">
+                          {/* Green Toggle Switch */}
+                          <button
+                            type="button"
+                            onClick={() => handleToggleStatus(sup)}
+                            className={`relative inline-flex h-5 w-9 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-hidden ${
+                              isActive ? 'bg-emerald-500' : 'bg-slate-300 dark:bg-slate-700'
+                            }`}
+                            title={isActive ? 'Deactivate Supplier' : 'Activate Supplier'}
+                          >
+                            <span
+                              className={`pointer-events-none inline-block h-4 w-4 transform rounded-full bg-white shadow-xs ring-0 transition duration-200 ease-in-out ${
+                                isActive ? 'translate-x-4' : 'translate-x-0'
+                              }`}
+                            />
+                          </button>
+                        </td>
+                        <td className="py-3.5 px-4 font-mono font-medium text-slate-800 dark:text-slate-200">
+                          {sup.supplierBusinessNumber || '344343'}
+                        </td>
+                        <td className="py-3.5 px-4 text-center">
+                          <div className="flex items-center justify-center gap-1">
+                            <button
+                              onClick={() => setViewingSupplier(sup)}
+                              className="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
+                              title="View Supplier Details"
+                            >
+                              <Eye className="w-3.5 h-3.5" />
+                            </button>
+                            <button
+                              onClick={() => openEditModal(sup)}
+                              className="p-1.5 rounded-lg text-slate-400 hover:text-blue-600 dark:hover:text-sky-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
+                              title="Edit Supplier"
+                            >
+                              <Edit2 className="w-3.5 h-3.5" />
+                            </button>
+                            <button
+                              onClick={() => setDeletingSupplier(sup)}
+                              className="p-1.5 rounded-lg text-slate-400 hover:text-rose-600 dark:hover:text-rose-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
+                              title="Delete Supplier"
+                            >
+                              <Trash2 className="w-3.5 h-3.5" />
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    );
+                  })
+                )}
+              </tbody>
+            </table>
+          </div>
         </div>
       </div>
 
-      {/* Add Supplier Modal */}
+      {/* Add / Edit Supplier Modal */}
       {isModalOpen && (
         <div
           className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs"
-          onClick={(e) => {
+          onClick={e => {
             if (e.target === e.currentTarget) setIsModalOpen(false);
           }}
         >
-          <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-2xl max-w-lg w-full p-6 space-y-5 animate-in fade-in zoom-in-95 duration-150">
+          <div className="bg-white dark:bg-[#0c1626] border border-slate-200 dark:border-slate-800 rounded-3xl shadow-2xl max-w-lg w-full p-6 space-y-5 animate-in fade-in zoom-in-95 duration-150">
             <div className="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-slate-800">
               <div className="flex items-center gap-2.5">
                 <div className="p-2 rounded-xl bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-sky-400">
                   <Truck className="w-5 h-5" />
                 </div>
                 <h3 className="text-lg font-bold text-slate-900 dark:text-white">
-                  {editingSupplier ? 'Edit Supplier' : 'Add New Supplier'}
+                  {editingSupplier ? 'Edit Supplier' : 'Add Supplier'}
                 </h3>
               </div>
               <button
                 onClick={() => setIsModalOpen(false)}
-                className="p-1.5 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 rounded-lg"
+                className="p-1.5 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 rounded-lg cursor-pointer"
               >
                 <X className="w-5 h-5" />
               </button>
             </div>
 
-            <form onSubmit={handleAddSupplierSubmit} className="space-y-4">
+            <form onSubmit={handleSubmitForm} className="space-y-4">
               <div>
-                <label className="block text-xs font-semibold uppercase text-slate-500 mb-1">
+                <label className="block text-xs font-bold text-slate-600 dark:text-slate-400 mb-1">
                   Supplier Name *
                 </label>
                 <input
                   type="text"
                   required
-                  placeholder="e.g. Cardinal Health Distribution"
+                  placeholder="e.g. Bhw Medicine Trader"
                   value={name}
                   onChange={e => setName(e.target.value)}
-                  className="w-full px-3.5 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 text-slate-900 dark:text-white"
+                  className="w-full px-3.5 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-medium focus:outline-hidden focus:ring-2 focus:ring-blue-500 text-slate-900 dark:text-white"
                 />
               </div>
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-xs font-semibold uppercase text-slate-500 mb-1">
-                    Contact Person *
+                  <label className="block text-xs font-bold text-slate-600 dark:text-slate-400 mb-1">
+                    Phone *
                   </label>
                   <input
                     type="text"
                     required
-                    placeholder="e.g. Robert Miller"
-                    value={contactPerson}
-                    onChange={e => setContactPerson(e.target.value)}
-                    className="w-full px-3.5 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 text-slate-900 dark:text-white"
+                    placeholder="e.g. 9801111001"
+                    value={phone}
+                    onChange={e => setPhone(e.target.value)}
+                    className="w-full px-3.5 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-medium focus:outline-hidden focus:ring-2 focus:ring-blue-500 text-slate-900 dark:text-white"
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-semibold uppercase text-slate-500 mb-1">
-                    Email *
+                  <label className="block text-xs font-bold text-slate-600 dark:text-slate-400 mb-1">
+                    Contact Person
+                  </label>
+                  <input
+                    type="text"
+                    placeholder="e.g. bibek"
+                    value={contactPerson}
+                    onChange={e => setContactPerson(e.target.value)}
+                    className="w-full px-3.5 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-medium focus:outline-hidden focus:ring-2 focus:ring-blue-500 text-slate-900 dark:text-white"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-xs font-bold text-slate-600 dark:text-slate-400 mb-1">
+                    Email
                   </label>
                   <input
                     type="email"
-                    required
-                    placeholder="contact@supplier.com"
+                    placeholder="e.g. bhwrs@gmail.com"
                     value={email}
                     onChange={e => setEmail(e.target.value)}
-                    className="w-full px-3.5 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 text-slate-900 dark:text-white"
+                    className="w-full px-3.5 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-medium focus:outline-hidden focus:ring-2 focus:ring-blue-500 text-slate-900 dark:text-white"
                   />
                 </div>
-              </div>
-
-              <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-xs font-semibold uppercase text-slate-500 mb-1">
-                    Phone Number
+                  <label className="block text-xs font-bold text-slate-600 dark:text-slate-400 mb-1">
+                    Business Number
                   </label>
                   <input
                     type="text"
-                    placeholder="(800) 555-0199"
-                    value={phone}
-                    onChange={e => setPhone(e.target.value)}
-                    className="w-full px-3.5 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 text-slate-900 dark:text-white"
+                    placeholder="e.g. 344343"
+                    value={supplierBusinessNumber}
+                    onChange={e => setSupplierBusinessNumber(e.target.value)}
+                    className="w-full px-3.5 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-medium focus:outline-hidden focus:ring-2 focus:ring-blue-500 text-slate-900 dark:text-white"
                   />
-                </div>
-                <div>
-                  <label className="block text-xs font-semibold uppercase text-slate-500 mb-1">
-                    Payment Terms
-                  </label>
-                  <select
-                    value={paymentTerms}
-                    onChange={e => setPaymentTerms(e.target.value)}
-                    className="w-full px-3.5 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm focus:outline-none text-slate-900 dark:text-white"
-                  >
-                    <option value="Net 15">Net 15</option>
-                    <option value="Net 30">Net 30</option>
-                    <option value="Net 45">Net 45</option>
-                    <option value="Due on Receipt">Due on Receipt</option>
-                  </select>
-                </div>
-              </div>
-
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="block text-xs font-semibold uppercase text-slate-500 mb-1">
-                    Lead Time (Days)
-                  </label>
-                  <input
-                    type="number"
-                    step="0.5"
-                    value={leadTimeDays}
-                    onChange={e => setLeadTimeDays(e.target.value)}
-                    className="w-full px-3.5 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 text-slate-900 dark:text-white"
-                  />
-                </div>
-                <div>
-                  <label className="block text-xs font-semibold uppercase text-slate-500 mb-1">
-                    Status
-                  </label>
-                  <select
-                    value={status}
-                    onChange={e => setStatus(e.target.value as Supplier['status'])}
-                    className="w-full px-3.5 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm focus:outline-none text-slate-900 dark:text-white"
-                  >
-                    <option value="Active">Active</option>
-                    <option value="Preferred">Preferred</option>
-                    <option value="Under Review">Under Review</option>
-                    <option value="Inactive">Inactive</option>
-                  </select>
                 </div>
               </div>
 
               <div>
-                <label className="block text-xs font-semibold uppercase text-slate-500 mb-1">
-                  Supply Categories (Comma Separated)
-                </label>
-                <input
-                  type="text"
-                  placeholder="e.g. Generics, Brand Biologics, Cold Chain"
-                  value={categoriesInput}
-                  onChange={e => setCategoriesInput(e.target.value)}
-                  className="w-full px-3.5 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 text-slate-900 dark:text-white"
-                />
-              </div>
-
-              <div>
-                <label className="block text-xs font-semibold uppercase text-slate-500 mb-1">
+                <label className="block text-xs font-bold text-slate-600 dark:text-slate-400 mb-1">
                   Address
                 </label>
                 <input
                   type="text"
-                  placeholder="123 Pharma Blvd, Suite 100"
+                  placeholder="e.g. delhi"
                   value={address}
                   onChange={e => setAddress(e.target.value)}
-                  className="w-full px-3.5 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 text-slate-900 dark:text-white"
+                  className="w-full px-3.5 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-medium focus:outline-hidden focus:ring-2 focus:ring-blue-500 text-slate-900 dark:text-white"
                 />
               </div>
 
-              <div className="flex items-center justify-end gap-3 pt-3">
+              <div>
+                <label className="block text-xs font-bold text-slate-600 dark:text-slate-400 mb-1">
+                  Status
+                </label>
+                <select
+                  value={status}
+                  onChange={e => setStatus(e.target.value as 'Active' | 'Inactive')}
+                  className="w-full px-3.5 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-medium focus:outline-hidden text-slate-900 dark:text-white"
+                >
+                  <option value="Active">Active</option>
+                  <option value="Inactive">Inactive</option>
+                </select>
+              </div>
+
+              <div className="flex items-center justify-end gap-3 pt-3 border-t border-slate-100 dark:border-slate-800">
                 <button
                   type="button"
                   onClick={() => setIsModalOpen(false)}
-                  className="px-4 py-2 rounded-xl text-sm font-semibold text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 cursor-pointer"
+                  className="px-4 py-2 rounded-xl text-xs font-semibold text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 cursor-pointer"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="px-5 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold shadow-md shadow-blue-600/20 cursor-pointer"
+                  className="px-5 py-2 rounded-xl bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold shadow-xs shadow-blue-500/20 cursor-pointer"
                 >
-                  {editingSupplier ? 'Save Changes' : 'Save Supplier'}
+                  {editingSupplier ? 'Save Changes' : 'Add Supplier'}
                 </button>
               </div>
             </form>
@@ -560,7 +437,80 @@ export const SupplierPage: FC = () => {
         </div>
       )}
 
-      {/* Delete Supplier Confirmation Modal */}
+      {/* View Details Modal */}
+      {viewingSupplier && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs"
+          onClick={e => {
+            if (e.target === e.currentTarget) setViewingSupplier(null);
+          }}
+        >
+          <div className="bg-white dark:bg-[#0c1626] border border-slate-200 dark:border-slate-800 rounded-3xl shadow-2xl max-w-md w-full p-6 space-y-4 animate-in fade-in zoom-in-95 duration-150">
+            <div className="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-slate-800">
+              <h3 className="text-base font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                <Truck className="w-4 h-4 text-blue-500" />
+                Supplier Details
+              </h3>
+              <button
+                onClick={() => setViewingSupplier(null)}
+                className="p-1 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 rounded-lg cursor-pointer"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            <div className="space-y-3 text-xs">
+              <div>
+                <span className="text-slate-400 block mb-0.5">Supplier Name:</span>
+                <span className="font-bold text-slate-900 dark:text-white text-sm">{viewingSupplier.name}</span>
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <span className="text-slate-400 block mb-0.5">Phone:</span>
+                  <span className="font-semibold text-slate-800 dark:text-slate-200 font-mono">{viewingSupplier.phone || 'N/A'}</span>
+                </div>
+                <div>
+                  <span className="text-slate-400 block mb-0.5">Contact Person:</span>
+                  <span className="font-semibold text-slate-800 dark:text-slate-200">{viewingSupplier.contactPerson || 'N/A'}</span>
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <span className="text-slate-400 block mb-0.5">Email:</span>
+                  <span className="font-semibold text-slate-800 dark:text-slate-200 font-mono">{viewingSupplier.email || 'N/A'}</span>
+                </div>
+                <div>
+                  <span className="text-slate-400 block mb-0.5">Business Number:</span>
+                  <span className="font-semibold text-slate-800 dark:text-slate-200 font-mono">{viewingSupplier.supplierBusinessNumber || '344343'}</span>
+                </div>
+              </div>
+              <div>
+                <span className="text-slate-400 block mb-0.5">Address:</span>
+                <span className="font-semibold text-slate-800 dark:text-slate-200">{viewingSupplier.address || 'N/A'}</span>
+              </div>
+              <div>
+                <span className="text-slate-400 block mb-0.5">Status:</span>
+                <span className={`inline-block px-2.5 py-0.5 rounded-full text-[11px] font-bold ${
+                  viewingSupplier.status === 'Active' ? 'bg-emerald-500/20 text-emerald-500' : 'bg-slate-500/20 text-slate-400'
+                }`}>
+                  {viewingSupplier.status}
+                </span>
+              </div>
+            </div>
+
+            <div className="pt-3 border-t border-slate-100 dark:border-slate-800 flex justify-end">
+              <button
+                onClick={() => setViewingSupplier(null)}
+                className="px-4 py-1.5 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 text-xs font-bold cursor-pointer"
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Delete Confirmation Modal */}
       <ConfirmDeleteModal
         isOpen={!!deletingSupplier}
         onClose={() => setDeletingSupplier(null)}
@@ -569,9 +519,9 @@ export const SupplierPage: FC = () => {
             deleteSupplier(deletingSupplier.id);
           }
         }}
-        title="Delete Supplier Record"
+        title="Delete Supplier"
         itemName={deletingSupplier?.name}
-        description="Are you sure you want to delete this supplier? This action cannot be undone and will affect inventory sourcing records."
+        description="Are you sure you want to delete this supplier?"
       />
     </div>
   );

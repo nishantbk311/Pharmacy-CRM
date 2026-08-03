@@ -1,62 +1,7 @@
 import React, { createContext, useContext, useState } from 'react';
 import { toast } from 'sonner';
-import {
-  INITIAL_ACTIVITIES,
-  INITIAL_ACTIVITY_CATEGORIES,
-  INITIAL_ACTIVITY_LOGS,
-  INITIAL_APPOINTMENTS,
-  INITIAL_BLOG_POSTS,
-  INITIAL_DOCTORS,
-  INITIAL_INQUIRIES,
-  INITIAL_MANUFACTURERS,
-  INITIAL_MEDICINES,
-  INITIAL_PATIENT_BILLS,
-  INITIAL_PATIENTS,
-  INITIAL_PRESCRIPTIONS,
-  INITIAL_ROLES,
-  INITIAL_STAFF,
-  INITIAL_STAFF_SALARIES,
-  INITIAL_STOCK_TRANSACTIONS,
-  INITIAL_SUPPLIERS,
-  INITIAL_SYSTEM_USERS,
-  MOCK_NOTIFICATIONS,
-} from '../mock/data';
-import {
-  Activity,
-  ActivityCategory,
-  ActivityLog,
-  Appointment,
-  BlogPost,
-  Doctor,
-  Inquiry,
-  Manufacturer,
-  MedicineItem,
-  NotificationItem,
-  Patient,
-  PatientBill,
-  Prescription,
-  Staff,
-  StaffSalary,
-  StockTransaction,
-  Supplier,
-  SystemRole,
-  SystemUser,
-} from '../types';
-
-const createId = (prefix: string) => `${prefix}-${Date.now().toString().slice(-4)}`;
-
-const formatDate = () => new Date().toISOString().split('T')[0];
-
-const formatTimestamp = () =>
-  new Date().toLocaleString([], {
-    month: '2-digit',
-    day: '2-digit',
-    year: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit',
-  });
-
-const formatLongTimestamp = () => new Date().toLocaleString();
+import { Patient, Doctor, Staff, Appointment, Inquiry, Prescription, ActivityLog, NotificationItem, SystemUser, SystemRole, Supplier, Manufacturer, MedicineItem, StockTransaction, ActivityCategory, Activity, BlogPost, PatientBill, StaffSalary, DoctorPayment } from '../types';
+import { INITIAL_PATIENTS, INITIAL_DOCTORS, INITIAL_STAFF, INITIAL_APPOINTMENTS, INITIAL_INQUIRIES, INITIAL_PRESCRIPTIONS, INITIAL_ACTIVITY_LOGS, MOCK_NOTIFICATIONS, INITIAL_SYSTEM_USERS, INITIAL_ROLES, INITIAL_SUPPLIERS, INITIAL_MANUFACTURERS, INITIAL_MEDICINES, INITIAL_STOCK_TRANSACTIONS, INITIAL_ACTIVITY_CATEGORIES, INITIAL_ACTIVITIES, INITIAL_BLOG_POSTS, INITIAL_PATIENT_BILLS, INITIAL_STAFF_SALARIES, INITIAL_DOCTOR_PAYMENTS } from '../mock/data';
 
 interface DataContextType {
   patients: Patient[];
@@ -126,10 +71,17 @@ interface DataContextType {
   // Doctor actions
   addDoctor: (doctor: Omit<Doctor, 'id' | 'totalActivePrescriptions'>) => void;
   updateDoctor: (id: string, updates: Partial<Doctor>) => void;
+  deleteDoctor: (id: string) => void;
+
+  // Doctor Payments actions
+  doctorPayments: DoctorPayment[];
+  addDoctorPayment: (payment: Omit<DoctorPayment, 'id' | 'sn'>) => void;
+  deleteDoctorPayment: (id: string) => void;
   
   // Staff actions
   addStaff: (staffMember: Omit<Staff, 'id' | 'joinedDate'>) => void;
   updateStaff: (id: string, updates: Partial<Staff>) => void;
+  deleteStaff: (id: string) => void;
 
   // Staff Salary actions
   addStaffSalary: (salary: Omit<StaffSalary, 'id' | 'sn' | 'createdAt'>) => void;
@@ -172,6 +124,7 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [patients, setPatients] = useState<Patient[]>(INITIAL_PATIENTS);
   const [patientBills, setPatientBills] = useState<PatientBill[]>(INITIAL_PATIENT_BILLS);
   const [doctors, setDoctors] = useState<Doctor[]>(INITIAL_DOCTORS);
+  const [doctorPayments, setDoctorPayments] = useState<DoctorPayment[]>(INITIAL_DOCTOR_PAYMENTS);
   const [staff, setStaff] = useState<Staff[]>(INITIAL_STAFF);
   const [staffSalaries, setStaffSalaries] = useState<StaffSalary[]>(INITIAL_STAFF_SALARIES);
   const [systemUsers, setSystemUsers] = useState<SystemUser[]>(INITIAL_SYSTEM_USERS);
@@ -353,6 +306,30 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
     showToast('Prescriber record updated.');
   };
 
+  const deleteDoctor = (id: string) => {
+    const doc = doctors.find(d => d.id === id);
+    setDoctors(prev => prev.filter(d => d.id !== id));
+    if (doc) {
+      showToast(`Doctor ${doc.fullName || doc.firstName} removed.`);
+    }
+  };
+
+  const addDoctorPayment = (paymentData: Omit<DoctorPayment, 'id' | 'sn'>) => {
+    const newPayment: DoctorPayment = {
+      ...paymentData,
+      id: `dp-${Date.now()}`,
+      sn: doctorPayments.length + 1,
+    };
+    setDoctorPayments(prev => [newPayment, ...prev]);
+    addLog('System Admin', 'Lead Pharmacist', 'Collected Doctor Fee', 'System', `Collected Rs. ${newPayment.amount} for doctor ${newPayment.doctorName}`);
+    showToast(`Fee of Rs. ${newPayment.amount} recorded for ${newPayment.doctorName}.`);
+  };
+
+  const deleteDoctorPayment = (id: string) => {
+    setDoctorPayments(prev => prev.filter(p => p.id !== id));
+    showToast('Doctor payment transaction removed.');
+  };
+
   // Staff handlers
   const addStaff = (staffData: Omit<Staff, 'id' | 'joinedDate'>) => {
     const newStaff: Staff = {
@@ -368,6 +345,14 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const updateStaff = (id: string, updates: Partial<Staff>) => {
     setStaff(prev => prev.map(s => (s.id === id ? { ...s, ...updates } : s)));
     showToast('Staff schedule / role updated.');
+  };
+
+  const deleteStaff = (id: string) => {
+    const target = staff.find(s => s.id === id);
+    setStaff(prev => prev.filter(s => s.id !== id));
+    if (target) {
+      showToast(`Removed staff member ${target.firstName} ${target.lastName}.`);
+    }
   };
 
   // Staff Salary handlers
@@ -445,9 +430,11 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
     // If role status changed to Inactive, automatically set associated users to Inactive
     if (updates.status === 'Inactive') {
       const roleName = updates.displayName || targetRole.displayName;
+      let affectedCount = 0;
       setSystemUsers(prev =>
         prev.map(u => {
           if (u.role === targetRole.displayName || u.role === roleName) {
+            affectedCount++;
             return { ...u, status: 'Inactive' };
           }
           return u;
@@ -727,8 +714,13 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
         deleteBlogPost,
         addDoctor,
         updateDoctor,
+        deleteDoctor,
+        doctorPayments,
+        addDoctorPayment,
+        deleteDoctorPayment,
         addStaff,
         updateStaff,
+        deleteStaff,
         addStaffSalary,
         updateStaffSalary,
         deleteStaffSalary,

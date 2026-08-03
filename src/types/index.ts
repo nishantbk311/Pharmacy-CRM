@@ -93,12 +93,31 @@ export interface Patient {
   registeredDate: string;
 }
 
+export interface DoctorPayment {
+  id: string;
+  sn: number;
+  doctorId: string;
+  doctorName: string;
+  type: string;
+  dateBS: string;
+  dateAD?: string;
+  amount: number;
+  details: string;
+  recordedBy: string;
+}
+
 export interface Doctor {
   id: string;
+  sn?: number;
   npiNumber: string;
   firstName: string;
   lastName: string;
+  fullName?: string;
+  avatarUrl?: string;
   specialty: string;
+  department?: string;
+  experience?: string;
+  consultationFee?: number | string;
   clinicName: string;
   phone: string;
   fax: string;
@@ -106,7 +125,7 @@ export interface Doctor {
   address: string;
   totalActivePrescriptions: number;
   rating: number;
-  status: 'Active Prescriber' | 'Flagged' | 'Inactive';
+  status: 'Active Prescriber' | 'Active' | 'Flagged' | 'Inactive';
 }
 
 export interface Staff {
@@ -279,6 +298,7 @@ export interface Supplier {
   rating: number;
   status: 'Active' | 'Under Review' | 'Preferred' | 'Inactive';
   address: string;
+  supplierBusinessNumber?: string;
 }
 
 export interface Manufacturer {
@@ -287,8 +307,10 @@ export interface Manufacturer {
   name: string;
   country: string;
   fdaRegistrationNo: string;
+  licenseNumber?: string;
   qualityStatus: 'FDA Approved' | 'EU GMP' | 'ISO 9001' | 'Under Audit';
   activeDrugLines: number;
+  contactPerson?: string;
   contactEmail: string;
   contactPhone: string;
   status: 'Active' | 'Flagged' | 'Inactive';
@@ -300,15 +322,19 @@ export interface MedicineItem {
   drugName: string;
   genericName: string;
   strength: string;
-  form: 'Tablet' | 'Capsule' | 'Liquid Injectable' | 'Ointment' | 'Inhaler';
-  schedule: 'Rx Only' | 'Schedule II' | 'Schedule IV' | 'OTC';
+  form: 'Tablet' | 'Capsule' | 'Liquid Injectable' | 'Ointment' | 'Inhaler' | string;
+  dosageForm?: string;
+  schedule: 'Rx Only' | 'Schedule II' | 'Schedule IV' | 'OTC' | string;
   manufacturerName: string;
   supplierName: string;
+  batchNo?: string;
   stockOnHand: number;
   minThreshold: number;
   unitCost: number;
   retailPrice: number;
-  storage: 'Room Temp' | 'Refrigerated (2-8°C)' | 'Controlled Room';
+  shelf?: string;
+  rack?: string;
+  storage: 'Room Temp' | 'Refrigerated (2-8°C)' | 'Controlled Room' | string;
   expiryDate: string;
   status: 'In Stock' | 'Low Stock' | 'Out of Stock';
 }
@@ -317,15 +343,19 @@ export interface StockTransaction {
   id: string;
   transactionNo: string;
   timestamp: string;
+  bsDate?: string;
   drugName: string;
   batchNo: string;
-  type: 'Inbound Restock' | 'Prescription Dispensed' | 'Expired Waste' | 'Customer Return';
+  type: 'Inbound Restock' | 'Prescription Dispensed' | 'Expired Waste' | 'Customer Return' | string;
   quantity: number;
   previousStock: number;
   newStock: number;
+  balance?: number;
+  patientName?: string;
   performedBy: string;
   referenceNo: string;
-  verificationStatus: 'Verified' | 'Pending Audit';
+  remark?: string;
+  verificationStatus: 'Verified' | 'Pending Audit' | string;
 }
 
 export interface ActivityCategory {
@@ -400,8 +430,8 @@ export interface PatientBill {
   status: 'Paid' | 'Partial' | 'Unpaid' | 'Due';
   billedBy: string;
   medicines: PatientBillMedicineItem[];
+  source?: string;
   notes?: string;
   createdAt: string;
 }
-
 

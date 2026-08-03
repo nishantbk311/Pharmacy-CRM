@@ -1,20 +1,14 @@
-import {
-    Award,
-    Clock,
-    Mail,
-    Phone,
-    Plus,
-    Search
-} from 'lucide-react';
-import { type FC, type FormEvent, useEffect, useState } from 'react';
-import { useSearchParams } from 'react-router-dom';
-import { Badge } from '../components/common/Badge';
-import { Modal } from '../components/common/Modal';
+import React, { useState, useEffect } from 'react';
+import { useSearchParams, useNavigate } from 'react-router-dom';
+import { Search, Plus, Phone, Mail, Briefcase, Calendar, Wallet, Trash2 } from 'lucide-react';
 import { useData } from '../context/DataContext';
 import { Staff, UserRole } from '../types';
+import { Modal } from '../components/common/Modal';
+import { ConfirmDeleteModal } from '../components/common/ConfirmDeleteModal';
 
-export const StaffPage: FC = () => {
-  const { staff, addStaff, updateStaff } = useData();
+export const StaffPage: React.FC = () => {
+  const { staff, staffSalaries, addStaff, updateStaff, deleteStaff } = useData();
+  const navigate = useNavigate();
 
   const [searchParams] = useSearchParams();
   const [searchQuery, setSearchQuery] = useState(() => searchParams.get('q') || '');
@@ -28,6 +22,7 @@ export const StaffPage: FC = () => {
 
   const [addModalOpen, setAddModalOpen] = useState(false);
   const [roleFilter, setRoleFilter] = useState('all');
+  const [deletingMember, setDeletingMember] = useState<Staff | null>(null);
 
   // Form State
   const [firstName, setFirstName] = useState('');
@@ -50,7 +45,7 @@ export const StaffPage: FC = () => {
     return matchSearch && matchRole;
   });
 
-  const handleAddSubmit = (e: FormEvent) => {
+  const handleAddSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!firstName || !lastName) return;
 
@@ -74,6 +69,35 @@ export const StaffPage: FC = () => {
   const toggleStatus = (id: string, currentStatus: Staff['status']) => {
     const nextStatus = currentStatus === 'On Duty' ? 'Off Duty' : 'On Duty';
     updateStaff(id, { status: nextStatus });
+  };
+
+  const getDepartmentTag = (roleName: string) => {
+    const lower = roleName.toLowerCase();
+    if (lower.includes('tech') || lower.includes('lab')) return 'Lab';
+    if (lower.includes('pharmacist')) return 'Pharmacy';
+    if (lower.includes('manager')) return 'Store';
+    return 'General';
+  };
+
+  const getStaffSalaryFormatted = (member: Staff) => {
+    const matchingSalary = staffSalaries.find(
+      s =>
+        s.staffId === member.id ||
+        s.staffName.toLowerCase() === `${member.firstName} ${member.lastName}`.toLowerCase() ||
+        s.staffName.toLowerCase().includes(member.firstName.toLowerCase())
+    );
+    if (matchingSalary && matchingSalary.totalSalary) {
+      return matchingSalary.totalSalary.toLocaleString('en-US', {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2,
+      });
+    }
+
+    if (member.role === 'Lead Pharmacist') return '25,000.00';
+    if (member.role === 'Staff Pharmacist') return '20,000.00';
+    if (member.role === 'Pharmacy Technician') return '16,500.00';
+    if (member.role === 'Store Manager') return '22,000.00';
+    return '20,000.00';
   };
 
   return (
@@ -106,7 +130,7 @@ export const StaffPage: FC = () => {
 
           <button
             onClick={() => setAddModalOpen(true)}
-            className="px-4 py-2.5 rounded-xl bg-teal-600 hover:bg-teal-700 dark:bg-teal-500 dark:hover:bg-teal-600 text-white font-bold text-xs transition-colors flex items-center justify-center gap-2 cursor-pointer"
+            className="px-4 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs transition-colors flex items-center justify-center gap-2 cursor-pointer shadow-sm shadow-blue-500/20"
           >
             <Plus className="w-4 h-4" />
             <span>Add Staff Member</span>
@@ -115,79 +139,147 @@ export const StaffPage: FC = () => {
       </div>
 
       {/* Staff Roster Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
         {filteredStaff.map(member => (
           <div
             key={member.id}
-            className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/80 dark:border-slate-800 p-5 shadow-xs space-y-4 flex flex-col justify-between"
+            className="bg-white dark:bg-[#0c1626] rounded-3xl border border-slate-200/90 dark:border-slate-800/80 p-5 sm:p-5 shadow-md shadow-slate-200/40 dark:shadow-none flex flex-col justify-between overflow-hidden"
           >
-            <div className="space-y-3">
+            <div>
+              {/* Header: Avatar, Name, Role, Dept Tag, and Status Badge */}
               <div className="flex items-start justify-between gap-3">
-                <div className="flex items-center gap-3">
-                  <img
-                    src={member.avatarUrl}
-                    alt={member.firstName}
-                    className="w-12 h-12 rounded-2xl object-cover border-2 border-teal-500/30 shrink-0"
-                  />
-                  <div>
-                    <h3 className="font-bold text-slate-900 dark:text-slate-100 text-sm">
+                <div className="flex items-start gap-3 min-w-0">
+                  <div className="relative shrink-0">
+                    <img
+                      src={member.avatarUrl}
+                      alt={`${member.firstName} ${member.lastName}`}
+                      className="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl object-cover border-2 border-blue-500/30 dark:border-blue-500/40 shadow-xs"
+                    />
+                    <span
+                      className={`absolute -bottom-1 -right-1 w-4 h-4 rounded-full border-2 border-white dark:border-[#0c1626] ${
+                        member.status === 'On Duty'
+                          ? 'bg-emerald-500 ring-2 ring-emerald-500/20'
+                          : member.status === 'Off Duty'
+                          ? 'bg-slate-400'
+                          : 'bg-amber-500'
+                      }`}
+                      title={member.status}
+                    />
+                  </div>
+
+                  <div className="min-w-0">
+                    <h3 className="font-bold text-base sm:text-lg text-slate-900 dark:text-white truncate tracking-tight">
                       {member.firstName} {member.lastName}
                     </h3>
-                    <p className="text-xs text-teal-700 dark:text-teal-400 font-semibold">{member.role}</p>
+                    <div className="flex items-center gap-1.5 text-xs sm:text-sm text-slate-600 dark:text-slate-300 font-medium truncate mt-0.5">
+                      <Briefcase className="w-4 h-4 text-blue-600 dark:text-blue-400 shrink-0" />
+                      <span className="truncate">{member.role}</span>
+                    </div>
+                    <div className="mt-1.5 inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-blue-500/10 dark:bg-blue-950/60 text-blue-700 dark:text-blue-400 border border-blue-500/20">
+                      {getDepartmentTag(member.role)}
+                    </div>
                   </div>
                 </div>
 
-                <Badge
-                  variant={
+                <button
+                  onClick={() => toggleStatus(member.id, member.status)}
+                  className={`shrink-0 px-3 py-1 rounded-full text-xs font-semibold border transition-all cursor-pointer select-none ${
                     member.status === 'On Duty'
-                      ? 'emerald'
+                      ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/30 hover:bg-emerald-500/20'
                       : member.status === 'Off Duty'
-                      ? 'slate'
-                      : 'amber'
-                  }
-                  size="sm"
-                  dot
+                      ? 'bg-slate-500/10 text-slate-600 dark:text-slate-400 border-slate-500/30 hover:bg-slate-500/20'
+                      : 'bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/30 hover:bg-amber-500/20'
+                  }`}
                 >
-                  {member.status}
-                </Badge>
+                  {member.status === 'On Duty' ? 'Active' : member.status}
+                </button>
               </div>
 
-              <div className="space-y-1.5 text-xs text-slate-600 dark:text-slate-300 pt-1">
-                <p className="flex items-center gap-2 font-mono text-slate-500 dark:text-slate-400">
-                  <Award className="w-4 h-4 text-teal-600 dark:text-teal-400 shrink-0" />
-                  <span>License: {member.licenseNumber}</span>
-                </p>
-                <p className="flex items-center gap-2">
-                  <Clock className="w-4 h-4 text-slate-400 shrink-0" />
-                  <span>Shift: {member.shift}</span>
-                </p>
-                <p className="flex items-center gap-2">
-                  <Phone className="w-4 h-4 text-slate-400 shrink-0" />
-                  <span>{member.phone}</span>
-                </p>
-                <p className="flex items-center gap-2">
-                  <Mail className="w-4 h-4 text-slate-400 shrink-0" />
-                  <span>{member.email}</span>
-                </p>
+              {/* Middle Stats Box Grid: SALARY & JOIN DATE */}
+              <div className="grid grid-cols-2 gap-3 my-4">
+                {/* Salary Box */}
+                <div className="bg-slate-50 dark:bg-[#132036] border border-slate-200/80 dark:border-slate-800 rounded-2xl p-3 flex items-center gap-2.5 min-w-0">
+                  <div className="w-10 h-10 rounded-xl bg-slate-200/60 dark:bg-slate-800/80 border border-slate-300/40 dark:border-slate-700/50 flex items-center justify-center shrink-0 text-slate-700 dark:text-slate-200 font-bold text-base">
+                    ₹
+                  </div>
+                  <div className="min-w-0">
+                    <span className="text-[10px] font-bold tracking-wider text-slate-400 dark:text-slate-400 uppercase block">
+                      SALARY
+                    </span>
+                    <span className="text-xs sm:text-sm font-extrabold text-slate-900 dark:text-white font-mono truncate block">
+                      {getStaffSalaryFormatted(member)}
+                    </span>
+                  </div>
+                </div>
+
+                {/* Join Date Box */}
+                <div className="bg-slate-50 dark:bg-[#132036] border border-slate-200/80 dark:border-slate-800 rounded-2xl p-3 flex items-center gap-2.5 min-w-0">
+                  <div className="w-10 h-10 rounded-xl bg-slate-200/60 dark:bg-slate-800/80 border border-slate-300/40 dark:border-slate-700/50 flex items-center justify-center shrink-0 text-slate-700 dark:text-slate-200">
+                    <Calendar className="w-4 h-4" />
+                  </div>
+                  <div className="min-w-0">
+                    <span className="text-[10px] font-bold tracking-wider text-slate-400 dark:text-slate-400 uppercase block">
+                      JOIN DATE
+                    </span>
+                    <span className="text-xs sm:text-sm font-extrabold text-slate-900 dark:text-white font-mono truncate block">
+                      {member.joinedDate}
+                    </span>
+                  </div>
+                </div>
               </div>
             </div>
 
-            <div className="pt-3 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between text-xs">
-              <span className="text-slate-400">Joined: {member.joinedDate}</span>
-              <button
-                onClick={() => toggleStatus(member.id, member.status)}
-                className={`px-3 py-1.5 rounded-lg font-bold transition-colors cursor-pointer ${
-                  member.status === 'On Duty'
-                    ? 'bg-rose-50 dark:bg-rose-950/60 text-rose-700 dark:text-rose-300 hover:bg-rose-100 dark:hover:bg-rose-900/60'
-                    : 'bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 hover:bg-emerald-100 dark:hover:bg-emerald-900/60'
-                }`}
-              >
-                {member.status === 'On Duty' ? 'Set Off Duty' : 'Set On Duty'}
-              </button>
+            {/* Bottom Footer: Contacts & Action Buttons */}
+            <div className="pt-3.5 border-t border-slate-100 dark:border-slate-800/80 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+              <div className="space-y-1 text-xs min-w-0">
+                <div className="flex items-center gap-2 text-slate-600 dark:text-slate-300 font-medium">
+                  <Mail className="w-3.5 h-3.5 text-slate-400 dark:text-slate-500 shrink-0" />
+                  <span className="truncate max-w-[150px] sm:max-w-[180px]">{member.email}</span>
+                </div>
+                <div className="flex items-center gap-2 text-slate-600 dark:text-slate-300 font-medium">
+                  <Phone className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400 shrink-0" />
+                  <span>{member.phone}</span>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-2 shrink-0 self-end sm:self-auto">
+                <button
+                  onClick={() =>
+                    navigate(`/staff/salary?staff=${encodeURIComponent(member.id)}`)
+                  }
+                  className="inline-flex items-center justify-center gap-1.5 px-3.5 py-2 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs transition-all shadow-sm shadow-blue-500/20 cursor-pointer"
+                >
+                  <Wallet className="w-4 h-4" />
+                  <span>Payroll</span>
+                </button>
+                <button
+                  onClick={() => setDeletingMember(member)}
+                  className="p-2 rounded-xl bg-rose-50 dark:bg-rose-950/40 text-rose-600 dark:text-rose-400 hover:bg-rose-100 dark:hover:bg-rose-900/60 border border-rose-200 dark:border-rose-900/40 transition-all cursor-pointer"
+                  title="Delete Staff Record"
+                >
+                  <Trash2 className="w-4 h-4" />
+                </button>
+              </div>
             </div>
           </div>
         ))}
       </div>
+
+      {/* Confirm Delete Modal */}
+      <ConfirmDeleteModal
+        isOpen={Boolean(deletingMember)}
+        onClose={() => setDeletingMember(null)}
+        onConfirm={() => {
+          if (deletingMember) {
+            deleteStaff(deletingMember.id);
+            setDeletingMember(null);
+          }
+        }}
+        title="Delete Staff Member"
+        itemName={deletingMember ? `${deletingMember.firstName} ${deletingMember.lastName}` : ''}
+        description="Are you sure you want to remove this staff member from the roster?"
+        confirmText="Remove Staff"
+      />
 
       {/* Add Staff Modal */}
       <Modal
@@ -290,7 +382,7 @@ export const StaffPage: FC = () => {
             </button>
             <button
               type="submit"
-              className="px-5 py-2 rounded-xl bg-teal-600 hover:bg-teal-700 dark:bg-teal-500 dark:hover:bg-teal-600 text-white font-bold cursor-pointer"
+              className="px-5 py-2 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-bold cursor-pointer"
             >
               Save Staff Record
             </button>
@@ -300,3 +392,4 @@ export const StaffPage: FC = () => {
     </div>
   );
 };
+
