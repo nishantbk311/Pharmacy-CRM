@@ -9,7 +9,7 @@ interface SidebarProps {
   setIsMobileOpen: (open: boolean) => void;
 }
 
-export const Sidebar: React.FC<SidebarProps> = ({
+export const Sidebar: React.FC<SidebarProps> = React.memo(({
   isMobileOpen,
   setIsMobileOpen,
 }) => {
@@ -549,4 +549,6 @@ export const Sidebar: React.FC<SidebarProps> = ({
       </aside>
     </>
   );
-};
+});
+
+Sidebar.displayName = 'Sidebar';

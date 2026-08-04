@@ -7,6 +7,7 @@ import { DataProvider } from './context/DataContext';
 import { ThemeProvider } from './context/ThemeContext';
 import { Sidebar } from './components/layout/Sidebar';
 import { Header } from './components/layout/Header';
+import { ErrorBoundary } from './components/common/ErrorBoundary';
 import { lazyNamed } from './helper/lazyNamed';
 
 // Lazy Loaded Page Components using lazyNamed
@@ -120,9 +121,10 @@ function MainAppContent() {
 
         {/* Page Views Container with Motion Page Transitions */}
         <main className="p-4 sm:p-6 lg:p-8 flex-1 max-w-7xl w-full mx-auto">
-          <Suspense fallback={<PageLoader />}>
-            <AnimatePresence mode="wait">
-              <Routes location={location}>
+          <ErrorBoundary>
+            <Suspense fallback={<PageLoader />}>
+              <AnimatePresence mode="wait">
+                <Routes location={location}>
               <Route
                 path="/"
                 element={
@@ -334,7 +336,8 @@ function MainAppContent() {
             </Routes>
           </AnimatePresence>
         </Suspense>
-      </main>
+      </ErrorBoundary>
+    </main>
       </div>
 
       {/* Global Sonner Toast Feedback */}

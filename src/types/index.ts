@@ -430,6 +430,7 @@ export interface PatientBill {
   status: 'Paid' | 'Partial' | 'Unpaid' | 'Due';
   billedBy: string;
   medicines: PatientBillMedicineItem[];
+  items?: PatientBillMedicineItem[];
   source?: string;
   notes?: string;
   createdAt: string;

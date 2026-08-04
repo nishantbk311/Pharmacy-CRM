@@ -1,22 +1,5 @@
-import React, { useState, useMemo } from 'react';
-import {
-  Menu,
-  Search,
-  Bell,
-  Plus,
-  ShieldCheck,
-  UserPlus,
-  Calendar,
-  HelpCircle,
-  Pill,
-  Sun,
-  Moon,
-  Users,
-  UserCheck,
-  X,
-  ChevronRight,
-  FileText,
-} from 'lucide-react';
+import { Bell, Calendar, ChevronRight, FileText, HelpCircle, Menu, Moon, Pill, Plus, Search, ShieldCheck, Sun, UserCheck, UserPlus, Users, X } from 'lucide-react';
+import React, { useMemo, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { useData } from '../../context/DataContext';
@@ -27,7 +10,7 @@ interface HeaderProps {
   onQuickAction: (action: 'add_patient' | 'add_appointment' | 'add_inquiry' | 'add_doctor') => void;
 }
 
-export const Header: React.FC<HeaderProps> = ({
+export const Header: React.FC<HeaderProps> = React.memo(({
   onMobileMenuToggle,
   onQuickAction,
 }) => {
@@ -260,7 +243,7 @@ export const Header: React.FC<HeaderProps> = ({
                       {searchResults?.totalCount || 0} Matches
                     </span>
                   </div>
-
+                  
                   {!searchResults || searchResults.totalCount === 0 ? (
                     <div className="p-4 text-center text-slate-500 dark:text-slate-400">
                       No matching records found across all pages.
@@ -579,4 +562,6 @@ export const Header: React.FC<HeaderProps> = ({
       </div>
     </header>
   );
-};
+});
+
+Header.displayName = 'Header';

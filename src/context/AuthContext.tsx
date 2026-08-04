@@ -1,7 +1,7 @@
-import { createContext, useContext, useEffect, useState, type FC, type ReactNode } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback, useMemo } from 'react';
 import { toast } from 'sonner';
+import { User, AuthState } from '../types';
 import { INITIAL_USERS } from '../mock/data';
-import { AuthState, User } from '../types';
 
 interface AuthContextType extends AuthState {
   loginStep1: (email: string, pass: string, method?: 'authenticator' | 'email') => Promise<boolean>;
@@ -15,10 +15,10 @@ interface AuthContextType extends AuthState {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-export const AuthProvider: FC<{ children: ReactNode }> = ({ children }) => {
+export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(() => {
     const savedUser = localStorage.getItem('pharmacy_crm_user');
-    return savedUser ? JSON.parse(savedUser) : INITIAL_USERS[0]; // Default logged in for smooth viewing, or initial state
+    return savedUser ? JSON.parse(savedUser) : INITIAL_USERS[0];
   });
 
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(() => {
@@ -46,25 +46,19 @@ export const AuthProvider: FC<{ children: ReactNode }> = ({ children }) => {
     }
   }, [isAuthenticated, user]);
 
-  const loginStep1 = async (email: string, pass: string, method: 'authenticator' | 'email' = 'authenticator'): Promise<boolean> => {
-    // Find matching user or fallback to Sarah Jenkins
+  const loginStep1 = useCallback(async (email: string, _pass: string, method: 'authenticator' | 'email' = 'authenticator'): Promise<boolean> => {
     const foundUser = INITIAL_USERS.find(u => u.email.toLowerCase() === email.toLowerCase()) || INITIAL_USERS[0];
-    
     setPendingEmail(email);
     setPendingMethod(method);
     setUser(foundUser);
-    
-    // Generate 6-digit mock code
     const mockCode = '123456';
     setGeneratedCode(mockCode);
     setTwoFactorCodeSent(true);
     setStep('2fa');
-    
     return true;
-  };
+  }, []);
 
-  const verify2FACode = async (code: string): Promise<boolean> => {
-    // Accept exact match or standard demo code '123456' or '654321'
+  const verify2FACode = useCallback(async (code: string): Promise<boolean> => {
     if (code === generatedCode || code === '123456' || code === '654321') {
       setIsAuthenticated(true);
       setStep('authenticated');
@@ -73,29 +67,29 @@ export const AuthProvider: FC<{ children: ReactNode }> = ({ children }) => {
     }
     toast.error('Invalid 2FA verification code');
     return false;
-  };
+  }, [generatedCode, user?.name]);
 
-  const resend2FACode = () => {
+  const resend2FACode = useCallback(() => {
     const newCode = Math.floor(100000 + Math.random() * 900000).toString();
     setGeneratedCode(newCode);
     setTwoFactorCodeSent(true);
     toast.info('New 2FA code sent');
-  };
+  }, []);
 
-  const resetToCredentials = () => {
+  const resetToCredentials = useCallback(() => {
     setStep('credentials');
     setIsAuthenticated(false);
-  };
+  }, []);
 
-  const quickDemoLogin = (userIndex: number = 0) => {
+  const quickDemoLogin = useCallback((userIndex: number = 0) => {
     const selected = INITIAL_USERS[userIndex] || INITIAL_USERS[0];
     setUser(selected);
     setIsAuthenticated(true);
     setStep('authenticated');
     toast.success(`Logged in as ${selected.name}`);
-  };
+  }, []);
 
-  const logout = () => {
+  const logout = useCallback(() => {
     const name = user?.name;
     setIsAuthenticated(false);
     setUser(null);
@@ -103,26 +97,40 @@ export const AuthProvider: FC<{ children: ReactNode }> = ({ children }) => {
     localStorage.removeItem('pharmacy_crm_auth');
     localStorage.removeItem('pharmacy_crm_user');
     toast.info(name ? `Logged out (${name})` : 'Logged out successfully');
-  };
+  }, [user?.name]);
+
+  const contextValue = useMemo(() => ({
+    isAuthenticated,
+    user,
+    step,
+    pendingEmail,
+    pendingMethod,
+    twoFactorCodeSent,
+    generatedCode,
+    loginStep1,
+    verify2FACode,
+    resend2FACode,
+    resetToCredentials,
+    quickDemoLogin,
+    logout,
+  }), [
+    isAuthenticated,
+    user,
+    step,
+    pendingEmail,
+    pendingMethod,
+    twoFactorCodeSent,
+    generatedCode,
+    loginStep1,
+    verify2FACode,
+    resend2FACode,
+    resetToCredentials,
+    quickDemoLogin,
+    logout,
+  ]);
 
   return (
-    <AuthContext.Provider
-      value={{
-        isAuthenticated,
-        user,
-        step,
-        pendingEmail,
-        pendingMethod,
-        twoFactorCodeSent,
-        generatedCode,
-        loginStep1,
-        verify2FACode,
-        resend2FACode,
-        resetToCredentials,
-        quickDemoLogin,
-        logout,
-      }}
-    >
+    <AuthContext.Provider value={contextValue}>
       {children}
     </AuthContext.Provider>
   );

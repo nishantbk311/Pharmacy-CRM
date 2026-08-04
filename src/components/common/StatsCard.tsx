@@ -1,6 +1,6 @@
-import { LucideIcon, TrendingDown, TrendingUp } from 'lucide-react';
+import React, { memo } from 'react';
 import { motion } from 'motion/react';
-import { type FC } from 'react';
+import { LucideIcon, TrendingUp, TrendingDown } from 'lucide-react';
 
 interface StatsCardProps {
   title: string;
@@ -17,7 +17,7 @@ interface StatsCardProps {
   id?: string;
 }
 
-export const StatsCard: FC<StatsCardProps> = ({
+export const StatsCard: React.FC<StatsCardProps> = memo(({
   title,
   value,
   subtitle,
@@ -74,4 +74,6 @@ export const StatsCard: FC<StatsCardProps> = ({
       </div>
     </motion.div>
   );
-};
+});
+
+StatsCard.displayName = 'StatsCard';

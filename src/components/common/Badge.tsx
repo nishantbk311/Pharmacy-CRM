@@ -1,4 +1,4 @@
-import { type FC, type MouseEvent, type ReactNode } from 'react';
+import React, { memo } from 'react';
 
 type BadgeVariant =
   | 'emerald'
@@ -10,15 +10,15 @@ type BadgeVariant =
   | 'slate';
 
 interface BadgeProps {
-  children: ReactNode;
+  children: React.ReactNode;
   variant?: BadgeVariant;
   size?: 'sm' | 'md';
   dot?: boolean;
   className?: string;
-  onClick?: (e: MouseEvent<HTMLSpanElement>) => void;
+  onClick?: (e: React.MouseEvent<HTMLSpanElement>) => void;
 }
 
-export const Badge: FC<BadgeProps> = ({
+export const Badge: React.FC<BadgeProps> = memo(({
   children,
   variant = 'slate',
   size = 'md',
@@ -60,4 +60,6 @@ export const Badge: FC<BadgeProps> = ({
       {children}
     </span>
   );
-};
+});
+
+Badge.displayName = 'Badge';
