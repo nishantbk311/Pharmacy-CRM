@@ -176,6 +176,16 @@ export const Sidebar: React.FC<SidebarProps> = React.memo(({
                     Patient Bill
                   </button>
                   <button
+                    onClick={() => handleSelect('/patients/reports')}
+                    className={`w-full text-left px-3 py-1.5 rounded-lg text-sm font-medium transition-all cursor-pointer ${
+                      location.pathname.startsWith('/patients/reports')
+                        ? 'text-blue-600 dark:text-sky-400 font-semibold bg-blue-500/10 dark:bg-blue-600/20 border border-blue-500/30 dark:border-blue-500/40'
+                        : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800/40'
+                    }`}
+                  >
+                    Patient Reports
+                  </button>
+                  <button
                     onClick={() => handleSelect('/patients/payments')}
                     className={`w-full text-left px-3 py-1.5 rounded-lg text-sm font-medium transition-all cursor-pointer ${
                       location.pathname.startsWith('/patients/payments')

@@ -1,11 +1,12 @@
 import React, { createContext, useContext, useState, useMemo } from 'react';
 import { toast } from 'sonner';
-import { Patient, Doctor, Staff, Appointment, Inquiry, Prescription, ActivityLog, NotificationItem, SystemUser, SystemRole, Supplier, Manufacturer, MedicineItem, StockTransaction, ActivityCategory, Activity, BlogPost, PatientBill, StaffSalary, DoctorPayment } from '../types';
-import { INITIAL_PATIENTS, INITIAL_DOCTORS, INITIAL_STAFF, INITIAL_APPOINTMENTS, INITIAL_INQUIRIES, INITIAL_PRESCRIPTIONS, INITIAL_ACTIVITY_LOGS, MOCK_NOTIFICATIONS, INITIAL_SYSTEM_USERS, INITIAL_ROLES, INITIAL_SUPPLIERS, INITIAL_MANUFACTURERS, INITIAL_MEDICINES, INITIAL_STOCK_TRANSACTIONS, INITIAL_ACTIVITY_CATEGORIES, INITIAL_ACTIVITIES, INITIAL_BLOG_POSTS, INITIAL_PATIENT_BILLS, INITIAL_STAFF_SALARIES, INITIAL_DOCTOR_PAYMENTS } from '../mock/data';
+import { Patient, Doctor, Staff, Appointment, Inquiry, Prescription, ActivityLog, NotificationItem, SystemUser, SystemRole, Supplier, Manufacturer, MedicineItem, StockTransaction, ActivityCategory, Activity, BlogPost, PatientBill, StaffSalary, DoctorPayment, LabReport } from '../types';
+import { INITIAL_PATIENTS, INITIAL_DOCTORS, INITIAL_STAFF, INITIAL_APPOINTMENTS, INITIAL_INQUIRIES, INITIAL_PRESCRIPTIONS, INITIAL_ACTIVITY_LOGS, MOCK_NOTIFICATIONS, INITIAL_SYSTEM_USERS, INITIAL_ROLES, INITIAL_SUPPLIERS, INITIAL_MANUFACTURERS, INITIAL_MEDICINES, INITIAL_STOCK_TRANSACTIONS, INITIAL_ACTIVITY_CATEGORIES, INITIAL_ACTIVITIES, INITIAL_BLOG_POSTS, INITIAL_PATIENT_BILLS, INITIAL_STAFF_SALARIES, INITIAL_DOCTOR_PAYMENTS, INITIAL_LAB_REPORTS } from '../mock/data';
 
 interface DataContextType {
   patients: Patient[];
   patientBills: PatientBill[];
+  labReports: LabReport[];
   doctors: Doctor[];
   staff: Staff[];
   staffSalaries: StaffSalary[];
@@ -23,6 +24,11 @@ interface DataContextType {
   blogPosts: BlogPost[];
   activityLogs: ActivityLog[];
   notifications: NotificationItem[];
+
+  // Lab Report actions
+  addLabReport: (report: Omit<LabReport, 'id' | 'reportNumber' | 'createdAt'>) => LabReport;
+  updateLabReport: (id: string, updates: Partial<LabReport>) => void;
+  deleteLabReport: (id: string) => void;
 
   // Patient Bill actions
   addPatientBill: (bill: Omit<PatientBill, 'id' | 'sn' | 'billNo' | 'createdAt'>) => PatientBill;
@@ -123,6 +129,7 @@ const DataContext = createContext<DataContextType | undefined>(undefined);
 export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [patients, setPatients] = useState<Patient[]>(INITIAL_PATIENTS);
   const [patientBills, setPatientBills] = useState<PatientBill[]>(INITIAL_PATIENT_BILLS);
+  const [labReports, setLabReports] = useState<LabReport[]>(INITIAL_LAB_REPORTS);
   const [doctors, setDoctors] = useState<Doctor[]>(INITIAL_DOCTORS);
   const [doctorPayments, setDoctorPayments] = useState<DoctorPayment[]>(INITIAL_DOCTOR_PAYMENTS);
   const [staff, setStaff] = useState<Staff[]>(INITIAL_STAFF);
@@ -157,6 +164,33 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
       details,
     };
     setActivityLogs(prev => [newLog, ...prev]);
+  };
+
+  // Lab Report Handlers
+  const addLabReport = (repData: Omit<LabReport, 'id' | 'reportNumber' | 'createdAt'>): LabReport => {
+    const id = `rep-${Date.now()}`;
+    const reportNumber = `LAB-2026-${Math.floor(8000 + Math.random() * 1000)}`;
+    const createdAt = new Date().toISOString();
+    const newReport: LabReport = {
+      ...repData,
+      id,
+      reportNumber,
+      createdAt,
+    };
+    setLabReports(prev => [newReport, ...prev]);
+    addLog('System Admin', 'Lead Pharmacist', 'Created Lab Report', 'Patient', `Added ${newReport.mode} report ${newReport.reportNumber} for ${newReport.patientName}`);
+    showToast(`Lab Report ${newReport.reportNumber} saved successfully.`);
+    return newReport;
+  };
+
+  const updateLabReport = (id: string, updates: Partial<LabReport>) => {
+    setLabReports(prev => prev.map(r => (r.id === id ? { ...r, ...updates } : r)));
+    showToast('Lab Report updated successfully.');
+  };
+
+  const deleteLabReport = (id: string) => {
+    setLabReports(prev => prev.filter(r => r.id !== id));
+    showToast('Lab Report deleted.');
   };
 
   // Medicine Module Handlers
@@ -667,6 +701,7 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const value = useMemo(() => ({
     patients,
     patientBills,
+    labReports,
     doctors,
     staff,
     staffSalaries,
@@ -684,6 +719,9 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
     blogPosts,
     activityLogs,
     notifications,
+    addLabReport,
+    updateLabReport,
+    deleteLabReport,
     addPatientBill,
     updatePatientBill,
     deletePatientBill,
@@ -742,6 +780,7 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
   }), [
     patients,
     patientBills,
+    labReports,
     doctors,
     staff,
     staffSalaries,

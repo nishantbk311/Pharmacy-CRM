@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { Search, Plus, SlidersHorizontal, User, Stethoscope, ArrowRight, Pencil, Trash2, Check, FileText } from 'lucide-react';
 import { useData } from '../context/DataContext';
 import { Prescription, RxStatus } from '../types';
@@ -6,6 +7,7 @@ import { Modal } from '../components/common/Modal';
 import { ConfirmDeleteModal } from '../components/common/ConfirmDeleteModal';
 
 export const PrescriptionsPage: React.FC = () => {
+  const [searchParams] = useSearchParams();
   const {
     prescriptions,
     patients,
@@ -24,6 +26,14 @@ export const PrescriptionsPage: React.FC = () => {
   const [selectedDoctor, setSelectedDoctor] = useState<string>('All');
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [appliedSearch, setAppliedSearch] = useState<string>('');
+
+  useEffect(() => {
+    const p = searchParams.get('patient') || searchParams.get('q');
+    if (p) {
+      setSearchQuery(p);
+      setAppliedSearch(p);
+    }
+  }, [searchParams]);
 
   // Modal State for Add / Edit
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);

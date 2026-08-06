@@ -18,10 +18,10 @@ export const AppointmentsPage: React.FC<AppointmentsPageProps> = ({
   const { appointments, addAppointment, updateAppointmentStatus, patients, staff } = useData();
 
   const [searchParams] = useSearchParams();
-  const [searchQuery, setSearchQuery] = useState(() => searchParams.get('q') || '');
+  const [searchQuery, setSearchQuery] = useState(() => searchParams.get('patient') || searchParams.get('q') || '');
 
   useEffect(() => {
-    const q = searchParams.get('q');
+    const q = searchParams.get('patient') || searchParams.get('q');
     if (q !== null) {
       setSearchQuery(q);
     }

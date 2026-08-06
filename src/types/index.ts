@@ -436,3 +436,46 @@ export interface PatientBill {
   createdAt: string;
 }
 
+export type ReportCategory = 'Blood Test' | 'X-Ray' | 'CT Scan' | 'MRI' | 'Urine Analysis' | 'Ultrasound' | 'ECG/EKG' | 'Pathology' | 'Other';
+
+export interface LabReportParameter {
+  id: string;
+  name: string;
+  value: string;
+  unit: string;
+  normalRange: string;
+  flag: 'Normal' | 'High' | 'Low' | 'Abnormal';
+}
+
+export interface LabReport {
+  id: string;
+  reportNumber: string;
+  patientId: string;
+  patientName: string;
+  patientMrn?: string;
+  patientAgeGender?: string;
+  category: ReportCategory;
+  testName: string; // e.g. "Complete Blood Count (CBC)" or "Chest X-Ray PA View"
+  mode: 'Generated' | 'Uploaded';
+  reportDate: string;
+  referredDoctor: string;
+  labName?: string;
+  technicianName?: string;
+  status: 'Normal' | 'Abnormal' | 'Critical' | 'Pending Review';
+  
+  // For Generated Reports
+  parameters?: LabReportParameter[];
+  impression?: string;
+  recommendations?: string;
+
+  // For Uploaded Reports
+  fileName?: string;
+  fileType?: string;
+  fileSize?: string;
+  fileUrl?: string;
+  uploadedDate?: string;
+  notes?: string;
+
+  createdAt: string;
+}
+

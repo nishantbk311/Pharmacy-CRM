@@ -1,4 +1,4 @@
-import { Patient, Doctor, DoctorPayment, Staff, Appointment, Inquiry, Prescription, ActivityLog, User, NotificationItem, SystemUser, SystemRole, Supplier, Manufacturer, MedicineItem, StockTransaction, ActivityCategory, Activity, BlogPost, PatientBill } from '../types';
+import { Activity, ActivityCategory, ActivityLog, Appointment, BlogPost, Doctor, DoctorPayment, Inquiry, LabReport, Manufacturer, MedicineItem, NotificationItem, Patient, PatientBill, Prescription, Staff, StockTransaction, Supplier, SystemRole, SystemUser, User } from '../types';
 
 export const INITIAL_USERS: User[] = [
   {
@@ -1529,6 +1529,81 @@ export const INITIAL_STAFF_SALARIES: import('../types').StaffSalary[] = [
     paymentDate: '2026-01-31',
     status: 'Unpaid',
     createdAt: '2026-01-31',
+  }
+];
+
+export const INITIAL_LAB_REPORTS: LabReport[] = [
+  {
+    id: 'rep-101',
+    reportNumber: 'LAB-2026-8801',
+    patientId: 'p-101',
+    patientName: 'Eleanor Vance',
+    patientMrn: 'MRN-88210',
+    patientAgeGender: '62 yrs / Female',
+    category: 'Blood Test',
+    testName: 'Lipid Profile',
+    mode: 'Generated',
+    reportDate: '2026-08-01',
+    referredDoctor: 'Dr. Robert Chen',
+    labName: 'Central City Diagnostics',
+    technicianName: 'Marcus Vance, CPhT',
+    status: 'Abnormal',
+    parameters: [
+      { id: 'p1', name: 'Total Cholesterol', value: '235', unit: 'mg/dL', normalRange: '< 200', flag: 'High' },
+      { id: 'p2', name: 'HDL Cholesterol', value: '42', unit: 'mg/dL', normalRange: '> 40', flag: 'Normal' },
+      { id: 'p3', name: 'LDL Cholesterol', value: '158', unit: 'mg/dL', normalRange: '< 100', flag: 'High' },
+      { id: 'p4', name: 'Triglycerides', value: '175', unit: 'mg/dL', normalRange: '< 150', flag: 'High' }
+    ],
+    impression: 'Elevated serum Total Cholesterol, LDL, and Triglycerides consistent with Moderate Hyperlipidemia.',
+    recommendations: 'Dietary modifications advised. Review current Atorvastatin 20mg daily regimen with prescribing physician.',
+    createdAt: '2026-08-01T10:30:00Z'
+  },
+  {
+    id: 'rep-102',
+    reportNumber: 'LAB-2026-8802',
+    patientId: 'p-102',
+    patientName: 'Arthur Pendelton',
+    patientMrn: 'MRN-88211',
+    patientAgeGender: '54 yrs / Male',
+    category: 'X-Ray',
+    testName: 'Chest X-Ray PA View',
+    mode: 'Generated',
+    reportDate: '2026-08-02',
+    referredDoctor: 'Dr. Maria Santos',
+    labName: 'Apex Imaging Center',
+    technicianName: 'Sarah Jenkins, PharmD',
+    status: 'Normal',
+    parameters: [
+      { id: 'p10', name: 'Lungs & Pleura', value: 'Clear lung fields bilaterally without consolidation or focal infiltrates', unit: 'N/A', normalRange: 'Clear lung fields', flag: 'Normal' },
+      { id: 'p11', name: 'Cardiac Silhouette', value: 'Normal size and contour', unit: 'N/A', normalRange: 'Normal CTI < 0.5', flag: 'Normal' },
+      { id: 'p12', name: 'Bony Thorax', value: 'Intact ribs and spine without acute fracture', unit: 'N/A', normalRange: 'Intact', flag: 'Normal' }
+    ],
+    impression: 'Unremarkable Chest Radiograph. No acute cardiopulmonary disease.',
+    recommendations: 'Routine clinical follow-up as scheduled.',
+    createdAt: '2026-08-02T14:15:00Z'
+  },
+  {
+    id: 'rep-103',
+    reportNumber: 'LAB-2026-8803',
+    patientId: 'p-103',
+    patientName: 'Sophia Martinez',
+    patientMrn: 'MRN-88212',
+    patientAgeGender: '31 yrs / Female',
+    category: 'CT Scan',
+    testName: 'Brain / Head CT Scan',
+    mode: 'Uploaded',
+    reportDate: '2026-08-04',
+    referredDoctor: 'Dr. Sarah Jenkins',
+    labName: 'St. Jude Radiology Dept',
+    technicianName: 'Dr. Alan Vance',
+    status: 'Normal',
+    fileName: 'Head_CT_Scan_Sophia_Martinez.pdf',
+    fileType: 'application/pdf',
+    fileSize: '3.4 MB',
+    fileUrl: '#',
+    uploadedDate: '2026-08-04',
+    notes: 'Uploaded official PDF report from St. Jude Hospital regarding recurring migraine assessment.',
+    createdAt: '2026-08-04T09:10:00Z'
   }
 ];
 

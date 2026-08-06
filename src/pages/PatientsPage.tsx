@@ -402,21 +402,36 @@ export const PatientsPage: React.FC<PatientsPageProps> = ({
                     <div className="flex items-center gap-1.5">
                       <button
                         type="button"
+                        onClick={() => {
+                          const pName = patient.fullName || `${patient.firstName} ${patient.lastName}`;
+                          navigate(`/patients/reports?patient=${encodeURIComponent(pName)}`);
+                        }}
                         className="px-2.5 py-1 rounded-lg bg-purple-100 text-purple-800 hover:bg-purple-200 dark:bg-[#2b1842] dark:text-[#ba8fff] dark:border dark:border-[#422663] font-semibold text-xs flex items-center gap-1 transition-colors cursor-pointer"
+                        title="View & Manage Lab Reports"
                       >
                         <FileText className="w-3.5 h-3.5" />
                         <span>Report</span>
                       </button>
                       <button
                         type="button"
+                        onClick={() => {
+                          const pName = patient.fullName || `${patient.firstName} ${patient.lastName}`;
+                          navigate(`/prescriptions?patient=${encodeURIComponent(pName)}`);
+                        }}
                         className="px-2.5 py-1 rounded-lg bg-blue-100 text-blue-800 hover:bg-blue-200 dark:bg-[#0d2a4d] dark:text-[#52a5ff] dark:border dark:border-[#143e70] font-semibold text-xs flex items-center gap-1 transition-colors cursor-pointer"
+                        title="View Patient Prescriptions"
                       >
                         <Pill className="w-3.5 h-3.5" />
                         <span>Rx</span>
                       </button>
                       <button
                         type="button"
+                        onClick={() => {
+                          const pName = patient.fullName || `${patient.firstName} ${patient.lastName}`;
+                          navigate(`/appointments?patient=${encodeURIComponent(pName)}`);
+                        }}
                         className="px-2.5 py-1 rounded-lg bg-teal-100 text-teal-800 hover:bg-teal-200 dark:bg-[#06333a] dark:text-[#2dd4bf] dark:border dark:border-[#0d535e] font-semibold text-xs flex items-center gap-1 transition-colors cursor-pointer"
+                        title="Schedule or View Follow-up Appointments"
                       >
                         <Stethoscope className="w-3.5 h-3.5" />
                         <span>Follow</span>
