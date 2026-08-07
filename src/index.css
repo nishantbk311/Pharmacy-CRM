@@ -69,14 +69,21 @@
   }
 
   .print-area {
-    position: static !important;
+    position: absolute !important;
+    top: 0 !important;
+    left: 0 !important;
+
     width: 100% !important;
     height: auto !important;
     min-height: 0 !important;
+
     margin: 0 !important;
     padding: 0 !important;
+
+    overflow: visible !important;
+
     transform: none !important;
-    zoom: 1.35 !important;
+    /* zoom: 1.30 !important; */
   }
 }
 
