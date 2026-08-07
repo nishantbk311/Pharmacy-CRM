@@ -17,9 +17,32 @@ export const ViewReportModal: React.FC<ViewReportModalProps> = ({
 }) => {
   if (!isOpen || !report) return null;
 
-  const handlePrint = () => {
-    window.print();
-  };
+ const handlePrint = async () => {
+  if (document.fonts?.ready) {
+    await document.fonts.ready;
+  }
+
+  const images = Array.from(
+    document.querySelectorAll<HTMLImageElement>('.print-area img')
+  );
+
+  await Promise.all(
+    images.map(img =>
+      img.complete
+        ? Promise.resolve()
+        : new Promise<void>(resolve => {
+            img.onload = () => resolve();
+            img.onerror = () => resolve();
+          })
+    )
+  );
+
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => {
+      window.print();
+    });
+  });
+};;
 
   return (
     <div
