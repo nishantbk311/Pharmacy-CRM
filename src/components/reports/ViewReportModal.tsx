@@ -197,6 +197,7 @@ export const ViewReportModal: React.FC<ViewReportModalProps> = ({
                 </p>
               </div>
               {report.notes && (
+              
                 <div className="text-xs text-slate-700 dark:text-slate-300 bg-white dark:bg-slate-800 print:bg-white print:text-slate-700 p-3 print:p-2 rounded-xl border border-slate-200 dark:border-slate-700 text-left">
                   <p className="font-bold text-slate-900 dark:text-white print:text-slate-900 mb-0.5">Notes & Summary:</p>
                   <p>{report.notes}</p>
