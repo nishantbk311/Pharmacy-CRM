@@ -1,7 +1,7 @@
 
 
-import { FileText, Printer, ShieldCheck, X } from 'lucide-react';
 import React from 'react';
+import { X, Printer, Download, User, Calendar, Stethoscope, Building2, AlertTriangle, CheckCircle2, FileText, ShieldCheck } from 'lucide-react';
 import { LabReport } from '../../types';
 
 interface ViewReportModalProps {
@@ -17,80 +17,14 @@ export const ViewReportModal: React.FC<ViewReportModalProps> = ({
 }) => {
   if (!isOpen || !report) return null;
 
- const handlePrint = async () => {
-  if (document.fonts?.ready) {
-    await document.fonts.ready;
-  }
-
-  const images = Array.from(
-    document.querySelectorAll<HTMLImageElement>('.print-area img')
-  );
-
-  await Promise.all(
-    images.map(img =>
-      img.complete
-        ? Promise.resolve()
-        : new Promise<void>(resolve => {
-            img.onload = () => resolve();
-            img.onerror = () => resolve();
-          })
-    )
-  );
-
-  requestAnimationFrame(() => {
-    requestAnimationFrame(() => {
-      window.print();
-    });
-  });
-};;
+  const handlePrint = () => {
+    window.print();
+  };
 
   return (
-    <div
-  className="
-    modal-overlay
-    fixed inset-0 z-50
-    flex items-center justify-center
-    bg-slate-900/60 backdrop-blur-xs
-    p-3 sm:p-4
-    overflow-y-auto
-
-    print:static
-    print:block
-    print:p-0
-    print:m-0
-    print:bg-transparent
-    print:overflow-visible
-  "
->
-  <div
-    className="
-      print-area
-      bg-white dark:bg-slate-900
-      rounded-2xl shadow-2xl
-      border border-slate-200 dark:border-slate-800
-      w-full max-w-3xl
-      my-6
-      overflow-hidden
-      flex flex-col
-      max-h-[92vh]
-
-      print:static
-      print:block
-      print:w-full
-      print:max-w-none
-      print:max-h-none
-      print:h-auto
-      print:min-h-0
-      print:m-0
-      print:p-0
-      print:shadow-none
-      print:border-none
-      print:rounded-none
-      print:bg-white
-      print:text-slate-900
-      print:overflow-visible
-    "
-  >
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-xs p-3 sm:p-4 overflow-y-auto print:static print:inset-auto print:p-0 print:m-0 print:bg-transparent print:block print:overflow-visible print:shadow-none">
+      <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-800 w-full max-w-3xl my-6 overflow-hidden flex flex-col max-h-[92vh] print-area print:static print:shadow-none print:border-none print:rounded-none print:my-0 print:p-0 print:max-w-none print:max-h-none print:w-full print:bg-white print:text-slate-900 print:overflow-visible print:block">
+        
         {/* Modal Action Header (Non-printable) */}
         <div className="px-6 py-4 border-b border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/60 flex items-center justify-between print:hidden">
           <div className="flex items-center gap-3">
