@@ -1010,7 +1010,7 @@ export const PatientBillPage: React.FC = () => {
       {/* Bill Details / Invoice Modal */}
       {viewingBill && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-xs p-4 print:p-0 print:m-0 print:bg-transparent print:block print:overflow-visible print:shadow-none">
-          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl max-w-2xl w-full p-6 shadow-2xl space-y-6 max-h-[90vh] overflow-y-auto print-area print:shadow-none print:border-none print:rounded-none print:p-0 print:m-0 print:max-w-none print:max-h-none print:w-full print:bg-white print:text-slate-900 print:overflow-visible print:block">
+          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl max-w-2xl w-full p-6 shadow-2xl space-y-6 max-h-[90vh] overflow-y-auto print-area print:shadow-none print:border-none print:rounded-none print:p-2 print:m-0 print:space-y-3 print:max-w-none print:max-h-none print:w-full print:bg-white print:text-slate-900 print:overflow-visible print:block">
             <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-4 print:border-slate-300">
               <div>
                 <h3 className="text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2 print:text-slate-900">

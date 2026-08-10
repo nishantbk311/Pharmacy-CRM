@@ -59,7 +59,7 @@ export const ViewReportModal: React.FC<ViewReportModalProps> = ({
         </div>
 
         {/* Official Printable Report View */}
-        <div className="p-4 sm:p-8 space-y-4 sm:space-y-6 overflow-y-auto flex-1 bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 print:bg-white print:text-slate-900 print:p-2 print:space-y-3.5 print:overflow-visible">
+        <div className="p-4 sm:p-8 space-y-4 sm:space-y-6 overflow-y-auto flex-1 bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 print:bg-white print:text-slate-900 print:p-2 print:space-y-2.5 print:overflow-visible">
           
           {/* Header Letterhead */}
           <div className="border-b-2 border-blue-600 dark:border-slate-700 print:border-slate-900 pb-3.5 sm:pb-4 print:pb-2 flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4 print:gap-2">
