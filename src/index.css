@@ -32,14 +32,14 @@
   }
 }
 
-/* Print Styles: Isolate print-area modal for exact 1-page printing with automatic fit zoom across Localhost and Vercel */
+/* Print Styles: Isolate print-area modal for exact 1-page printing across Localhost and Vercel */
 @media print {
   @page {
     size: A4 portrait;
     margin: 5mm;
   }
 
-  /* Prevent page overflows and lock document to single A4 page height */
+  /* Prevent page overflows and strictly lock document to single A4 page height */
   html,
   body {
     background: #ffffff !important;
@@ -54,33 +54,7 @@
     print-color-adjust: exact !important;
   }
 
-  /* Completely strip modal backdrop overlays & parent fixed layouts so they don't offset content */
-  body,
-  #root,
-  .fixed,
-  [class*="fixed"],
-  [class*="backdrop"] {
-    position: static !important;
-    top: auto !important;
-    left: auto !important;
-    right: auto !important;
-    bottom: auto !important;
-    inset: auto !important;
-    transform: none !important;
-    margin: 0 !important;
-    padding: 0 !important;
-    display: block !important;
-    overflow: visible !important;
-    height: auto !important;
-    min-height: 0 !important;
-    max-height: none !important;
-    background: transparent !important;
-    box-shadow: none !important;
-    backdrop-filter: none !important;
-    -webkit-backdrop-filter: none !important;
-  }
-
-  /* Hide all non-printable elements */
+  /* Completely remove non-printable structural components from flow so they take 0px height */
   header,
   aside,
   nav,
@@ -90,7 +64,7 @@
     display: none !important;
   }
 
-  /* Hide non-print-area elements visually */
+  /* Hide all other body elements visually */
   body * {
     visibility: hidden !important;
   }
@@ -101,18 +75,18 @@
     visibility: visible !important;
   }
 
-  /* Position .print-area cleanly at top (0, 0) of Page 1 with increased 1.25x (125%) zoom for maximum clarity on a single page */
+  /* Fixed anchor .print-area strictly at top (0, 0) of Page 1 */
   .print-area,
   div.print-area,
   div[class*="print-area"] {
-    position: absolute !important;
+    position: fixed !important;
     top: 0 !important;
     left: 0 !important;
     right: 0 !important;
     width: 100% !important;
     max-width: 100% !important;
     height: auto !important;
-    max-height: 100% !important;
+    max-height: 100vh !important;
     margin: 0 !important;
     padding: 0 !important;
     background: #ffffff !important;
@@ -121,11 +95,8 @@
     border: none !important;
     border-radius: 0 !important;
     overflow: hidden !important;
-    zoom: 1.25 !important;
-    /* Increased zoom scale as requested while maintaining single-page fit */
-    transform-origin: top left !important;
-    -webkit-print-color-adjust: exact !important;
-    print-color-adjust: exact !important;
+    z-index: 99999999 !important;
+    transform: none !important;
     page-break-before: avoid !important;
     break-before: avoid !important;
     page-break-after: avoid !important;
@@ -134,13 +105,7 @@
     break-inside: avoid !important;
   }
 
-  /* Prevent page breaks inside any child element of the print area */
-  .print-area * {
-    page-break-inside: avoid !important;
-    break-inside: avoid !important;
-  }
-
-  /* Force exact color reproduction for backgrounds & badges */
+  /* Force exact color reproduction for headers, tags, and status pills */
   .print-area [class*="bg-"] {
     -webkit-print-color-adjust: exact !important;
     print-color-adjust: exact !important;
