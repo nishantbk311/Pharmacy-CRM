@@ -1,6 +1,8 @@
+
+
 import React, { useState } from 'react';
 import { toast } from 'sonner';
-import { ShieldCheck, Smartphone, Mail, QrCode, Building, Bell, Copy, Check } from 'lucide-react';
+import { Smartphone, Mail, Copy, Check, Bell, ShieldCheck, QrCode, Building } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { Badge } from '../components/common/Badge';
 
@@ -12,7 +14,6 @@ export const SettingsPage: React.FC = () => {
   );
   const [copiedKey, setCopiedKey] = useState(false);
   const [notifEmail, setNotifEmail] = useState(true);
-  const [notifSms, setNotifSms] = useState(true);
   const [notifInquiryAlerts, setNotifInquiryAlerts] = useState(true);
 
   const mockSecretKey = 'JBSWY3DPEHPK3PXP';
@@ -57,7 +58,10 @@ export const SettingsPage: React.FC = () => {
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
             <button
               type="button"
-              onClick={() => setTwoFactorMethod('authenticator')}
+              onClick={() => {
+                setTwoFactorMethod('authenticator');
+                toast.success('2FA method set to Google Authenticator.');
+              }}
               className={`p-4 rounded-2xl border text-left transition-all flex items-start gap-3 cursor-pointer ${
                 twoFactorMethod === 'authenticator'
                   ? 'bg-emerald-500/10 border-emerald-500 text-emerald-900 dark:text-emerald-300 dark:bg-emerald-950/40 shadow-xs'
@@ -77,7 +81,10 @@ export const SettingsPage: React.FC = () => {
 
             <button
               type="button"
-              onClick={() => setTwoFactorMethod('email')}
+              onClick={() => {
+                setTwoFactorMethod('email');
+                toast.success('2FA method set to Email Verification.');
+              }}
               className={`p-4 rounded-2xl border text-left transition-all flex items-start gap-3 cursor-pointer ${
                 twoFactorMethod === 'email'
                   ? 'bg-sky-500/10 border-sky-500 text-sky-900 dark:text-sky-300 dark:bg-sky-950/40 shadow-xs'
@@ -201,7 +208,10 @@ export const SettingsPage: React.FC = () => {
             <input
               type="checkbox"
               checked={notifInquiryAlerts}
-              onChange={e => setNotifInquiryAlerts(e.target.checked)}
+              onChange={e => {
+                setNotifInquiryAlerts(e.target.checked);
+                toast.success(`Interaction alerts ${e.target.checked ? 'enabled' : 'disabled'}.`);
+              }}
               className="w-4 h-4 rounded-md text-teal-600 focus:ring-teal-500 cursor-pointer"
             />
           </label>
@@ -214,7 +224,10 @@ export const SettingsPage: React.FC = () => {
             <input
               type="checkbox"
               checked={notifEmail}
-              onChange={e => setNotifEmail(e.target.checked)}
+              onChange={e => {
+                setNotifEmail(e.target.checked);
+                toast.success(`Email digest ${e.target.checked ? 'enabled' : 'disabled'}.`);
+              }}
               className="w-4 h-4 rounded-md text-teal-600 focus:ring-teal-500 cursor-pointer"
             />
           </label>

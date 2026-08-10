@@ -1,7 +1,9 @@
+
+
 import React, { useState } from 'react';
-import { X, Upload, FileText, CheckCircle2, AlertCircle, Calendar, UserCheck, Stethoscope, Building2 } from 'lucide-react';
+import { X, Upload, FileText, CheckCircle2, Calendar, Stethoscope, Building2, UserCheck } from 'lucide-react';
 import { useData } from '../../context/DataContext';
-import { ReportCategory, LabReport } from '../../types';
+import { LabReport, ReportCategory } from '../../types';
 
 interface UploadReportModalProps {
   isOpen: boolean;

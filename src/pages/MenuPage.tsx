@@ -1,7 +1,9 @@
+
+
 import React, { useState, useMemo } from 'react';
-import { ChevronRight, ChevronDown, Search, CheckSquare, Square, RotateCcw, Save, Info, Shield } from 'lucide-react';
-import { useData } from '../context/DataContext';
 import { toast } from 'sonner';
+import { Shield, Info, Search, RotateCcw, Save, ChevronDown, ChevronRight, CheckSquare, Square } from 'lucide-react';
+import { useData } from '../context/DataContext';
 
 export type NodeType = 'MENU' | 'GROUP' | 'LIST' | 'PERMISSION';
 
@@ -951,6 +953,7 @@ export const MenuPage: React.FC = () => {
     };
 
     setTreeData(prev => updateRecursive(prev));
+    toast.info('Role permission updated.');
   };
 
   // Toggle role column visibility

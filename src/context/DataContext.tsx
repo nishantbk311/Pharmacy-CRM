@@ -1,7 +1,19 @@
 import React, { createContext, useContext, useState, useMemo } from 'react';
 import { toast } from 'sonner';
-import { Patient, Doctor, Staff, Appointment, Inquiry, Prescription, ActivityLog, NotificationItem, SystemUser, SystemRole, Supplier, Manufacturer, MedicineItem, StockTransaction, ActivityCategory, Activity, BlogPost, PatientBill, StaffSalary, DoctorPayment, LabReport } from '../types';
-import { INITIAL_PATIENTS, INITIAL_DOCTORS, INITIAL_STAFF, INITIAL_APPOINTMENTS, INITIAL_INQUIRIES, INITIAL_PRESCRIPTIONS, INITIAL_ACTIVITY_LOGS, MOCK_NOTIFICATIONS, INITIAL_SYSTEM_USERS, INITIAL_ROLES, INITIAL_SUPPLIERS, INITIAL_MANUFACTURERS, INITIAL_MEDICINES, INITIAL_STOCK_TRANSACTIONS, INITIAL_ACTIVITY_CATEGORIES, INITIAL_ACTIVITIES, INITIAL_BLOG_POSTS, INITIAL_PATIENT_BILLS, INITIAL_STAFF_SALARIES, INITIAL_DOCTOR_PAYMENTS, INITIAL_LAB_REPORTS } from '../mock/data';
+import {
+  Patient, PatientBill, LabReport, Doctor, DoctorPayment, Staff, StaffSalary, SystemUser,
+  SystemRole, Appointment, Inquiry, Prescription, Supplier, Manufacturer,
+  MedicineItem, StockTransaction, ActivityCategory, Activity, BlogPost,
+  ActivityLog, NotificationItem, FollowUpVisit
+} from '../types';
+import {
+  INITIAL_PATIENTS, INITIAL_PATIENT_BILLS, INITIAL_LAB_REPORTS, INITIAL_DOCTORS,
+  INITIAL_DOCTOR_PAYMENTS, INITIAL_STAFF, INITIAL_STAFF_SALARIES, INITIAL_SYSTEM_USERS, INITIAL_ROLES,
+  INITIAL_APPOINTMENTS, INITIAL_INQUIRIES, INITIAL_PRESCRIPTIONS, INITIAL_SUPPLIERS,
+  INITIAL_MANUFACTURERS, INITIAL_MEDICINES, INITIAL_STOCK_TRANSACTIONS,
+  INITIAL_ACTIVITY_CATEGORIES, INITIAL_ACTIVITIES, INITIAL_BLOG_POSTS,
+  INITIAL_ACTIVITY_LOGS, MOCK_NOTIFICATIONS, INITIAL_FOLLOWUP_VISITS
+} from '../mock/data';
 
 interface DataContextType {
   patients: Patient[];
@@ -24,6 +36,7 @@ interface DataContextType {
   blogPosts: BlogPost[];
   activityLogs: ActivityLog[];
   notifications: NotificationItem[];
+  followUpVisits: FollowUpVisit[];
 
   // Lab Report actions
   addLabReport: (report: Omit<LabReport, 'id' | 'reportNumber' | 'createdAt'>) => LabReport;
@@ -114,11 +127,14 @@ interface DataContextType {
   addInquiryNote: (inquiryId: string, authorName: string, authorRole: string, text: string) => void;
   
   // Prescription actions
-  addPrescription: (rx: Omit<Prescription, 'id' | 'rxNumber' | 'prescribedDate'>) => void;
+  addPrescription: (rx: Omit<Prescription, 'id' | 'rxNumber' | 'prescribedDate'> & { prescribedDate?: string }) => void;
   updatePrescription: (id: string, updates: Partial<Prescription>) => void;
   deletePrescription: (id: string) => void;
   updatePrescriptionStatus: (id: string, status: Prescription['status']) => void;
   processRefill: (rxNumber: string) => void;
+
+  // Follow-up actions
+  addFollowUpVisit: (visit: Omit<FollowUpVisit, 'id'>) => void;
 
   // Toast helper
   showToast: (msg: string) => void;
@@ -147,7 +163,8 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [activities, setActivities] = useState<Activity[]>(INITIAL_ACTIVITIES);
   const [blogPosts, setBlogPosts] = useState<BlogPost[]>(INITIAL_BLOG_POSTS);
   const [activityLogs, setActivityLogs] = useState<ActivityLog[]>(INITIAL_ACTIVITY_LOGS);
-  const [notifications, setNotifications] = useState<NotificationItem[]>(MOCK_NOTIFICATIONS);
+  const [notifications] = useState<NotificationItem[]>(MOCK_NOTIFICATIONS);
+  const [followUpVisits, setFollowUpVisits] = useState<FollowUpVisit[]>(INITIAL_FOLLOWUP_VISITS);
 
   const showToast = (msg: string) => {
     toast.success(msg);
@@ -550,14 +567,14 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   // Prescription handlers
-  const addPrescription = (rxData: Omit<Prescription, 'id' | 'rxNumber' | 'prescribedDate'>) => {
+  const addPrescription = (rxData: Omit<Prescription, 'id' | 'rxNumber' | 'prescribedDate'> & { prescribedDate?: string }) => {
     const id = `rx-${Date.now().toString().slice(-4)}`;
     const rxNumber = `RX-${Math.floor(100000 + Math.random() * 900000)}`;
     const newRx: Prescription = {
       ...rxData,
       id,
       rxNumber,
-      prescribedDate: new Date().toISOString().split('T')[0],
+      prescribedDate: rxData.prescribedDate || new Date().toISOString().split('T')[0],
     };
     setPrescriptions(prev => [newRx, ...prev]);
     addLog('Dr. Sarah Jenkins', 'Lead Pharmacist', 'Prescription Created', 'Prescription', `Created prescription ${rxNumber} for ${newRx.patientName}.`);
@@ -595,6 +612,17 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
       })
     );
     showToast(`Refill processed for ${rxNumber}.`);
+  };
+
+  const addFollowUpVisit = (visit: Omit<FollowUpVisit, 'id'>) => {
+    const id = `fuv-${Date.now().toString().slice(-4)}`;
+    const newVisit: FollowUpVisit = {
+      ...visit,
+      id,
+      sn: followUpVisits.length + 1,
+    };
+    setFollowUpVisits(prev => [newVisit, ...prev]);
+    showToast(`Follow-up visit added for ${visit.patientName || 'patient'}.`);
   };
 
   // Activity Category CRUD Actions
@@ -776,6 +804,8 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
     deletePrescription,
     updatePrescriptionStatus,
     processRefill,
+    followUpVisits,
+    addFollowUpVisit,
     showToast,
   }), [
     patients,
@@ -799,6 +829,7 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
     activityLogs,
     notifications,
     doctorPayments,
+    followUpVisits,
   ]);
 
   return (

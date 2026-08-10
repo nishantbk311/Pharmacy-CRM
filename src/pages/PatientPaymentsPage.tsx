@@ -1,6 +1,8 @@
+
+
 import React, { useState, useEffect, useMemo } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { Calendar, Clock, Check, CreditCard, User, Layers, Receipt, FileText, SlidersHorizontal } from 'lucide-react';
+import { CreditCard, Calendar, SlidersHorizontal, User, FileText, Clock, Check, Layers, Receipt } from 'lucide-react';
 import { useData } from '../context/DataContext';
 import { NepaliDatePicker } from '../components/common/NepaliDatePicker';
 
@@ -15,7 +17,7 @@ export const PatientPaymentsPage: React.FC = () => {
   const [fromBsDate, setFromBsDate] = useState<string>('2083-04-17');
   const [toBsDate, setToBsDate] = useState<string>('2083-04-17');
   const [selectedSource, setSelectedSource] = useState<string>('All');
-  const [searchTerm, setSearchTerm] = useState<string>('');
+  const [searchTerm] = useState<string>('');
 
   // Sync selected patient from URL search parameter
   useEffect(() => {

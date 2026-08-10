@@ -1,11 +1,13 @@
+
+
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { AreaChart, Area, BarChart, Bar, PieChart, Pie, Cell, CartesianGrid, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
 import { motion } from 'motion/react';
-import { Users, Stethoscope, UserCheck, CalendarCheck, MessageSquareWarning, Pill, ArrowRight, UserPlus, Calendar, HelpCircle, Activity, ShieldAlert } from 'lucide-react';
-import { AreaChart, Area, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
+import { Users, Pill, Stethoscope, UserPlus, Calendar, MessageSquareWarning, ArrowRight, CalendarCheck, Activity, ShieldAlert, HelpCircle, UserCheck } from 'lucide-react';
 import { useData } from '../context/DataContext';
-import { StatsCard } from '../components/common/StatsCard';
 import { Badge } from '../components/common/Badge';
+import { StatsCard } from '../components/common/StatsCard';
 
 interface DashboardPageProps {
   onQuickAction: (action: 'add_patient' | 'add_appointment' | 'add_inquiry' | 'add_doctor') => void;

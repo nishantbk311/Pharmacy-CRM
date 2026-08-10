@@ -1,5 +1,7 @@
+
+
 import React, { useState, useRef, useEffect } from 'react';
-import { Calendar as CalendarIcon, ChevronLeft, ChevronRight, X, Check } from 'lucide-react';
+import { Calendar as CalendarIcon, X, ChevronLeft, ChevronRight, Check } from 'lucide-react';
 
 interface NepaliDatePickerProps {
   value: string; // Formatted YYYY-MM-DD (BS)
@@ -46,7 +48,22 @@ export const NepaliDatePicker: React.FC<NepaliDatePickerProps> = ({
   inputClassName = '',
 }) => {
   const [isOpen, setIsOpen] = useState(false);
+  const [openAbove, setOpenAbove] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
+
+  const toggleOpen = () => {
+    if (!isOpen && containerRef.current) {
+      const rect = containerRef.current.getBoundingClientRect();
+      const spaceBelow = window.innerHeight - rect.bottom;
+      const spaceAbove = rect.top;
+      if (spaceBelow < 350 && spaceAbove > spaceBelow) {
+        setOpenAbove(true);
+      } else {
+        setOpenAbove(false);
+      }
+    }
+    setIsOpen(prev => !prev);
+  };
 
   // Parse initial state or fallback to 2083-04-17
   const parseBsDate = (val: string) => {
@@ -123,7 +140,7 @@ export const NepaliDatePicker: React.FC<NepaliDatePickerProps> = ({
       )}
 
       {/* Input box */}
-      <div className="relative flex items-center" onClick={() => setIsOpen(prev => !prev)}>
+      <div className="relative flex items-center" onClick={toggleOpen}>
         <input
           type="text"
           readOnly
@@ -157,7 +174,7 @@ export const NepaliDatePicker: React.FC<NepaliDatePickerProps> = ({
 
       {/* Nepali Calendar Popup Modal */}
       {isOpen && (
-        <div className="absolute left-0 top-full mt-1.5 z-50 w-72 sm:w-80 bg-white dark:bg-[#0f1b2d] border border-slate-200 dark:border-slate-700/90 rounded-2xl shadow-2xl p-4 text-slate-800 dark:text-slate-100 transition-all animate-in fade-in zoom-in-95 duration-150">
+        <div className={`absolute left-0 ${openAbove ? 'bottom-full mb-1.5' : 'top-full mt-1.5'} z-[100] w-72 sm:w-80 bg-white dark:bg-[#0f1b2d] border border-slate-200 dark:border-slate-700/90 rounded-2xl shadow-2xl p-4 text-slate-800 dark:text-slate-100 transition-all animate-in fade-in zoom-in-95 duration-150`}>
           {/* Header */}
           <div className="flex items-center justify-between gap-1 pb-3 mb-3 border-b border-slate-100 dark:border-slate-800/80">
             <div className="flex items-center gap-1">

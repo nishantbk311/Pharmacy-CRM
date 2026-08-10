@@ -1,3 +1,5 @@
+
+
 import React, { useState } from 'react';
 import { SlidersHorizontal, Pill, Tag, X, History } from 'lucide-react';
 import { useData } from '../context/DataContext';
@@ -17,7 +19,7 @@ export const StockHistoryPage: React.FC = () => {
   // Modal State for logging stock
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [drugName, setDrugName] = useState('');
-  const [batchNo, setBatchNo] = useState('Ws23');
+  const [batchNo] = useState('Ws23');
   const [type, setType] = useState<StockTransaction['type']>('Purchase / Restock');
   const [quantity, setQuantity] = useState('1000');
   const [performedBy, setPerformedBy] = useState('Super Admin');

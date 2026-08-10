@@ -1,10 +1,12 @@
+
+
 import React, { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { Search, Plus, Send } from 'lucide-react';
+import { HelpCircle, Search, Plus, Send } from 'lucide-react';
 import { useData } from '../context/DataContext';
 import { Inquiry, InquiryPriority, InquiryType } from '../types';
-import { Modal } from '../components/common/Modal';
 import { Badge } from '../components/common/Badge';
+import { Modal } from '../components/common/Modal';
 
 interface InquiriesPageProps {
   inquiryModalOpen: boolean;
@@ -15,7 +17,7 @@ export const InquiriesPage: React.FC<InquiriesPageProps> = ({
   inquiryModalOpen,
   setInquiryModalOpen,
 }) => {
-  const { inquiries, addInquiry, updateInquiryStatus, addInquiryNote, staff, doctors } = useData();
+  const { inquiries, addInquiry, updateInquiryStatus, addInquiryNote, doctors } = useData();
 
   const [searchParams] = useSearchParams();
   const [searchQuery, setSearchQuery] = useState(() => searchParams.get('q') || '');
@@ -34,11 +36,11 @@ export const InquiriesPage: React.FC<InquiriesPageProps> = ({
   // New Inquiry Form State
   const [type, setType] = useState<InquiryType>('Drug Interaction');
   const [patientName, setPatientName] = useState('Eleanor Vance');
-  const [patientPhone, setPatientPhone] = useState('(555) 432-8811');
+  const [patientPhone] = useState('(555) 432-8811');
   const [doctorName, setDoctorName] = useState('Dr. Robert Chen');
-  const [rxNumber, setRxNumber] = useState('RX-774902');
+  const [rxNumber] = useState('RX-774902');
   const [priority, setPriority] = useState<InquiryPriority>('Urgent');
-  const [assignedStaff, setAssignedStaff] = useState('Dr. Sarah Jenkins, PharmD');
+  const [assignedStaff] = useState('Dr. Sarah Jenkins, PharmD');
   const [subject, setSubject] = useState('');
   const [description, setDescription] = useState('');
 

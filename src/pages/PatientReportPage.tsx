@@ -1,31 +1,16 @@
+
+
 import React, { useState, useEffect } from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
-import { 
-  Upload, 
-  FileSpreadsheet, 
-  Search, 
-  Filter, 
-  Eye, 
-  Trash2, 
-  Download, 
-  FileText, 
-  CheckCircle2, 
-  AlertTriangle, 
-  AlertCircle, 
-  Activity,
-  Calendar,
-  User,
-  Plus
-} from 'lucide-react';
+import { useSearchParams } from 'react-router-dom';
+import { FileSpreadsheet, Search, Upload, Eye, Trash2, FileText, AlertTriangle } from 'lucide-react';
 import { useData } from '../context/DataContext';
 import { LabReport, ReportCategory } from '../types';
+import { ViewReportModal } from '../components/reports/ViewReportModal';
 import { UploadReportModal } from '../components/reports/UploadReportModal';
 import { GenerateReportModal } from '../components/reports/GenerateReportModal';
-import { ViewReportModal } from '../components/reports/ViewReportModal';
 import { ConfirmDeleteModal } from '../components/common/ConfirmDeleteModal';
 
 export const PatientReportPage: React.FC = () => {
-  const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const { labReports, deleteLabReport } = useData();
 

@@ -1,3 +1,5 @@
+
+
 import React, { useState } from 'react';
 import { Plus, SlidersHorizontal, User as UserIcon, Mail, Phone, Shield, Tag, Pencil, Trash2, UserCheck, Upload, Camera } from 'lucide-react';
 import { useData } from '../context/DataContext';
@@ -155,17 +157,6 @@ export const UsersPage: React.FC = () => {
     });
 
     setEditModalOpen(false);
-  };
-
-  const handleDeleteUser = (id: string, userName: string) => {
-    if (confirm(`Are you sure you want to delete the user "${userName}"?`)) {
-      deleteSystemUser(id);
-    }
-  };
-
-  const handleViewSalary = (user: SystemUser) => {
-    setSelectedUser(user);
-    setViewSalaryModalOpen(true);
   };
 
   return (

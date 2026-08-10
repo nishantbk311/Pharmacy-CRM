@@ -1,12 +1,14 @@
+
+
 import React, { useState, useEffect, Suspense } from 'react';
-import { BrowserRouter, Routes, Route, useNavigate, useLocation, Navigate } from 'react-router-dom';
-import { motion, AnimatePresence } from 'motion/react';
+import { BrowserRouter, Routes, Route, Navigate, useLocation, useNavigate } from 'react-router-dom';
 import { Toaster } from 'sonner';
+import { motion, AnimatePresence } from 'motion/react';
+import { ThemeProvider } from './context/ThemeContext';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { DataProvider } from './context/DataContext';
-import { ThemeProvider } from './context/ThemeContext';
-import { Sidebar } from './components/layout/Sidebar';
 import { Header } from './components/layout/Header';
+import { Sidebar } from './components/layout/Sidebar';
 import { ErrorBoundary } from './components/common/ErrorBoundary';
 import { lazyNamed } from './helper/lazyNamed';
 
@@ -63,6 +65,21 @@ function MainAppContent() {
   const location = useLocation();
 
   const [isMobileOpen, setIsMobileOpen] = useState(false);
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(() => {
+    return localStorage.getItem('sidebar_collapsed') === 'true';
+  });
+
+  const handleToggleSidebar = () => {
+    if (window.innerWidth < 1024) {
+      setIsMobileOpen(prev => !prev);
+    } else {
+      setIsSidebarCollapsed(prev => {
+        const next = !prev;
+        localStorage.setItem('sidebar_collapsed', String(next));
+        return next;
+      });
+    }
+  };
 
   // Global Quick Action Modal Trigger States
   const [patientModalOpen, setPatientModalOpen] = useState(false);
@@ -110,12 +127,17 @@ function MainAppContent() {
       <Sidebar
         isMobileOpen={isMobileOpen}
         setIsMobileOpen={setIsMobileOpen}
+        isSidebarCollapsed={isSidebarCollapsed}
+        onToggleSidebar={handleToggleSidebar}
       />
 
       {/* Main Right Content Panel */}
-      <div className="lg:pl-64 flex-1 flex flex-col min-w-0">
+      <div className={`transition-all duration-300 ease-in-out flex-1 flex flex-col min-w-0 ${
+        isSidebarCollapsed ? 'lg:pl-20' : 'lg:pl-64'
+      }`}>
         <Header
-          onMobileMenuToggle={() => setIsMobileOpen(!isMobileOpen)}
+          onMobileMenuToggle={handleToggleSidebar}
+          isSidebarCollapsed={isSidebarCollapsed}
           onQuickAction={handleQuickAction}
         />
 

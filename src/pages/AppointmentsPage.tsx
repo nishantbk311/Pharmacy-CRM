@@ -1,10 +1,12 @@
+
+
 import React, { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { Search, Plus, Video, User, Phone } from 'lucide-react';
+import { Search, Plus, User, Phone } from 'lucide-react';
 import { useData } from '../context/DataContext';
-import { Appointment, AppointmentType } from '../types';
-import { Modal } from '../components/common/Modal';
+import { AppointmentType } from '../types';
 import { Badge } from '../components/common/Badge';
+import { Modal } from '../components/common/Modal';
 
 interface AppointmentsPageProps {
   bookingModalOpen: boolean;

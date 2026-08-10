@@ -1,8 +1,10 @@
-import { Calendar, CheckCircle2, Edit2, Filter, FolderOpen, Layers, Plus, Search, Sparkles, Tag, Trash2, X, XCircle } from 'lucide-react';
+
+
 import React, { useState } from 'react';
-import { ConfirmDeleteModal } from '../components/common/ConfirmDeleteModal';
+import { Tag, Plus, Search, Filter, Calendar, Edit2, Trash2, X, Layers, CheckCircle2, XCircle, FolderOpen, Sparkles } from 'lucide-react';
 import { useData } from '../context/DataContext';
 import { ActivityCategory } from '../types';
+import { ConfirmDeleteModal } from '../components/common/ConfirmDeleteModal';
 
 export const ActivityCategoryPage: React.FC = () => {
   const { activityCategories, addActivityCategory, updateActivityCategory, deleteActivityCategory, activities } = useData();

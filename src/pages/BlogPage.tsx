@@ -1,5 +1,7 @@
+
+
 import React, { useState } from 'react';
-import { FileText, Plus, Search, Eye, Clock, CheckCircle2, FileEdit, Filter, Edit2, Trash2, X, BookOpen } from 'lucide-react';
+import { FileText, Plus, CheckCircle2, Eye, FileEdit, Search, Filter, BookOpen, Clock, Edit2, Trash2, X } from 'lucide-react';
 import { useData } from '../context/DataContext';
 import { BlogPost } from '../types';
 import { ConfirmDeleteModal } from '../components/common/ConfirmDeleteModal';
@@ -114,7 +116,7 @@ export const BlogPage: React.FC = () => {
   const totalViews = blogPosts.reduce((sum, p) => sum + (p.viewsCount || 0), 0);
   const totalDrafts = blogPosts.filter(p => p.status === 'Draft').length;
 
-  const categories = Array.from(new Set(blogPosts.map(p => p.category)));
+  const categories: string[] = Array.from(new Set(blogPosts.map(p => p.category)));
 
   const getStatusBadge = (s: BlogPost['status']) => {
     switch (s) {

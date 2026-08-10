@@ -2,11 +2,10 @@
 
 import React, { useState, useEffect, useMemo } from 'react';
 import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
-import { Receipt, Plus, Search, Calendar, User, User as UserIcon, Pill, Trash2, Edit2, Pencil, Eye, Printer, Download, CheckCircle2, RotateCcw, Building2, SlidersHorizontal, FileText, ArrowLeft, Check, ShieldCheck, X } from 'lucide-react';
+import { Receipt, Plus, User as UserIcon, Trash2, Pencil, Printer, CheckCircle2, SlidersHorizontal, ArrowLeft, X } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useData } from '../context/DataContext';
 import { PatientBill, PatientBillMedicineItem } from '../types';
-import { Modal } from '../components/common/Modal';
 import { ConfirmDeleteModal } from '../components/common/ConfirmDeleteModal';
 
 export const PatientBillPage: React.FC = () => {
@@ -14,7 +13,7 @@ export const PatientBillPage: React.FC = () => {
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const { user } = useAuth();
-  const { patients, medicines, patientBills, addPatientBill, updatePatientBill, deletePatientBill } = useData();
+  const { patients, medicines, patientBills, addPatientBill, updatePatientBill, deletePatientBill, showToast } = useData();
 
   // Determine if we are on the create page route or list page
   const isCreateRoute = location.pathname.endsWith('/create');
@@ -133,10 +132,12 @@ export const PatientBillPage: React.FC = () => {
         vatPercent: 0,
       },
     ]);
+    showToast('Item row added to bill.');
   };
 
   const handleRemoveEditMedicineItem = (id: string) => {
     setEditItems(prev => prev.filter(item => item.id !== id));
+    showToast('Item row removed from bill.');
   };
 
   const handleEditItemChange = (
@@ -284,12 +285,14 @@ export const PatientBillPage: React.FC = () => {
         vatPercent: 0,
       },
     ]);
+    showToast('Item row added.');
   };
 
   // Handle removing a line item
   const handleRemoveMedicineItem = (id: string) => {
     if (billItems.length === 1) return;
     setBillItems(prev => prev.filter(item => item.id !== id));
+    showToast('Item row removed.');
   };
 
   // Handle selecting a medicine for a line item

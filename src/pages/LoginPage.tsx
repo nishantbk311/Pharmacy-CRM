@@ -1,7 +1,9 @@
+
+
 import React, { useState, useEffect } from 'react';
-import { motion, AnimatePresence } from 'motion/react';
 import { toast } from 'sonner';
-import { ShieldCheck, Mail, Lock, Smartphone, ArrowRight, ArrowLeft, Check, Cross, Users, Eye, EyeOff, Info, Sun, Moon, Shield, RefreshCw } from 'lucide-react';
+import { motion, AnimatePresence } from 'motion/react';
+import { Shield, Lock, Mail, Eye, EyeOff, ShieldCheck, Sun, Moon, ArrowRight, RefreshCw, Smartphone, Check, Cross, Users, Info, ArrowLeft } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
 
@@ -13,7 +15,6 @@ export const LoginPage: React.FC = () => {
     resend2FACode,
     resetToCredentials,
     generatedCode,
-    quickDemoLogin,
     pendingMethod,
   } = useAuth();
 

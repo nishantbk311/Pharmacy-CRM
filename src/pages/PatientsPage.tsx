@@ -1,10 +1,14 @@
+
+
 import React, { useState, useEffect, useMemo } from 'react';
-import { useSearchParams, useNavigate } from 'react-router-dom';
-import { Search, Plus, Phone, Mail, Trash2, Edit2, UserPlus, Save, RotateCcw, SlidersHorizontal, User, ClipboardList, Tag, DollarSign, Wallet, FileText, Pill, Stethoscope } from 'lucide-react';
+import { useNavigate, useSearchParams } from 'react-router-dom';
+import { Plus, SlidersHorizontal, User, Mail, FileText, Trash2, RotateCcw, Stethoscope, ClipboardList, Tag, DollarSign, Wallet, Pill, Edit2, Save, UserPlus, Lock } from 'lucide-react';
 import { useData } from '../context/DataContext';
-import { Patient } from '../types';
+import { Patient, TreatmentStatus } from '../types';
 import { Modal } from '../components/common/Modal';
 import { ConfirmDeleteModal } from '../components/common/ConfirmDeleteModal';
+import { AddPrescriptionModal } from '../components/prescriptions/AddPrescriptionModal';
+import { FollowUpModal } from '../components/patients/FollowUpModal';
 
 interface PatientsPageProps {
   registerModalOpen: boolean;
@@ -26,6 +30,9 @@ export const PatientsPage: React.FC<PatientsPageProps> = ({
   const [emailQuery, setEmailQuery] = useState('');
   const [filterTreatmentStatus, setFilterTreatmentStatus] = useState<string>('All');
   const [filterStatus, setFilterStatus] = useState<string>('All');
+
+  const [rxModalPatient, setRxModalPatient] = useState<Patient | null>(null);
+  const [followUpModalPatient, setFollowUpModalPatient] = useState<Patient | null>(null);
 
   useEffect(() => {
     const q = searchParams.get('q');
@@ -69,7 +76,7 @@ export const PatientsPage: React.FC<PatientsPageProps> = ({
   const [insuranceProvider, setInsuranceProvider] = useState('');
   const [insurancePolicyNumber, setInsurancePolicyNumber] = useState('');
   const [status, setStatus] = useState<'Active' | 'Inactive'>('Active');
-  const [treatmentStatus, setTreatmentStatus] = useState<'Not Started' | 'In Progress' | 'Completed' | 'On Hold'>('Not Started');
+  const [treatmentStatus, setTreatmentStatus] = useState<TreatmentStatus>('Not Started');
 
   // Edit Patient Form State
   const [editFullName, setEditFullName] = useState('');
@@ -86,7 +93,7 @@ export const PatientsPage: React.FC<PatientsPageProps> = ({
   const [editInsuranceProvider, setEditInsuranceProvider] = useState('');
   const [editInsurancePolicyNumber, setEditInsurancePolicyNumber] = useState('');
   const [editStatus, setEditStatus] = useState<'Active' | 'Inactive'>('Active');
-  const [editTreatmentStatus, setEditTreatmentStatus] = useState<'Not Started' | 'In Progress' | 'Completed' | 'On Hold'>('Not Started');
+  const [editTreatmentStatus, setEditTreatmentStatus] = useState<TreatmentStatus>('Not Started');
 
   const openEditModal = (patient: Patient) => {
     setEditingPatient(patient);
@@ -282,9 +289,13 @@ export const PatientsPage: React.FC<PatientsPageProps> = ({
             >
               <option value="All">All</option>
               <option value="Not Started">Not Started</option>
-              <option value="In Progress">In Progress</option>
+              <option value="Payment Received">Payment Received</option>
+              <option value="In Queue">In Queue</option>
+              <option value="With Doctor">With Doctor</option>
+              <option value="Ongoing">Ongoing</option>
+              <option value="Waiting Report">Waiting Report</option>
               <option value="Completed">Completed</option>
-              <option value="On Hold">On Hold</option>
+              <option value="Discontinued">Discontinued</option>
             </select>
           </div>
 
@@ -326,192 +337,227 @@ export const PatientsPage: React.FC<PatientsPageProps> = ({
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100 dark:divide-[#192744] text-xs">
-              {filteredPatients.map((patient, index) => (
-                <tr
-                  key={patient.id}
-                  className="hover:bg-slate-50/80 dark:hover:bg-[#121d36] transition-colors group"
-                >
-                  {/* S.N */}
-                  <td className="py-4 px-4 text-center font-medium text-slate-500 dark:text-slate-400">
-                    {index + 1}
-                  </td>
+              {filteredPatients.map((patient, index) => {
+                const isCompleted = patient.treatmentStatus === 'Completed';
+                return (
+                  <tr
+                    key={patient.id}
+                    className="hover:bg-slate-50/80 dark:hover:bg-[#121d36] transition-colors group"
+                  >
+                    {/* S.N */}
+                    <td className="py-4 px-4 text-center font-medium text-slate-500 dark:text-slate-400">
+                      {index + 1}
+                    </td>
 
-                  {/* PATIENT */}
-                  <td className="py-4 px-4">
-                    <p className="font-bold text-slate-900 dark:text-slate-100">
-                      {patient.fullName || `${patient.firstName} ${patient.lastName}`}
-                    </p>
-                    <p className="text-[11px] text-slate-400 dark:text-slate-500 font-mono mt-0.5">
-                      {patient.mrn}
-                    </p>
-                  </td>
+                    {/* PATIENT */}
+                    <td className="py-4 px-4">
+                      <p className="font-bold text-slate-900 dark:text-slate-100">
+                        {patient.fullName || `${patient.firstName} ${patient.lastName}`}
+                      </p>
+                      <p className="text-[11px] text-slate-400 dark:text-slate-500 font-mono mt-0.5">
+                        {patient.mrn}
+                      </p>
+                    </td>
 
-                  {/* CONTACT */}
-                  <td className="py-4 px-4">
-                    <p className="font-bold text-slate-800 dark:text-slate-200">
-                      {patient.phone || 'N/A'}
-                    </p>
-                    <p className="text-[11px] text-slate-400 dark:text-slate-500 mt-0.5">
-                      {patient.email || 'N/A'}
-                    </p>
-                  </td>
+                    {/* CONTACT */}
+                    <td className="py-4 px-4">
+                      <p className="font-bold text-slate-800 dark:text-slate-200">
+                        {patient.phone || 'N/A'}
+                      </p>
+                      <p className="text-[11px] text-slate-400 dark:text-slate-500 mt-0.5">
+                        {patient.email || 'N/A'}
+                      </p>
+                    </td>
 
-                  {/* DOCTOR */}
-                  <td className="py-4 px-4">
-                    <p className="text-slate-800 dark:text-slate-200 font-medium">
-                      {patient.doctor || 'doctor'}
-                    </p>
-                  </td>
+                    {/* DOCTOR */}
+                    <td className="py-4 px-4">
+                      <p className="text-slate-800 dark:text-slate-200 font-medium">
+                        {patient.doctor || 'doctor'}
+                      </p>
+                    </td>
 
-                  {/* LAST VISIT */}
-                  <td className="py-4 px-4">
-                    <p className="text-slate-500 dark:text-slate-400 font-mono">
-                      —
-                    </p>
-                  </td>
+                    {/* LAST VISIT */}
+                    <td className="py-4 px-4">
+                      <p className="text-slate-500 dark:text-slate-400 font-mono">
+                        —
+                      </p>
+                    </td>
 
-                  {/* BILLING */}
-                  <td className="py-4 px-4">
-                    <div className="flex items-center gap-1.5">
-                      <button
-                        type="button"
-                        onClick={() => {
-                          navigate(`/patients/bill?patient=${encodeURIComponent(patient.id)}`);
-                        }}
-                        className="px-2.5 py-1 rounded-lg bg-emerald-100 text-emerald-800 hover:bg-emerald-200 dark:bg-[#073828] dark:text-[#38d39f] dark:border dark:border-[#0e5c42] font-semibold text-xs flex items-center gap-1 transition-colors cursor-pointer"
+                    {/* BILLING */}
+                    <td className="py-4 px-4">
+                      <div className="flex items-center gap-1.5">
+                        <button
+                          type="button"
+                          onClick={() => {
+                            navigate(`/patients/bill?patient=${encodeURIComponent(patient.id)}`);
+                          }}
+                          className="px-2.5 py-1 rounded-lg bg-emerald-100 text-emerald-800 hover:bg-emerald-200 dark:bg-[#073828] dark:text-[#38d39f] dark:border dark:border-[#0e5c42] font-semibold text-xs flex items-center gap-1 transition-colors cursor-pointer"
+                        >
+                          <DollarSign className="w-3.5 h-3.5" />
+                          <span>Bill</span>
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            const pName = patient.fullName || `${patient.firstName} ${patient.lastName}`;
+                            navigate(`/patients/payments?patient=${encodeURIComponent(pName)}`);
+                          }}
+                          className="px-2.5 py-1 rounded-lg bg-amber-100 text-amber-800 hover:bg-amber-200 dark:bg-[#3d2b07] dark:text-[#f3ba42] dark:border dark:border-[#63470b] font-semibold text-xs flex items-center gap-1 transition-colors cursor-pointer"
+                        >
+                          <Wallet className="w-3.5 h-3.5" />
+                          <span>Pay</span>
+                        </button>
+                      </div>
+                    </td>
+
+                    {/* CARE */}
+                    <td className="py-4 px-4">
+                      <div className="flex items-center gap-1.5">
+                        <button
+                          type="button"
+                          onClick={() => {
+                            const pName = patient.fullName || `${patient.firstName} ${patient.lastName}`;
+                            navigate(`/patients/reports?patient=${encodeURIComponent(pName)}`);
+                          }}
+                          className="px-2.5 py-1 rounded-lg bg-purple-100 text-purple-800 hover:bg-purple-200 dark:bg-[#2b1842] dark:text-[#ba8fff] dark:border dark:border-[#422663] font-semibold text-xs flex items-center gap-1 transition-colors cursor-pointer"
+                          title="View & Manage Lab Reports"
+                        >
+                          <FileText className="w-3.5 h-3.5" />
+                          <span>Report</span>
+                        </button>
+                        <button
+                          type="button"
+                          disabled={isCompleted}
+                          onClick={() => !isCompleted && setRxModalPatient(patient)}
+                          className={`px-2.5 py-1 rounded-lg font-semibold text-xs flex items-center gap-1 transition-colors ${
+                            isCompleted
+                              ? 'bg-slate-100/70 text-slate-400 dark:bg-slate-800/40 dark:text-slate-500 cursor-not-allowed opacity-50'
+                              : 'bg-blue-100 text-blue-800 hover:bg-blue-200 dark:bg-[#0d2a4d] dark:text-[#52a5ff] dark:border dark:border-[#143e70] cursor-pointer'
+                          }`}
+                          title={isCompleted ? 'Rx creation locked when treatment is completed' : 'Add New Prescription'}
+                        >
+                          <Pill className="w-3.5 h-3.5" />
+                          <span>Rx</span>
+                        </button>
+                        <button
+                          type="button"
+                          disabled={isCompleted}
+                          onClick={() => !isCompleted && setFollowUpModalPatient(patient)}
+                          className={`px-2.5 py-1 rounded-lg font-semibold text-xs flex items-center gap-1 transition-colors ${
+                            isCompleted
+                              ? 'bg-slate-100/70 text-slate-400 dark:bg-slate-800/40 dark:text-slate-500 cursor-not-allowed opacity-50'
+                              : 'bg-teal-100 text-teal-800 hover:bg-teal-200 dark:bg-[#06333a] dark:text-[#2dd4bf] dark:border dark:border-[#0d535e] cursor-pointer'
+                          }`}
+                          title={isCompleted ? 'Follow-up locked when treatment is completed' : 'View Patient Follow-up Visits'}
+                        >
+                          <Stethoscope className="w-3.5 h-3.5" />
+                          <span>Follow</span>
+                        </button>
+                      </div>
+                    </td>
+
+                    {/* TREATMENT */}
+                    <td className="py-4 px-4">
+                      <select
+                        value={patient.treatmentStatus || 'Not Started'}
+                        onChange={e =>
+                          updatePatient(patient.id, {
+                            treatmentStatus: e.target.value as any,
+                          })
+                        }
+                        className={`px-3 py-1 rounded-full text-xs font-semibold focus:outline-hidden focus:ring-2 focus:ring-blue-500/40 cursor-pointer transition-colors ${
+                          patient.treatmentStatus === 'Payment Received'
+                            ? 'bg-emerald-100 text-emerald-800 dark:bg-[#073828] dark:text-[#38d39f] dark:border dark:border-[#0e5c42]'
+                            : patient.treatmentStatus === 'In Queue'
+                            ? 'bg-sky-100 text-sky-800 dark:bg-[#0c2f4a] dark:text-[#38bdf8] dark:border dark:border-[#104870]'
+                            : patient.treatmentStatus === 'With Doctor'
+                            ? 'bg-purple-100 text-purple-800 dark:bg-[#2b1842] dark:text-[#c084fc] dark:border dark:border-[#422663]'
+                            : patient.treatmentStatus === 'Ongoing'
+                            ? 'bg-blue-100 text-blue-800 dark:bg-[#0d2a4d] dark:text-[#52a5ff] dark:border dark:border-[#143e70]'
+                            : patient.treatmentStatus === 'Waiting Report'
+                            ? 'bg-amber-100 text-amber-800 dark:bg-[#3d2b07] dark:text-[#f3ba42] dark:border dark:border-[#63470b]'
+                            : patient.treatmentStatus === 'Completed'
+                            ? 'bg-emerald-100 text-emerald-800 dark:bg-[#073828] dark:text-[#38d39f] dark:border dark:border-[#0e5c42]'
+                            : patient.treatmentStatus === 'Discontinued'
+                            ? 'bg-rose-100 text-rose-800 dark:bg-[#3d0f19] dark:text-[#ff6b81] dark:border dark:border-[#5c1827]'
+                            : 'bg-slate-100 text-slate-700 dark:bg-[#13223f] dark:text-slate-300 dark:border dark:border-[#1e335b]'
+                        }`}
                       >
-                        <DollarSign className="w-3.5 h-3.5" />
-                        <span>Bill</span>
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => {
-                          const pName = patient.fullName || `${patient.firstName} ${patient.lastName}`;
-                          navigate(`/patients/payments?patient=${encodeURIComponent(pName)}`);
-                        }}
-                        className="px-2.5 py-1 rounded-lg bg-amber-100 text-amber-800 hover:bg-amber-200 dark:bg-[#3d2b07] dark:text-[#f3ba42] dark:border dark:border-[#63470b] font-semibold text-xs flex items-center gap-1 transition-colors cursor-pointer"
-                      >
-                        <Wallet className="w-3.5 h-3.5" />
-                        <span>Pay</span>
-                      </button>
-                    </div>
-                  </td>
+                        <option value="Not Started" className="bg-white dark:bg-[#0d162e] text-slate-800 dark:text-slate-200">Not Started</option>
+                        <option value="Payment Received" className="bg-white dark:bg-[#0d162e] text-slate-800 dark:text-slate-200">Payment Received</option>
+                        <option value="In Queue" className="bg-white dark:bg-[#0d162e] text-slate-800 dark:text-slate-200">In Queue</option>
+                        <option value="With Doctor" className="bg-white dark:bg-[#0d162e] text-slate-800 dark:text-slate-200">With Doctor</option>
+                        <option value="Ongoing" className="bg-white dark:bg-[#0d162e] text-slate-800 dark:text-slate-200">Ongoing</option>
+                        <option value="Waiting Report" className="bg-white dark:bg-[#0d162e] text-slate-800 dark:text-slate-200">Waiting Report</option>
+                        <option value="Completed" className="bg-white dark:bg-[#0d162e] text-slate-800 dark:text-slate-200">Completed</option>
+                        <option value="Discontinued" className="bg-white dark:bg-[#0d162e] text-slate-800 dark:text-slate-200">Discontinued</option>
+                      </select>
+                    </td>
 
-                  {/* CARE */}
-                  <td className="py-4 px-4">
-                    <div className="flex items-center gap-1.5">
-                      <button
-                        type="button"
-                        onClick={() => {
-                          const pName = patient.fullName || `${patient.firstName} ${patient.lastName}`;
-                          navigate(`/patients/reports?patient=${encodeURIComponent(pName)}`);
-                        }}
-                        className="px-2.5 py-1 rounded-lg bg-purple-100 text-purple-800 hover:bg-purple-200 dark:bg-[#2b1842] dark:text-[#ba8fff] dark:border dark:border-[#422663] font-semibold text-xs flex items-center gap-1 transition-colors cursor-pointer"
-                        title="View & Manage Lab Reports"
-                      >
-                        <FileText className="w-3.5 h-3.5" />
-                        <span>Report</span>
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => {
-                          const pName = patient.fullName || `${patient.firstName} ${patient.lastName}`;
-                          navigate(`/prescriptions?patient=${encodeURIComponent(pName)}`);
-                        }}
-                        className="px-2.5 py-1 rounded-lg bg-blue-100 text-blue-800 hover:bg-blue-200 dark:bg-[#0d2a4d] dark:text-[#52a5ff] dark:border dark:border-[#143e70] font-semibold text-xs flex items-center gap-1 transition-colors cursor-pointer"
-                        title="View Patient Prescriptions"
-                      >
-                        <Pill className="w-3.5 h-3.5" />
-                        <span>Rx</span>
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => {
-                          const pName = patient.fullName || `${patient.firstName} ${patient.lastName}`;
-                          navigate(`/appointments?patient=${encodeURIComponent(pName)}`);
-                        }}
-                        className="px-2.5 py-1 rounded-lg bg-teal-100 text-teal-800 hover:bg-teal-200 dark:bg-[#06333a] dark:text-[#2dd4bf] dark:border dark:border-[#0d535e] font-semibold text-xs flex items-center gap-1 transition-colors cursor-pointer"
-                        title="Schedule or View Follow-up Appointments"
-                      >
-                        <Stethoscope className="w-3.5 h-3.5" />
-                        <span>Follow</span>
-                      </button>
-                    </div>
-                  </td>
+                    {/* STATUS */}
+                    <td className="py-4 px-4">
+                      <div className="flex items-center gap-1.5">
+                        <select
+                          disabled={isCompleted}
+                          value={patient.status || 'Active'}
+                          onChange={e =>
+                            updatePatient(patient.id, {
+                              status: e.target.value as any,
+                            })
+                          }
+                          className={`px-3 py-1 rounded-full text-xs font-semibold focus:outline-hidden focus:ring-2 focus:ring-blue-500/40 transition-colors ${
+                            isCompleted ? 'cursor-not-allowed opacity-60' : 'cursor-pointer'
+                          } ${
+                            patient.status === 'Active'
+                              ? 'bg-emerald-100 text-emerald-800 dark:bg-[#073828] dark:text-[#38d39f] dark:border dark:border-[#0e5c42]'
+                              : 'bg-rose-100 text-rose-800 dark:bg-[#3d0f19] dark:text-[#ff6b81] dark:border dark:border-[#5c1827]'
+                          }`}
+                          title={isCompleted ? 'Status locked when treatment is completed' : 'Change Patient Status'}
+                        >
+                          <option value="Active" className="bg-white dark:bg-[#0d162e] text-slate-800 dark:text-slate-200">Active</option>
+                          <option value="Inactive" className="bg-white dark:bg-[#0d162e] text-slate-800 dark:text-slate-200">Inactive</option>
+                        </select>
+                        {isCompleted && (
+                          <span title="Locked when treatment is completed">
+                            <Lock className="w-3.5 h-3.5 text-slate-400 dark:text-slate-500 shrink-0" />
+                          </span>
+                        )}
+                      </div>
+                    </td>
 
-                  {/* TREATMENT */}
-                  <td className="py-4 px-4">
-                    <select
-                      value={patient.treatmentStatus || 'Not Started'}
-                      onChange={e =>
-                        updatePatient(patient.id, {
-                          treatmentStatus: e.target.value as any,
-                        })
-                      }
-                      className={`px-3 py-1 rounded-full text-xs font-semibold focus:outline-hidden focus:ring-2 focus:ring-blue-500/40 cursor-pointer transition-colors ${
-                        patient.treatmentStatus === 'In Progress'
-                          ? 'bg-blue-100 text-blue-800 dark:bg-[#0d2a4d] dark:text-[#52a5ff] dark:border dark:border-[#143e70]'
-                          : patient.treatmentStatus === 'Completed'
-                          ? 'bg-emerald-100 text-emerald-800 dark:bg-[#073828] dark:text-[#38d39f] dark:border dark:border-[#0e5c42]'
-                          : patient.treatmentStatus === 'On Hold'
-                          ? 'bg-amber-100 text-amber-800 dark:bg-[#3d2b07] dark:text-[#f3ba42] dark:border dark:border-[#63470b]'
-                          : 'bg-slate-100 text-slate-700 dark:bg-[#13223f] dark:text-slate-300 dark:border dark:border-[#1e335b]'
-                      }`}
-                    >
-                      <option value="Not Started" className="bg-white dark:bg-[#0d162e] text-slate-800 dark:text-slate-200">Not Started</option>
-                      <option value="In Progress" className="bg-white dark:bg-[#0d162e] text-slate-800 dark:text-slate-200">In Progress</option>
-                      <option value="Completed" className="bg-white dark:bg-[#0d162e] text-slate-800 dark:text-slate-200">Completed</option>
-                      <option value="On Hold" className="bg-white dark:bg-[#0d162e] text-slate-800 dark:text-slate-200">On Hold</option>
-                    </select>
-                  </td>
-
-                  {/* STATUS */}
-                  <td className="py-4 px-4">
-                    <select
-                      value={patient.status || 'Active'}
-                      onChange={e =>
-                        updatePatient(patient.id, {
-                          status: e.target.value as any,
-                        })
-                      }
-                      className={`px-3 py-1 rounded-full text-xs font-semibold focus:outline-hidden focus:ring-2 focus:ring-blue-500/40 cursor-pointer transition-colors ${
-                        patient.status === 'Active'
-                          ? 'bg-emerald-100 text-emerald-800 dark:bg-[#073828] dark:text-[#38d39f] dark:border dark:border-[#0e5c42]'
-                          : 'bg-rose-100 text-rose-800 dark:bg-[#3d0f19] dark:text-[#ff6b81] dark:border dark:border-[#5c1827]'
-                      }`}
-                    >
-                      <option value="Active" className="bg-white dark:bg-[#0d162e] text-slate-800 dark:text-slate-200">Active</option>
-                      <option value="Inactive" className="bg-white dark:bg-[#0d162e] text-slate-800 dark:text-slate-200">Inactive</option>
-                    </select>
-                  </td>
-
-                  {/* ACTIONS */}
-                  <td className="py-4 px-4 text-right">
-                    <div className="flex items-center justify-end gap-1.5">
-                      <button
-                        onClick={e => {
-                          e.stopPropagation();
-                          openEditModal(patient);
-                        }}
-                        className="p-1.5 text-slate-500 hover:text-blue-600 dark:text-slate-400 dark:hover:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-950/40 rounded-lg transition-colors cursor-pointer"
-                        title="Edit Patient Information"
-                      >
-                        <Edit2 className="w-4 h-4" />
-                      </button>
-                      <button
-                        onClick={e => {
-                          e.stopPropagation();
-                          setDeletingPatient(patient);
-                        }}
-                        className="p-1.5 text-slate-400 hover:text-rose-600 dark:hover:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/40 rounded-lg transition-colors cursor-pointer"
-                        title="Delete Patient Record"
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              ))}
+                    {/* ACTIONS */}
+                    <td className="py-4 px-4 text-right">
+                      <div className="flex items-center justify-end gap-1.5">
+                        <button
+                          disabled={isCompleted}
+                          onClick={e => {
+                            e.stopPropagation();
+                            if (!isCompleted) openEditModal(patient);
+                          }}
+                          className={`p-1.5 rounded-lg transition-colors ${
+                            isCompleted
+                              ? 'text-slate-300 dark:text-slate-600 cursor-not-allowed opacity-40'
+                              : 'text-slate-500 hover:text-blue-600 dark:text-slate-400 dark:hover:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-950/40 cursor-pointer'
+                          }`}
+                          title={isCompleted ? 'Editing locked when treatment is completed' : 'Edit Patient Information'}
+                        >
+                          <Edit2 className="w-4 h-4" />
+                        </button>
+                        <button
+                          onClick={e => {
+                            e.stopPropagation();
+                            setDeletingPatient(patient);
+                          }}
+                          className="p-1.5 text-slate-400 hover:text-rose-600 dark:hover:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/40 rounded-lg transition-colors cursor-pointer"
+                          title="Delete Patient Record"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                );
+              })}
 
               {filteredPatients.length === 0 && (
                 <tr>
@@ -739,14 +785,25 @@ export const PatientsPage: React.FC<PatientsPageProps> = ({
 
               {/* Status */}
               <div>
-                <label className="block font-semibold text-slate-800 dark:text-slate-200 mb-1.5 text-xs">
-                  Status <span className="text-rose-500 ml-0.5">*</span>
+                <label className="block font-semibold text-slate-800 dark:text-slate-200 mb-1.5 text-xs flex items-center justify-between">
+                  <span>Status <span className="text-rose-500 ml-0.5">*</span></span>
+                  {editTreatmentStatus === 'Completed' && (
+                    <span className="text-[10px] font-bold text-amber-600 dark:text-amber-400 flex items-center gap-1">
+                      <Lock className="w-3 h-3" /> Locked
+                    </span>
+                  )}
                 </label>
                 <select
                   required
+                  disabled={editTreatmentStatus === 'Completed'}
                   value={editStatus}
                   onChange={e => setEditStatus(e.target.value as any)}
-                  className="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 dark:bg-[#182238] border border-slate-200 dark:border-[#283552] text-slate-900 dark:text-slate-100 text-xs sm:text-sm focus:outline-hidden focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 transition-all"
+                  className={`w-full px-3.5 py-2.5 rounded-xl border text-xs sm:text-sm transition-all ${
+                    editTreatmentStatus === 'Completed'
+                      ? 'bg-slate-100 dark:bg-slate-800/80 text-slate-500 dark:text-slate-400 border-slate-200 dark:border-slate-700 cursor-not-allowed opacity-75'
+                      : 'bg-slate-50 dark:bg-[#182238] border-slate-200 dark:border-[#283552] text-slate-900 dark:text-slate-100 focus:outline-hidden focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500'
+                  }`}
+                  title={editTreatmentStatus === 'Completed' ? 'Status locked when Treatment Status is Completed' : ''}
                 >
                   <option value="Active">Active</option>
                   <option value="Inactive">Inactive</option>
@@ -765,9 +822,13 @@ export const PatientsPage: React.FC<PatientsPageProps> = ({
                   className="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 dark:bg-[#182238] border border-slate-200 dark:border-[#283552] text-slate-900 dark:text-slate-100 text-xs sm:text-sm focus:outline-hidden focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 transition-all"
                 >
                   <option value="Not Started">Not Started</option>
-                  <option value="In Progress">In Progress</option>
+                  <option value="Payment Received">Payment Received</option>
+                  <option value="In Queue">In Queue</option>
+                  <option value="With Doctor">With Doctor</option>
+                  <option value="Ongoing">Ongoing</option>
+                  <option value="Waiting Report">Waiting Report</option>
                   <option value="Completed">Completed</option>
-                  <option value="On Hold">On Hold</option>
+                  <option value="Discontinued">Discontinued</option>
                 </select>
               </div>
             </div>
@@ -1007,14 +1068,25 @@ export const PatientsPage: React.FC<PatientsPageProps> = ({
 
             {/* 14. Status * */}
             <div>
-              <label className="block font-semibold text-slate-800 dark:text-slate-200 mb-1.5 text-xs">
-                Status <span className="text-rose-500 ml-0.5">*</span>
+              <label className="block font-semibold text-slate-800 dark:text-slate-200 mb-1.5 text-xs flex items-center justify-between">
+                <span>Status <span className="text-rose-500 ml-0.5">*</span></span>
+                {treatmentStatus === 'Completed' && (
+                  <span className="text-[10px] font-bold text-amber-600 dark:text-amber-400 flex items-center gap-1">
+                    <Lock className="w-3 h-3" /> Locked
+                  </span>
+                )}
               </label>
               <select
                 required
+                disabled={treatmentStatus === 'Completed'}
                 value={status}
                 onChange={e => setStatus(e.target.value as any)}
-                className="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 dark:bg-[#182238] border border-slate-200 dark:border-[#283552] text-slate-900 dark:text-slate-100 text-xs sm:text-sm focus:outline-hidden focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 transition-all"
+                className={`w-full px-3.5 py-2.5 rounded-xl border text-xs sm:text-sm transition-all ${
+                  treatmentStatus === 'Completed'
+                    ? 'bg-slate-100 dark:bg-slate-800/80 text-slate-500 dark:text-slate-400 border-slate-200 dark:border-slate-700 cursor-not-allowed opacity-75'
+                    : 'bg-slate-50 dark:bg-[#182238] border-slate-200 dark:border-[#283552] text-slate-900 dark:text-slate-100 focus:outline-hidden focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500'
+                }`}
+                title={treatmentStatus === 'Completed' ? 'Status locked when Treatment Status is Completed' : ''}
               >
                 <option value="Active">Active</option>
                 <option value="Inactive">Inactive</option>
@@ -1033,9 +1105,13 @@ export const PatientsPage: React.FC<PatientsPageProps> = ({
                 className="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 dark:bg-[#182238] border border-slate-200 dark:border-blue-500 text-slate-900 dark:text-slate-100 text-xs sm:text-sm focus:outline-hidden focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 transition-all"
               >
                 <option value="Not Started">Not Started</option>
-                <option value="In Progress">In Progress</option>
+                <option value="Payment Received">Payment Received</option>
+                <option value="In Queue">In Queue</option>
+                <option value="With Doctor">With Doctor</option>
+                <option value="Ongoing">Ongoing</option>
+                <option value="Waiting Report">Waiting Report</option>
                 <option value="Completed">Completed</option>
-                <option value="On Hold">On Hold</option>
+                <option value="Discontinued">Discontinued</option>
               </select>
             </div>
           </div>
@@ -1073,6 +1149,20 @@ export const PatientsPage: React.FC<PatientsPageProps> = ({
         title="Delete Patient Medical Record"
         itemName={deletingPatient ? `${deletingPatient.firstName} ${deletingPatient.lastName}` : ''}
         description="Are you sure you want to delete this patient record? MRN: "
+      />
+
+      {/* Add Prescription Modal */}
+      <AddPrescriptionModal
+        isOpen={!!rxModalPatient}
+        patient={rxModalPatient}
+        onClose={() => setRxModalPatient(null)}
+      />
+
+      {/* Follow-up Modal */}
+      <FollowUpModal
+        isOpen={!!followUpModalPatient}
+        patient={followUpModalPatient}
+        onClose={() => setFollowUpModalPatient(null)}
       />
     </div>
   );

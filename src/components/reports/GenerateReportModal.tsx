@@ -1,8 +1,11 @@
+
+
 import React, { useState, useEffect } from 'react';
-import { X, Plus, Trash2, FileSpreadsheet, Check, AlertTriangle, Stethoscope, UserCheck, Calendar, Building2, HelpCircle, Sparkles } from 'lucide-react';
+import { X, Plus, Trash2, FileSpreadsheet, Calendar, Stethoscope, Building2, Sparkles, UserCheck } from 'lucide-react';
 import { useData } from '../../context/DataContext';
-import { ReportCategory, LabReport, LabReportParameter } from '../../types';
-import { TEST_TEMPLATES, TestTemplate } from '../../data/reportTemplates';
+import { LabReport, ReportCategory, LabReportParameter } from '../../types';
+import { TEST_TEMPLATES } from '../../data/reportTemplates';
+import { ConfirmDeleteModal } from '../common/ConfirmDeleteModal';
 
 interface GenerateReportModalProps {
   isOpen: boolean;
@@ -27,7 +30,7 @@ export const GenerateReportModal: React.FC<GenerateReportModalProps> = ({
   onClose,
   onSuccess,
 }) => {
-  const { patients, doctors, addLabReport } = useData();
+  const { patients, doctors, addLabReport, showToast } = useData();
 
   const getDoctorName = (doc: any) => {
     if (!doc) return 'Dr. Robert Chen';
@@ -49,6 +52,7 @@ export const GenerateReportModal: React.FC<GenerateReportModalProps> = ({
   const [parameters, setParameters] = useState<LabReportParameter[]>([]);
   const [impression, setImpression] = useState<string>('');
   const [recommendations, setRecommendations] = useState<string>('');
+  const [deletingParam, setDeletingParam] = useState<LabReportParameter | null>(null);
 
   // Sync patients/doctors when modal opens
   useEffect(() => {
@@ -165,10 +169,12 @@ export const GenerateReportModal: React.FC<GenerateReportModalProps> = ({
       flag: 'Normal',
     };
     setParameters(prev => [...prev, newParam]);
+    showToast('Test parameter row added.');
   };
 
   const handleDeleteParameterRow = (id: string) => {
     setParameters(prev => prev.filter(p => p.id !== id));
+    showToast('Test parameter row deleted.');
   };
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -403,7 +409,7 @@ export const GenerateReportModal: React.FC<GenerateReportModalProps> = ({
                         </td>
                       </tr>
                     ) : (
-                      parameters.map((param, index) => (
+                      parameters.map((param) => (
                         <tr key={param.id} className="hover:bg-slate-50 dark:hover:bg-slate-800/40 transition-colors">
                           {/* Parameter Name */}
                           <td className="py-2 px-3">
@@ -479,7 +485,7 @@ export const GenerateReportModal: React.FC<GenerateReportModalProps> = ({
                           <td className="py-2 px-2 text-center">
                             <button
                               type="button"
-                              onClick={() => handleDeleteParameterRow(param.id)}
+                              onClick={() => setDeletingParam(param)}
                               className="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/50 rounded-lg transition-all cursor-pointer"
                               title="Delete Parameter"
                             >
@@ -572,6 +578,22 @@ export const GenerateReportModal: React.FC<GenerateReportModalProps> = ({
           </div>
         </form>
       </div>
+
+      {/* PARAMETER ROW DELETE CONFIRMATION MODAL */}
+      <ConfirmDeleteModal
+        isOpen={!!deletingParam}
+        onClose={() => setDeletingParam(null)}
+        onConfirm={() => {
+          if (deletingParam) {
+            handleDeleteParameterRow(deletingParam.id);
+            setDeletingParam(null);
+          }
+        }}
+        title="Delete Test Parameter"
+        itemName={deletingParam?.name}
+        description="Are you sure you want to delete this test parameter row from the report draft?"
+        confirmText="Delete Parameter"
+      />
     </div>
   );
 };

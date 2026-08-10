@@ -1,3 +1,5 @@
+
+
 import { ReportCategory, LabReportParameter } from '../types';
 
 export interface TestTemplate {

@@ -85,12 +85,35 @@ export interface Patient {
   insuranceProvider: string;
   insurancePolicyNumber: string;
   status: 'Active' | 'Inactive';
-  treatmentStatus?: 'Not Started' | 'In Progress' | 'Completed' | 'On Hold';
+  treatmentStatus?: TreatmentStatus;
   allergies: Allergy[];
   conditions: string[];
   activePrescriptionsCount: number;
   prescriptions: PatientRx[];
   registeredDate: string;
+}
+
+export type TreatmentStatus = 
+  | 'Not Started'
+  | 'Payment Received'
+  | 'In Queue'
+  | 'With Doctor'
+  | 'Ongoing'
+  | 'Waiting Report'
+  | 'Completed'
+  | 'Discontinued';
+
+export interface FollowUpVisit {
+  id: string;
+  sn?: number;
+  patientId: string;
+  patientName?: string;
+  visitDateBs: string;
+  doctor: string;
+  mode: 'OFFLINE' | 'ONLINE' | string;
+  type: 'NEW' | 'FOLLOW_UP' | 'ROUTINE' | string;
+  doctorFee: number | string;
+  notes: string;
 }
 
 export interface DoctorPayment {

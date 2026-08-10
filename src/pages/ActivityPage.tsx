@@ -1,5 +1,7 @@
+
+
 import React, { useState } from 'react';
-import { Calendar, Plus, Search, MapPin, Clock, User, Users, AlertCircle, Filter, Edit2, Trash2, X } from 'lucide-react';
+import { Calendar, Plus, AlertCircle, Users, Search, Filter, Clock, MapPin, User, Edit2, Trash2, X } from 'lucide-react';
 import { useData } from '../context/DataContext';
 import { Activity } from '../types';
 import { ConfirmDeleteModal } from '../components/common/ConfirmDeleteModal';

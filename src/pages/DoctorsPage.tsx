@@ -1,6 +1,8 @@
+
+
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Plus, User, Mail, Eye, Pencil, Trash2, SlidersHorizontal, IndianRupee } from 'lucide-react';
+import { Plus, SlidersHorizontal, Mail, Pencil, Trash2, Eye, User, IndianRupee } from 'lucide-react';
 import { useData } from '../context/DataContext';
 import { Doctor } from '../types';
 import { Modal } from '../components/common/Modal';
@@ -35,8 +37,6 @@ export const DoctorsPage: React.FC<DoctorsPageProps> = ({
   // Filter States
   const [fullNameInput, setFullNameInput] = useState('');
   const [emailInput, setEmailInput] = useState('');
-  const [appliedFullName, setAppliedFullName] = useState('');
-  const [appliedEmail, setAppliedEmail] = useState('');
 
   // Modals for actions
   const [viewDoctor, setViewDoctor] = useState<Doctor | null>(null);

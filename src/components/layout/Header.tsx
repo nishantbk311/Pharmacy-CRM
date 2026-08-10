@@ -1,6 +1,8 @@
-import { Bell, Calendar, ChevronRight, FileText, HelpCircle, Menu, Moon, Pill, Plus, Search, ShieldCheck, Sun, UserCheck, UserPlus, Users, X } from 'lucide-react';
-import React, { useMemo, useState } from 'react';
+
+
+import React, { useState, useMemo } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
+import { Menu, Search, X, Bell, Plus, UserPlus, Calendar, HelpCircle, Pill, Sun, Moon, ShieldCheck, ChevronRight, Users, UserCheck, FileText } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { useData } from '../../context/DataContext';
 import { useTheme } from '../../context/ThemeContext';
@@ -8,15 +10,17 @@ import { useTheme } from '../../context/ThemeContext';
 interface HeaderProps {
   onMobileMenuToggle: () => void;
   onQuickAction: (action: 'add_patient' | 'add_appointment' | 'add_inquiry' | 'add_doctor') => void;
+  isSidebarCollapsed?: boolean;
 }
 
 export const Header: React.FC<HeaderProps> = React.memo(({
   onMobileMenuToggle,
   onQuickAction,
+  isSidebarCollapsed,
 }) => {
   const location = useLocation();
   const navigate = useNavigate();
-  const { user } = useAuth();
+  useAuth();
   const {
     notifications,
     patients,
@@ -163,11 +167,12 @@ export const Header: React.FC<HeaderProps> = React.memo(({
   return (
     <header className="sticky top-0 z-30 bg-white/90 dark:bg-slate-900/90 backdrop-blur-md border-b border-slate-200/80 dark:border-slate-800 px-4 sm:px-6 py-3.5 transition-colors duration-200">
       <div className="flex items-center justify-between gap-4">
-        {/* Left: Mobile Toggle & Page Title */}
+        {/* Left: Mobile Toggle / Desktop Collapse & Page Title */}
         <div className="flex items-center gap-3">
           <button
             onClick={onMobileMenuToggle}
-            className="p-2 rounded-xl text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 lg:hidden transition-colors"
+            className="p-2 rounded-xl text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
+            title={isSidebarCollapsed ? "Expand Sidebar" : "Collapse Sidebar"}
           >
             <Menu className="w-5 h-5" />
           </button>
@@ -243,7 +248,7 @@ export const Header: React.FC<HeaderProps> = React.memo(({
                       {searchResults?.totalCount || 0} Matches
                     </span>
                   </div>
-                  
+
                   {!searchResults || searchResults.totalCount === 0 ? (
                     <div className="p-4 text-center text-slate-500 dark:text-slate-400">
                       No matching records found across all pages.

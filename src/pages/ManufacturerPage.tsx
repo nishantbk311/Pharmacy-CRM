@@ -1,5 +1,7 @@
+
+
 import React, { useState } from 'react';
-import { Factory, Plus, Phone, Mail, SlidersHorizontal, Trash2, Edit2, X, Eye } from 'lucide-react';
+import { Factory, Phone, Mail, SlidersHorizontal, Plus, Eye, Edit2, Trash2, X } from 'lucide-react';
 import { useData } from '../context/DataContext';
 import { Manufacturer } from '../types';
 import { ConfirmDeleteModal } from '../components/common/ConfirmDeleteModal';

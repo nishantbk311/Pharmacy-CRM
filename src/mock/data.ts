@@ -1,4 +1,11 @@
-import { Activity, ActivityCategory, ActivityLog, Appointment, BlogPost, Doctor, DoctorPayment, Inquiry, LabReport, Manufacturer, MedicineItem, NotificationItem, Patient, PatientBill, Prescription, Staff, StockTransaction, Supplier, SystemRole, SystemUser, User } from '../types';
+
+
+import {
+  User, Patient, Doctor, DoctorPayment, Staff, Appointment, Inquiry, Prescription,
+  ActivityLog, NotificationItem, SystemUser, SystemRole, Supplier, Manufacturer,
+  MedicineItem, StockTransaction, ActivityCategory, Activity, BlogPost, PatientBill,
+  LabReport
+} from '../types';
 
 export const INITIAL_USERS: User[] = [
   {
@@ -56,7 +63,7 @@ export const INITIAL_PATIENTS: Patient[] = [
     insuranceProvider: 'BlueCross BlueShield',
     insurancePolicyNumber: 'BCBS-9021-X',
     status: 'Active',
-    treatmentStatus: 'In Progress',
+    treatmentStatus: 'Ongoing',
     allergies: [
       { id: 'al-1', substance: 'Penicillin', severity: 'Severe', reaction: 'Anaphylaxis / Hives' },
       { id: 'al-2', substance: 'Sulfa Drugs', severity: 'Moderate', reaction: 'Skin Rash' }
@@ -122,7 +129,7 @@ export const INITIAL_PATIENTS: Patient[] = [
     insuranceProvider: 'Aetna Health Care',
     insurancePolicyNumber: 'AET-4432-88',
     status: 'Active',
-    treatmentStatus: 'In Progress',
+    treatmentStatus: 'Payment Received',
     allergies: [
       { id: 'al-3', substance: 'Aspirin', severity: 'Moderate', reaction: 'Gastric Distress' }
     ],
@@ -175,7 +182,7 @@ export const INITIAL_PATIENTS: Patient[] = [
     insuranceProvider: 'UnitedHealthcare',
     insurancePolicyNumber: 'UHC-1102-99',
     status: 'Active',
-    treatmentStatus: 'On Hold',
+    treatmentStatus: 'Waiting Report',
     allergies: [],
     conditions: ['Hypothyroidism'],
     activePrescriptionsCount: 1,
@@ -214,7 +221,7 @@ export const INITIAL_PATIENTS: Patient[] = [
     insuranceProvider: 'Humana Medicare',
     insurancePolicyNumber: 'HUM-8832-11',
     status: 'Active',
-    treatmentStatus: 'In Progress',
+    treatmentStatus: 'With Doctor',
     allergies: [
       { id: 'al-4', substance: 'Codeine', severity: 'Severe', reaction: 'Respiratory Depression' }
     ],
@@ -1604,6 +1611,33 @@ export const INITIAL_LAB_REPORTS: LabReport[] = [
     uploadedDate: '2026-08-04',
     notes: 'Uploaded official PDF report from St. Jude Hospital regarding recurring migraine assessment.',
     createdAt: '2026-08-04T09:10:00Z'
+  }
+];
+
+export const INITIAL_FOLLOWUP_VISITS: any[] = [
+  {
+    id: 'fuv-101',
+    sn: 1,
+    patientId: 'p-101',
+    patientName: 'Eleanor Vance',
+    visitDateBs: '2083-04-20 BS',
+    doctor: 'karan',
+    mode: 'OFFLINE',
+    type: 'NEW',
+    doctorFee: '500.00',
+    notes: 'Routine blood pressure review & dosage check',
+  },
+  {
+    id: 'fuv-102',
+    sn: 1,
+    patientId: 'p-102',
+    patientName: 'Marcus Brody',
+    visitDateBs: '2083-04-18 BS',
+    doctor: 'Dr. Robert Chen',
+    mode: 'OFFLINE',
+    type: 'FOLLOW_UP',
+    doctorFee: '400.00',
+    notes: 'Follow-up consultation after cardiac panel',
   }
 ];
 

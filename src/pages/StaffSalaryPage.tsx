@@ -1,8 +1,11 @@
-import React, { useState, useMemo, useEffect } from 'react';
+
+
+import React, { useState, useEffect, useMemo } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { Plus, Search, RotateCcw, User, Calendar, Tag, CreditCard, DollarSign, CheckCircle2, AlertCircle, Pencil, Trash2, Eye, X, Check, Building2, Coins, ChevronDown } from 'lucide-react';
+import { CheckCircle2, Coins, AlertCircle, ChevronDown, CreditCard, DollarSign, User, Calendar, Tag, Search, RotateCcw, Plus, Building2, Eye, Pencil, Trash2, X, Check } from 'lucide-react';
 import { useData } from '../context/DataContext';
 import { StaffSalary, SalaryStatus } from '../types';
+import { ConfirmDeleteModal } from '../components/common/ConfirmDeleteModal';
 
 export const StaffSalaryPage: React.FC = () => {
   const {
@@ -1030,33 +1033,14 @@ export const StaffSalaryPage: React.FC = () => {
       )}
 
       {/* DELETE CONFIRMATION MODAL */}
-      {deletingId && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 dark:bg-black/70 backdrop-blur-sm">
-          <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl w-full max-w-md p-6 space-y-4 shadow-2xl">
-            <div className="flex items-center gap-3 text-rose-600 dark:text-rose-400">
-              <AlertCircle className="w-6 h-6" />
-              <h3 className="text-lg font-bold text-slate-900 dark:text-white">Delete Staff Salary Record</h3>
-            </div>
-            <p className="text-sm text-slate-600 dark:text-slate-300">
-              Are you sure you want to delete this salary record? This action cannot be undone.
-            </p>
-            <div className="flex items-center justify-end gap-3 pt-2">
-              <button
-                onClick={() => setDeletingId(null)}
-                className="px-4 py-2 bg-slate-100 hover:bg-slate-200 dark:bg-slate-700 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-200 text-sm font-medium rounded-xl transition-all cursor-pointer"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={handleConfirmDelete}
-                className="px-4 py-2 bg-rose-600 hover:bg-rose-500 text-white text-sm font-semibold rounded-xl transition-all shadow-md cursor-pointer"
-              >
-                Delete Record
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      <ConfirmDeleteModal
+        isOpen={!!deletingId}
+        onClose={() => setDeletingId(null)}
+        onConfirm={handleConfirmDelete}
+        title="Delete Staff Salary Record"
+        description="Are you sure you want to delete this salary record? This action cannot be undone."
+        confirmText="Delete Record"
+      />
     </div>
   );
 };

@@ -1,10 +1,12 @@
-import { CheckCircle2, Clock, HandCoins, Landmark, SlidersHorizontal, Trash2, UserCheck, Wallet, X } from 'lucide-react';
-import React, { useEffect, useMemo, useState } from 'react';
+
+
+import React, { useState, useEffect, useMemo } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { ConfirmDeleteModal } from '../components/common/ConfirmDeleteModal';
-import { NepaliDatePicker } from '../components/common/NepaliDatePicker';
+import { SlidersHorizontal, Trash2, CheckCircle2, Clock, Landmark, Wallet, UserCheck, X, HandCoins } from 'lucide-react';
 import { useData } from '../context/DataContext';
 import { DoctorPayment } from '../types';
+import { NepaliDatePicker } from '../components/common/NepaliDatePicker';
+import { ConfirmDeleteModal } from '../components/common/ConfirmDeleteModal';
 
 export const DoctorPaymentsPage: React.FC = () => {
   const { doctors, doctorPayments, addDoctorPayment, deleteDoctorPayment } = useData();
@@ -31,10 +33,10 @@ export const DoctorPaymentsPage: React.FC = () => {
   const [isCollectModalOpen, setIsCollectModalOpen] = useState<boolean>(false);
   const [modalDoctorId, setModalDoctorId] = useState<string>(() => doctorParam || (doctors.length > 0 ? doctors[0].id : ''));
   const [modalAmount, setModalAmount] = useState<string>('0');
-  const [modalType, setModalType] = useState<string>('Fee Collection');
-  const [modalDateBs, setModalDateBs] = useState<string>('2083-04-17');
+  const [modalType] = useState<string>('Fee Collection');
+  const [modalDateBs] = useState<string>('2083-04-17');
   const [modalDetails, setModalDetails] = useState<string>('');
-  const [modalRecordedBy, setModalRecordedBy] = useState<string>('Admin');
+  const [modalRecordedBy] = useState<string>('Admin');
 
   // Delete confirmation state
   const [deleteTx, setDeleteTx] = useState<DoctorPayment | null>(null);

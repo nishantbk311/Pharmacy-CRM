@@ -1,7 +1,7 @@
 
 
 import React from 'react';
-import { X, Printer, Download, User, Calendar, Stethoscope, Building2, AlertTriangle, CheckCircle2, FileText, ShieldCheck } from 'lucide-react';
+import { X, Printer, FileText, ShieldCheck } from 'lucide-react';
 import { LabReport } from '../../types';
 
 interface ViewReportModalProps {
@@ -18,16 +18,8 @@ export const ViewReportModal: React.FC<ViewReportModalProps> = ({
   if (!isOpen || !report) return null;
 
   const handlePrint = () => {
-  const overlay = document.querySelector('.modal-overlay');
-  if (overlay) overlay.scrollTop = 0;
-  window.scrollTo(0, 0);
-
-  requestAnimationFrame(() => {
-    requestAnimationFrame(() => {
-      window.print();
-    });
-  });
-};
+    window.print();
+  };
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-xs p-3 sm:p-4 overflow-y-auto print:static print:inset-auto print:p-0 print:m-0 print:bg-transparent print:block print:overflow-visible print:shadow-none">
@@ -205,7 +197,6 @@ export const ViewReportModal: React.FC<ViewReportModalProps> = ({
                 </p>
               </div>
               {report.notes && (
-              
                 <div className="text-xs text-slate-700 dark:text-slate-300 bg-white dark:bg-slate-800 print:bg-white print:text-slate-700 p-3 print:p-2 rounded-xl border border-slate-200 dark:border-slate-700 text-left">
                   <p className="font-bold text-slate-900 dark:text-white print:text-slate-900 mb-0.5">Notes & Summary:</p>
                   <p>{report.notes}</p>

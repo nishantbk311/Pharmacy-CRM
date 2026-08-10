@@ -1,17 +1,23 @@
+
+
 import React, { useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { LayoutDashboard, Users, Stethoscope, UserCheck, CalendarCheck, Calendar, MessageSquareWarning, Pill, Settings, ShieldCheck, LogOut, Cross, User, ChevronDown, ChevronRight } from 'lucide-react';
+import { LayoutDashboard, Users, Pill, Calendar, Settings, LogOut, ChevronRight, UserCheck, ChevronDown, CalendarCheck, MessageSquareWarning, Cross, ShieldCheck, Stethoscope } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { useData } from '../../context/DataContext';
 
 interface SidebarProps {
   isMobileOpen: boolean;
   setIsMobileOpen: (open: boolean) => void;
+  isSidebarCollapsed: boolean;
+  onToggleSidebar: () => void;
 }
 
 export const Sidebar: React.FC<SidebarProps> = React.memo(({
   isMobileOpen,
   setIsMobileOpen,
+  isSidebarCollapsed,
+  onToggleSidebar,
 }) => {
   const location = useLocation();
   const navigate = useNavigate();
@@ -88,23 +94,37 @@ export const Sidebar: React.FC<SidebarProps> = React.memo(({
 
       {/* Sidebar Container */}
       <aside
-        className={`fixed top-0 bottom-0 left-0 z-40 w-64 bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300 flex flex-col h-screen border-r border-slate-200 dark:border-slate-800 transition-colors duration-200 lg:translate-x-0 ${
-          isMobileOpen ? 'translate-x-0' : '-translate-x-full'
+        className={`fixed top-0 bottom-0 left-0 z-40 bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300 flex flex-col h-screen border-r border-slate-200 dark:border-slate-800 transition-all duration-300 ease-in-out ${
+          isSidebarCollapsed ? 'lg:w-20' : 'lg:w-64'
+        } ${
+          isMobileOpen ? 'translate-x-0 w-64' : '-translate-x-full lg:translate-x-0'
         }`}
       >
         {/* Brand Header */}
-        <div className="flex items-center gap-3 px-6 h-18 border-b border-slate-200 dark:border-slate-800/80 bg-slate-50 dark:bg-slate-950/40 shrink-0">
-          <div className="flex items-center justify-center w-10 h-10 rounded-xl bg-blue-600 text-white shadow-md shadow-blue-600/20">
-            <Cross className="w-6 h-6 stroke-[2.5]" />
-          </div>
-          <div>
-            <h1 className="text-base font-bold text-slate-900 dark:text-white tracking-tight leading-tight">
-              Pharmacy CRM
-            </h1>
-            <p className="text-[11px] font-medium text-sky-600 dark:text-sky-400 flex items-center gap-1">
-              <ShieldCheck className="w-3 h-3 text-blue-600 dark:text-blue-400" />
-              2FA Verified Portal
-            </p>
+        <div
+          className={`flex items-center border-b border-slate-200 dark:border-slate-800/80 bg-slate-50 dark:bg-slate-950/40 shrink-0 h-18 transition-all duration-300 ${
+            isSidebarCollapsed ? 'px-2 justify-center' : 'px-5 justify-between gap-3'
+          }`}
+        >
+          <div className="flex items-center gap-3 min-w-0">
+            <div
+              onClick={onToggleSidebar}
+              title="Toggle Sidebar"
+              className="flex items-center justify-center w-10 h-10 rounded-xl bg-blue-600 text-white shadow-md shadow-blue-600/20 shrink-0 cursor-pointer hover:bg-blue-700 transition-colors"
+            >
+              <Cross className="w-6 h-6 stroke-[2.5]" />
+            </div>
+            {!isSidebarCollapsed && (
+              <div className="min-w-0">
+                <h1 className="text-base font-bold text-slate-900 dark:text-white tracking-tight leading-tight truncate">
+                  Pharmacy CRM
+                </h1>
+                <p className="text-[11px] font-medium text-sky-600 dark:text-sky-400 flex items-center gap-1 truncate">
+                  <ShieldCheck className="w-3 h-3 text-blue-600 dark:text-blue-400 shrink-0" />
+                  2FA Verified Portal
+                </p>
+              </div>
+            )}
           </div>
         </div>
 
@@ -112,48 +132,67 @@ export const Sidebar: React.FC<SidebarProps> = React.memo(({
         <div className="flex-1 overflow-y-auto py-2">
           {/* Navigation Links */}
           <nav className="p-3 space-y-1">
-            <div className="px-3 pb-2 text-[10px] font-semibold uppercase tracking-wider text-slate-400 dark:text-slate-500">
-              Core CRM Modules
-            </div>
+            {!isSidebarCollapsed ? (
+              <div className="px-3 pb-2 text-[10px] font-semibold uppercase tracking-wider text-slate-400 dark:text-slate-500">
+                Core CRM Modules
+              </div>
+            ) : (
+              <div className="my-1.5 border-t border-slate-200 dark:border-slate-800/80" />
+            )}
+
             {/* Dashboard Link */}
             <button
               id="nav-item-dashboard"
               onClick={() => handleSelect('/')}
-              className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-sm font-medium transition-all cursor-pointer ${
+              title="Dashboard"
+              className={`w-full flex items-center ${
+                isSidebarCollapsed ? 'justify-center py-2.5 px-0' : 'justify-between px-3.5 py-2.5'
+              } rounded-xl text-sm font-medium transition-all cursor-pointer ${
                 location.pathname === '/'
                   ? 'bg-blue-600/10 dark:bg-blue-600/20 text-blue-700 dark:text-blue-300 font-semibold border border-blue-500/20 dark:border-blue-500/30'
                   : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800/60'
               }`}
             >
               <div className="flex items-center gap-3">
-                <LayoutDashboard className={`w-4 h-4 ${location.pathname === '/' ? 'text-sky-600 dark:text-sky-400' : 'text-slate-500 dark:text-slate-400'}`} />
-                <span>Dashboard</span>
+                <LayoutDashboard className={`w-5 h-5 shrink-0 ${location.pathname === '/' ? 'text-sky-600 dark:text-sky-400' : 'text-slate-500 dark:text-slate-400'}`} />
+                {!isSidebarCollapsed && <span>Dashboard</span>}
               </div>
             </button>
 
             {/* Patients Collapsible Parent Menu */}
             <div className="pt-0.5">
               <button
-                onClick={() => setIsPatientsOpen(!isPatientsOpen)}
-                className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-sm font-medium transition-all cursor-pointer ${
+                onClick={() => {
+                  if (isSidebarCollapsed) {
+                    handleSelect('/patients');
+                  } else {
+                    setIsPatientsOpen(!isPatientsOpen);
+                  }
+                }}
+                title="Patients"
+                className={`w-full flex items-center ${
+                  isSidebarCollapsed ? 'justify-center py-2.5 px-0' : 'justify-between px-3.5 py-2.5'
+                } rounded-xl text-sm font-medium transition-all cursor-pointer ${
                   location.pathname.startsWith('/patients')
-                    ? 'text-blue-600 dark:text-sky-400 font-bold'
+                    ? 'text-blue-600 dark:text-sky-400 font-bold bg-blue-600/10 dark:bg-blue-600/20 border border-blue-500/20 dark:border-blue-500/30'
                     : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800/60'
                 }`}
               >
                 <div className="flex items-center gap-3">
-                  <Users className="w-4 h-4 text-slate-500 dark:text-slate-400" />
-                  <span className="text-sm font-semibold">Patients</span>
+                  <Users className="w-5 h-5 shrink-0 text-slate-500 dark:text-slate-400" />
+                  {!isSidebarCollapsed && <span className="text-sm font-semibold">Patients</span>}
                 </div>
-                {isPatientsOpen ? (
-                  <ChevronDown className="w-4 h-4 text-slate-400" />
-                ) : (
-                  <ChevronRight className="w-4 h-4 text-slate-400" />
+                {!isSidebarCollapsed && (
+                  isPatientsOpen ? (
+                    <ChevronDown className="w-4 h-4 text-slate-400" />
+                  ) : (
+                    <ChevronRight className="w-4 h-4 text-slate-400" />
+                  )
                 )}
               </button>
 
               {/* Patients Submenu Items */}
-              {isPatientsOpen && (
+              {!isSidebarCollapsed && isPatientsOpen && (
                 <div className="pl-11 pr-2 py-1 space-y-1">
                   <button
                     onClick={() => handleSelect('/patients')}
@@ -202,26 +241,37 @@ export const Sidebar: React.FC<SidebarProps> = React.memo(({
             {/* Doctor Collapsible Parent Menu */}
             <div className="pt-0.5">
               <button
-                onClick={() => setIsDoctorOpen(!isDoctorOpen)}
-                className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-sm font-medium transition-all cursor-pointer ${
+                onClick={() => {
+                  if (isSidebarCollapsed) {
+                    handleSelect('/doctors');
+                  } else {
+                    setIsDoctorOpen(!isDoctorOpen);
+                  }
+                }}
+                title="Doctor"
+                className={`w-full flex items-center ${
+                  isSidebarCollapsed ? 'justify-center py-2.5 px-0' : 'justify-between px-3.5 py-2.5'
+                } rounded-xl text-sm font-medium transition-all cursor-pointer ${
                   location.pathname.startsWith('/doctors') || location.pathname.startsWith('/doctor')
-                    ? 'text-blue-600 dark:text-sky-400 font-bold'
+                    ? 'text-blue-600 dark:text-sky-400 font-bold bg-blue-600/10 dark:bg-blue-600/20 border border-blue-500/20 dark:border-blue-500/30'
                     : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800/60'
                 }`}
               >
                 <div className="flex items-center gap-3">
-                  <Stethoscope className="w-4 h-4 text-slate-500 dark:text-slate-400" />
-                  <span className="text-sm font-semibold">Doctor</span>
+                  <Stethoscope className="w-5 h-5 shrink-0 text-slate-500 dark:text-slate-400" />
+                  {!isSidebarCollapsed && <span className="text-sm font-semibold">Doctor</span>}
                 </div>
-                {isDoctorOpen ? (
-                  <ChevronDown className="w-4 h-4 text-slate-400" />
-                ) : (
-                  <ChevronRight className="w-4 h-4 text-slate-400" />
+                {!isSidebarCollapsed && (
+                  isDoctorOpen ? (
+                    <ChevronDown className="w-4 h-4 text-slate-400" />
+                  ) : (
+                    <ChevronRight className="w-4 h-4 text-slate-400" />
+                  )
                 )}
               </button>
 
               {/* Doctor Submenu Items */}
-              {isDoctorOpen && (
+              {!isSidebarCollapsed && isDoctorOpen && (
                 <div className="pl-11 pr-2 py-1 space-y-1">
                   <button
                     onClick={() => handleSelect('/doctors')}
@@ -258,17 +308,23 @@ export const Sidebar: React.FC<SidebarProps> = React.memo(({
                   <button
                     id={`nav-item-${item.id}`}
                     onClick={() => handleSelect(item.path)}
-                    className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-sm font-medium transition-all cursor-pointer ${
+                    title={item.label}
+                    className={`w-full flex items-center ${
+                      isSidebarCollapsed ? 'justify-center py-2.5 px-0' : 'justify-between px-3.5 py-2.5'
+                    } rounded-xl text-sm font-medium transition-all cursor-pointer ${
                       isActive
                         ? 'bg-blue-600/10 dark:bg-blue-600/20 text-blue-700 dark:text-blue-300 font-semibold border border-blue-500/20 dark:border-blue-500/30'
                         : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800/60'
                     }`}
                   >
-                    <div className="flex items-center gap-3">
-                      <Icon className={`w-4 h-4 ${isActive ? 'text-sky-600 dark:text-sky-400' : 'text-slate-500 dark:text-slate-400'}`} />
-                      <span>{item.label}</span>
+                    <div className="flex items-center gap-3 relative">
+                      <Icon className={`w-5 h-5 shrink-0 ${isActive ? 'text-sky-600 dark:text-sky-400' : 'text-slate-500 dark:text-slate-400'}`} />
+                      {!isSidebarCollapsed && <span>{item.label}</span>}
+                      {isSidebarCollapsed && item.badge !== undefined && (
+                        <span className="absolute -top-1 -right-1 w-2.5 h-2.5 rounded-full bg-rose-500 border-2 border-white dark:border-slate-900" />
+                      )}
                     </div>
-                    {item.badge !== undefined && (
+                    {!isSidebarCollapsed && item.badge !== undefined && (
                       <span
                         className={`text-[11px] font-bold px-2 py-0.5 rounded-full ${item.badgeColor}`}
                       >
@@ -283,25 +339,36 @@ export const Sidebar: React.FC<SidebarProps> = React.memo(({
             {/* Staff Manage Collapsible Parent Menu */}
             <div className="pt-0.5">
               <button
-                onClick={() => setIsStaffManageOpen(!isStaffManageOpen)}
-                className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-sm font-medium transition-all cursor-pointer ${
+                onClick={() => {
+                  if (isSidebarCollapsed) {
+                    handleSelect('/staff');
+                  } else {
+                    setIsStaffManageOpen(!isStaffManageOpen);
+                  }
+                }}
+                title="Staff Manage"
+                className={`w-full flex items-center ${
+                  isSidebarCollapsed ? 'justify-center py-2.5 px-0' : 'justify-between px-3.5 py-2.5'
+                } rounded-xl text-sm font-medium transition-all cursor-pointer ${
                   location.pathname.startsWith('/staff') || location.pathname.startsWith('/staff-salary')
-                    ? 'text-blue-600 dark:text-sky-400 font-bold'
+                    ? 'text-blue-600 dark:text-sky-400 font-bold bg-blue-600/10 dark:bg-blue-600/20 border border-blue-500/20 dark:border-blue-500/30'
                     : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800/60'
                 }`}
               >
                 <div className="flex items-center gap-3">
-                  <UserCheck className="w-4 h-4 text-slate-500 dark:text-slate-400" />
-                  <span className="text-sm font-semibold">Staff Manage</span>
+                  <UserCheck className="w-5 h-5 shrink-0 text-slate-500 dark:text-slate-400" />
+                  {!isSidebarCollapsed && <span className="text-sm font-semibold">Staff Manage</span>}
                 </div>
-                {isStaffManageOpen ? (
-                  <ChevronDown className="w-4 h-4 text-slate-400" />
-                ) : (
-                  <ChevronRight className="w-4 h-4 text-slate-400" />
+                {!isSidebarCollapsed && (
+                  isStaffManageOpen ? (
+                    <ChevronDown className="w-4 h-4 text-slate-400" />
+                  ) : (
+                    <ChevronRight className="w-4 h-4 text-slate-400" />
+                  )
                 )}
               </button>
 
-              {isStaffManageOpen && (
+              {!isSidebarCollapsed && isStaffManageOpen && (
                 <div className="pl-11 pr-2 py-1 space-y-1">
                   <button
                     onClick={() => handleSelect('/staff')}
@@ -330,22 +397,37 @@ export const Sidebar: React.FC<SidebarProps> = React.memo(({
             {/* Medicine Parent Menu with Submenu (Supplier, Manufacturer, Medicine, Stock History) */}
             <div className="pt-1">
               <button
-                onClick={() => setIsMedicineOpen(!isMedicineOpen)}
-                className="w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-sm font-medium transition-all cursor-pointer text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800/60"
+                onClick={() => {
+                  if (isSidebarCollapsed) {
+                    handleSelect('/medicine/items');
+                  } else {
+                    setIsMedicineOpen(!isMedicineOpen);
+                  }
+                }}
+                title="Medicine"
+                className={`w-full flex items-center ${
+                  isSidebarCollapsed ? 'justify-center py-2.5 px-0' : 'justify-between px-3.5 py-2.5'
+                } rounded-xl text-sm font-medium transition-all cursor-pointer ${
+                  location.pathname.startsWith('/medicine')
+                    ? 'text-blue-600 dark:text-sky-400 font-bold bg-blue-600/10 dark:bg-blue-600/20 border border-blue-500/20 dark:border-blue-500/30'
+                    : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800/60'
+                }`}
               >
                 <div className="flex items-center gap-3">
-                  <Pill className="w-4 h-4 text-slate-500 dark:text-slate-400" />
-                  <span className="text-sm font-semibold">Medicine</span>
+                  <Pill className="w-5 h-5 shrink-0 text-slate-500 dark:text-slate-400" />
+                  {!isSidebarCollapsed && <span className="text-sm font-semibold">Medicine</span>}
                 </div>
-                {isMedicineOpen ? (
-                  <ChevronDown className="w-4 h-4 text-slate-400" />
-                ) : (
-                  <ChevronRight className="w-4 h-4 text-slate-400" />
+                {!isSidebarCollapsed && (
+                  isMedicineOpen ? (
+                    <ChevronDown className="w-4 h-4 text-slate-400" />
+                  ) : (
+                    <ChevronRight className="w-4 h-4 text-slate-400" />
+                  )
                 )}
               </button>
 
               {/* Medicine Submenu Links */}
-              {isMedicineOpen && (
+              {!isSidebarCollapsed && isMedicineOpen && (
                 <div className="pl-11 pr-2 py-1 space-y-1">
                   <button
                     onClick={() => handleMedSubmenuSelect('supplier', '/medicine/suppliers')}
@@ -394,26 +476,37 @@ export const Sidebar: React.FC<SidebarProps> = React.memo(({
             {/* Extra Events Parent Menu with Submenu (Activity Category, Activity, Blog) */}
             <div className="pt-1">
               <button
-                onClick={() => setIsExtraEventsOpen(!isExtraEventsOpen)}
-                className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-sm font-medium transition-all cursor-pointer ${
+                onClick={() => {
+                  if (isSidebarCollapsed) {
+                    handleSelect('/extra-events/activity-category');
+                  } else {
+                    setIsExtraEventsOpen(!isExtraEventsOpen);
+                  }
+                }}
+                title="Extra Events"
+                className={`w-full flex items-center ${
+                  isSidebarCollapsed ? 'justify-center py-2.5 px-0' : 'justify-between px-3.5 py-2.5'
+                } rounded-xl text-sm font-medium transition-all cursor-pointer ${
                   isExtraEventsRoute
-                    ? 'text-blue-600 dark:text-blue-400 font-bold'
+                    ? 'text-blue-600 dark:text-sky-400 font-bold bg-blue-600/10 dark:bg-blue-600/20 border border-blue-500/20 dark:border-blue-500/30'
                     : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800/60'
                 }`}
               >
                 <div className="flex items-center gap-3">
-                  <Calendar className="w-4 h-4 text-slate-500 dark:text-slate-400" />
-                  <span className="text-sm font-semibold">Extra Events</span>
+                  <Calendar className="w-5 h-5 shrink-0 text-slate-500 dark:text-slate-400" />
+                  {!isSidebarCollapsed && <span className="text-sm font-semibold">Extra Events</span>}
                 </div>
-                {isExtraEventsOpen ? (
-                  <ChevronDown className="w-4 h-4 text-slate-400" />
-                ) : (
-                  <ChevronRight className="w-4 h-4 text-slate-400" />
+                {!isSidebarCollapsed && (
+                  isExtraEventsOpen ? (
+                    <ChevronDown className="w-4 h-4 text-slate-400" />
+                  ) : (
+                    <ChevronRight className="w-4 h-4 text-slate-400" />
+                  )
                 )}
               </button>
 
               {/* Extra Events Submenu Links */}
-              {isExtraEventsOpen && (
+              {!isSidebarCollapsed && isExtraEventsOpen && (
                 <div className="pl-11 pr-2 py-1 space-y-1">
                   <button
                     onClick={() => handleSelect('/extra-events/activity-category')}
@@ -452,28 +545,39 @@ export const Sidebar: React.FC<SidebarProps> = React.memo(({
             {/* Configuration Parent Menu with Submenu (Menu, Roles, User, Security & 2FA) */}
             <div className="pt-2">
               <button
-                onClick={() => setIsConfigOpen(!isConfigOpen)}
-                className={`w-full flex items-center justify-between px-3.5 py-2 rounded-xl text-sm font-medium transition-all cursor-pointer ${
+                onClick={() => {
+                  if (isSidebarCollapsed) {
+                    handleSelect('/menu');
+                  } else {
+                    setIsConfigOpen(!isConfigOpen);
+                  }
+                }}
+                title="Configuration"
+                className={`w-full flex items-center ${
+                  isSidebarCollapsed ? 'justify-center py-2 px-0' : 'justify-between px-3.5 py-2'
+                } rounded-xl text-sm font-medium transition-all cursor-pointer ${
                   isConfigRoute
-                    ? 'text-blue-600 dark:text-blue-400 font-bold'
+                    ? 'text-blue-600 dark:text-blue-400 font-bold bg-blue-600/10 dark:bg-blue-600/20 border border-blue-500/20 dark:border-blue-500/30'
                     : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800/60'
                 }`}
               >
                 <div className="flex items-center gap-3">
-                  <div className="p-1 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400">
-                    <Settings className="w-4 h-4" />
+                  <div className="p-1 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 shrink-0">
+                    <Settings className="w-5 h-5" />
                   </div>
-                  <span className="text-base font-semibold">Configuration</span>
+                  {!isSidebarCollapsed && <span className="text-base font-semibold">Configuration</span>}
                 </div>
-                {isConfigOpen ? (
-                  <ChevronDown className="w-4 h-4 text-slate-400" />
-                ) : (
-                  <ChevronRight className="w-4 h-4 text-slate-400" />
+                {!isSidebarCollapsed && (
+                  isConfigOpen ? (
+                    <ChevronDown className="w-4 h-4 text-slate-400" />
+                  ) : (
+                    <ChevronRight className="w-4 h-4 text-slate-400" />
+                  )
                 )}
               </button>
 
               {/* Submenu links */}
-              {isConfigOpen && (
+              {!isSidebarCollapsed && isConfigOpen && (
                 <div className="pl-11 pr-2 py-1.5 space-y-1.5">
                   {/* Menu Submenu Item */}
                   <button
@@ -529,32 +633,50 @@ export const Sidebar: React.FC<SidebarProps> = React.memo(({
         </div>
 
         {/* User Footer Profile & Logout */}
-        <div className="p-4 border-t border-slate-200 dark:border-slate-800/80 bg-slate-50 dark:bg-slate-950/50 shrink-0">
-          <div className="flex items-center justify-between gap-3 p-2 rounded-xl bg-white dark:bg-slate-800/40 border border-slate-200 dark:border-slate-700/50 shadow-xs dark:shadow-none">
-            <div className="flex items-center gap-2.5 overflow-hidden">
+        <div className="p-3 border-t border-slate-200 dark:border-slate-800/80 bg-slate-50 dark:bg-slate-950/50 shrink-0">
+          {isSidebarCollapsed ? (
+            <div className="flex flex-col items-center gap-2 py-1">
               <img
                 src={user?.avatarUrl || 'https://images.unsplash.com/photo-1559839734-2b71ea197ec2?w=150'}
                 alt={user?.name}
+                title={`${user?.name} (${user?.role})`}
                 className="w-9 h-9 rounded-full object-cover border border-teal-500/40 shrink-0"
               />
-              <div className="min-w-0">
-                <p className="text-xs font-semibold text-slate-900 dark:text-white truncate">
-                  {user?.name}
-                </p>
-                <p className="text-[11px] text-teal-600 dark:text-teal-400 truncate">
-                  {user?.role}
-                </p>
-              </div>
+              <button
+                onClick={logout}
+                title="Sign Out"
+                className="p-1.5 text-slate-400 hover:text-rose-600 dark:hover:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-500/10 rounded-lg transition-colors cursor-pointer"
+              >
+                <LogOut className="w-4 h-4" />
+              </button>
             </div>
+          ) : (
+            <div className="flex items-center justify-between gap-3 p-2 rounded-xl bg-white dark:bg-slate-800/40 border border-slate-200 dark:border-slate-700/50 shadow-xs dark:shadow-none">
+              <div className="flex items-center gap-2.5 overflow-hidden">
+                <img
+                  src={user?.avatarUrl || 'https://images.unsplash.com/photo-1559839734-2b71ea197ec2?w=150'}
+                  alt={user?.name}
+                  className="w-9 h-9 rounded-full object-cover border border-teal-500/40 shrink-0"
+                />
+                <div className="min-w-0">
+                  <p className="text-xs font-semibold text-slate-900 dark:text-white truncate">
+                    {user?.name}
+                  </p>
+                  <p className="text-[11px] text-teal-600 dark:text-teal-400 truncate">
+                    {user?.role}
+                  </p>
+                </div>
+              </div>
 
-            <button
-              onClick={logout}
-              title="Sign Out"
-              className="p-1.5 text-slate-400 hover:text-rose-600 dark:hover:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-500/10 rounded-lg transition-colors shrink-0"
-            >
-              <LogOut className="w-4 h-4" />
-            </button>
-          </div>
+              <button
+                onClick={logout}
+                title="Sign Out"
+                className="p-1.5 text-slate-400 hover:text-rose-600 dark:hover:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-500/10 rounded-lg transition-colors shrink-0 cursor-pointer"
+              >
+                <LogOut className="w-4 h-4" />
+              </button>
+            </div>
+          )}
         </div>
       </aside>
     </>

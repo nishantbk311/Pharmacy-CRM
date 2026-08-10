@@ -1,6 +1,8 @@
+
+
 import React, { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { Search, Plus, SlidersHorizontal, User, Stethoscope, ArrowRight, Pencil, Trash2, Check, FileText } from 'lucide-react';
+import { FileText, Search, SlidersHorizontal, Plus, Pencil, Trash2, User, ArrowRight, Stethoscope } from 'lucide-react';
 import { useData } from '../context/DataContext';
 import { Prescription, RxStatus } from '../types';
 import { Modal } from '../components/common/Modal';
@@ -57,9 +59,6 @@ export const PrescriptionsPage: React.FC = () => {
   });
 
   // Calculate badge counts
-  const countPending = prescriptions.filter(
-    rx => rx.status === 'Pending Review' || rx.status === 'Requires Review'
-  ).length;
   const countConfirmed = prescriptions.filter(
     rx => rx.status === 'Confirmed' || rx.status === 'Ready for Pickup' || rx.status === 'Processing'
   ).length;
@@ -447,12 +446,6 @@ export const PrescriptionsPage: React.FC = () => {
                 </tr>
               ) : (
                 filteredPrescriptions.map((rx, idx) => {
-                  const isPending =
-                    rx.status === 'Pending Review' || rx.status === 'Requires Review';
-                  const isConfirmed =
-                    rx.status === 'Confirmed' ||
-                    rx.status === 'Ready for Pickup' ||
-                    rx.status === 'Processing';
                   const isCompleted =
                     rx.status === 'Completed' || rx.status === 'Filled';
                   const isCancelled =

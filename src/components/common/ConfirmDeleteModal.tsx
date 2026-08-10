@@ -1,6 +1,8 @@
-import { AlertTriangle, Trash2, X } from 'lucide-react';
-import { AnimatePresence, motion } from 'motion/react';
-import { type FC, useEffect } from 'react';
+
+
+import React, { useEffect } from 'react';
+import { motion, AnimatePresence } from 'motion/react';
+import { AlertTriangle, X, Trash2 } from 'lucide-react';
 
 interface ConfirmDeleteModalProps {
   isOpen: boolean;
@@ -13,7 +15,7 @@ interface ConfirmDeleteModalProps {
   cancelText?: string;
 }
 
-export const ConfirmDeleteModal: FC<ConfirmDeleteModalProps> = ({
+export const ConfirmDeleteModal: React.FC<ConfirmDeleteModalProps> = ({
   isOpen,
   onClose,
   onConfirm,
