@@ -32,7 +32,7 @@
   }
 }
 
-/* Print Styles: Isolate print-area modal for single-page printing with 135% scaling */
+/* Print Styles: Isolate print-area modal for reliable single-page printing across Localhost and Vercel */
 @media print {
   @page {
     size: A4 portrait;
@@ -46,18 +46,42 @@
     margin: 0 !important;
     padding: 0 !important;
     width: 100% !important;
-    height: 100% !important;
-    max-height: 100vh !important;
-    overflow: hidden !important;
+    height: auto !important;
+    min-height: 100% !important;
+    overflow: visible !important;
     -webkit-print-color-adjust: exact !important;
     print-color-adjust: exact !important;
-    page-break-after: avoid !important;
-    break-after: avoid !important;
   }
 
   /* Hide everything on the page by default */
   body * {
     visibility: hidden !important;
+  }
+
+  /* Reset layout position of top containers so they don't offset or flex-center the print area */
+  body,
+  #root,
+  .fixed,
+  [class*="fixed"],
+  [class*="backdrop"] {
+    position: static !important;
+    top: auto !important;
+    left: auto !important;
+    right: auto !important;
+    bottom: auto !important;
+    inset: auto !important;
+    transform: none !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    display: block !important;
+    overflow: visible !important;
+    height: auto !important;
+    width: 100% !important;
+    max-height: none !important;
+    background: transparent !important;
+    box-shadow: none !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
   }
 
   /* Show ONLY the .print-area modal container and its children */
@@ -66,8 +90,10 @@
     visibility: visible !important;
   }
 
-  /* Position .print-area at top-left of the page scaled at 135% */
-  .print-area {
+  /* Position .print-area precisely at top-left of paper document at 100% scale */
+  .print-area,
+  div.print-area,
+  div[class*="print-area"] {
     position: absolute !important;
     left: 0 !important;
     top: 0 !important;
@@ -81,8 +107,8 @@
     border: none !important;
     border-radius: 0 !important;
     overflow: visible !important;
-    transform-origin: top left !important;
-    zoom: 1.35 !important;
+    transform: none !important;
+    zoom: 1 !important;
     -webkit-print-color-adjust: exact !important;
     print-color-adjust: exact !important;
     page-break-inside: avoid !important;
