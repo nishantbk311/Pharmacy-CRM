@@ -205,7 +205,7 @@ export const PrescriptionsPage: React.FC = () => {
           <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
             Doctor submits &rarr; Pharmacy checks stock &rarr; Confirm or cancel
           </p>
-        </div>
+      </div>
 
         {/* 3 Workflow Step Cards */}
         <div className="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3">
