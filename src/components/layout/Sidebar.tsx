@@ -638,16 +638,21 @@ export const Sidebar: React.FC<SidebarProps> = React.memo(({
             <div className="flex flex-col items-center gap-2 py-1">
               <img
                 src={user?.avatarUrl || 'https://images.unsplash.com/photo-1559839734-2b71ea197ec2?w=150'}
-                alt={user?.name}
+                alt={user?.name || 'User avatar'}
+                width={36}
+                height={36}
+                loading="lazy"
                 title={`${user?.name} (${user?.role})`}
                 className="w-9 h-9 rounded-full object-cover border border-teal-500/40 shrink-0"
               />
               <button
+                type="button"
                 onClick={logout}
                 title="Sign Out"
+                aria-label="Sign Out"
                 className="p-1.5 text-slate-400 hover:text-rose-600 dark:hover:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-500/10 rounded-lg transition-colors cursor-pointer"
               >
-                <LogOut className="w-4 h-4" />
+                <LogOut className="w-4 h-4" aria-hidden="true" />
               </button>
             </div>
           ) : (
@@ -655,7 +660,10 @@ export const Sidebar: React.FC<SidebarProps> = React.memo(({
               <div className="flex items-center gap-2.5 overflow-hidden">
                 <img
                   src={user?.avatarUrl || 'https://images.unsplash.com/photo-1559839734-2b71ea197ec2?w=150'}
-                  alt={user?.name}
+                  alt={user?.name || 'User avatar'}
+                  width={36}
+                  height={36}
+                  loading="lazy"
                   className="w-9 h-9 rounded-full object-cover border border-teal-500/40 shrink-0"
                 />
                 <div className="min-w-0">
@@ -669,11 +677,13 @@ export const Sidebar: React.FC<SidebarProps> = React.memo(({
               </div>
 
               <button
+                type="button"
                 onClick={logout}
                 title="Sign Out"
+                aria-label="Sign Out"
                 className="p-1.5 text-slate-400 hover:text-rose-600 dark:hover:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-500/10 rounded-lg transition-colors shrink-0 cursor-pointer"
               >
-                <LogOut className="w-4 h-4" />
+                <LogOut className="w-4 h-4" aria-hidden="true" />
               </button>
             </div>
           )}

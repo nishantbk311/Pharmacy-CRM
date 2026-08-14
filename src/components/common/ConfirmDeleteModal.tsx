@@ -46,6 +46,9 @@ export const ConfirmDeleteModal: React.FC<ConfirmDeleteModalProps> = ({
         }}
       >
         <motion.div
+          role="alertdialog"
+          aria-modal="true"
+          aria-labelledby="confirm-delete-title"
           initial={{ opacity: 0, scale: 0.95, y: 10 }}
           animate={{ opacity: 1, scale: 1, y: 0 }}
           exit={{ opacity: 0, scale: 0.95, y: 10 }}
@@ -54,11 +57,11 @@ export const ConfirmDeleteModal: React.FC<ConfirmDeleteModalProps> = ({
         >
           <div className="flex items-start justify-between">
             <div className="flex items-center gap-3">
-              <div className="p-3 rounded-2xl bg-rose-50 dark:bg-rose-950/60 text-rose-600 dark:text-rose-400 border border-rose-200/60 dark:border-rose-800/60">
+              <div aria-hidden="true" className="p-3 rounded-2xl bg-rose-50 dark:bg-rose-950/60 text-rose-600 dark:text-rose-400 border border-rose-200/60 dark:border-rose-800/60">
                 <AlertTriangle className="w-6 h-6" />
               </div>
               <div>
-                <h3 className="text-base sm:text-lg font-bold text-slate-900 dark:text-white tracking-tight">
+                <h3 id="confirm-delete-title" className="text-base sm:text-lg font-bold text-slate-900 dark:text-white tracking-tight">
                   {title}
                 </h3>
                 <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
@@ -67,10 +70,12 @@ export const ConfirmDeleteModal: React.FC<ConfirmDeleteModalProps> = ({
               </div>
             </div>
             <button
+              type="button"
               onClick={onClose}
+              aria-label="Close dialog"
               className="p-1.5 rounded-lg text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
             >
-              <X className="w-5 h-5" />
+              <X className="w-5 h-5" aria-hidden="true" />
             </button>
           </div>
 

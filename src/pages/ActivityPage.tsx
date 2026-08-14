@@ -5,6 +5,8 @@ import { Calendar, Plus, AlertCircle, Users, Search, Filter, Clock, MapPin, User
 import { useData } from '../context/DataContext';
 import { Activity } from '../types';
 import { ConfirmDeleteModal } from '../components/common/ConfirmDeleteModal';
+import { Pagination } from '../components/common/Pagination';
+import { usePagination } from '../hooks/usePagination';
 
 export const ActivityPage: React.FC = () => {
   const { activities, activityCategories, addActivity, updateActivity, deleteActivity } = useData();
@@ -104,6 +106,16 @@ export const ActivityPage: React.FC = () => {
 
     return matchesSearch && matchesCategory && matchesStatus;
   });
+
+  const {
+    currentPage,
+    totalPages,
+    totalItems,
+    itemsPerPage,
+    paginatedData: paginatedActivities,
+    setCurrentPage,
+    setItemsPerPage,
+  } = usePagination(filteredActivities, { initialItemsPerPage: 6 });
 
   const totalActivities = activities.length;
   const upcomingCount = activities.filter(a => a.status === 'Upcoming').length;
@@ -228,12 +240,13 @@ export const ActivityPage: React.FC = () => {
       </div>
 
       {/* Activities Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        {filteredActivities.map(act => {
-          const fillPercentage = Math.min(
-            100,
-            Math.round((act.registeredParticipants / (act.maxParticipants || 1)) * 100)
-          );
+      <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 overflow-hidden shadow-xs">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 p-4 sm:p-5">
+          {paginatedActivities.map(act => {
+            const fillPercentage = Math.min(
+              100,
+              Math.round((act.registeredParticipants / (act.maxParticipants || 1)) * 100)
+            );
 
           return (
             <div
@@ -331,6 +344,18 @@ export const ActivityPage: React.FC = () => {
             <p className="text-xs text-slate-400 mt-1">Try adjusting your filters or schedule a new event.</p>
           </div>
         )}
+        </div>
+
+        {/* Pagination Footer */}
+        <Pagination
+          currentPage={currentPage}
+          totalPages={totalPages}
+          totalItems={totalItems}
+          itemsPerPage={itemsPerPage}
+          onPageChange={setCurrentPage}
+          onItemsPerPageChange={setItemsPerPage}
+          itemsPerPageOptions={[6, 12, 24]}
+        />
       </div>
 
       {/* Add / Edit Activity Modal */}

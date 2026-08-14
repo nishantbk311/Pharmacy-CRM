@@ -5,6 +5,8 @@ import { SlidersHorizontal, Pill, Tag, X, History } from 'lucide-react';
 import { useData } from '../context/DataContext';
 import { StockTransaction } from '../types';
 import { NepaliDatePicker } from '../components/common/NepaliDatePicker';
+import { Pagination } from '../components/common/Pagination';
+import { usePagination } from '../hooks/usePagination';
 
 export const StockHistoryPage: React.FC = () => {
   const { stockTransactions, medicines, addStockTransaction } = useData();
@@ -73,6 +75,16 @@ export const StockHistoryPage: React.FC = () => {
 
     return true;
   });
+
+  const {
+    currentPage,
+    totalPages,
+    totalItems,
+    itemsPerPage,
+    paginatedData: paginatedTransactions,
+    setCurrentPage,
+    setItemsPerPage,
+  } = usePagination(filteredTransactions, { initialItemsPerPage: 10 });
 
   const handleLogStockSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -211,7 +223,7 @@ export const StockHistoryPage: React.FC = () => {
                     </td>
                   </tr>
                 ) : (
-                  filteredTransactions.map((tx) => (
+                  paginatedTransactions.map((tx) => (
                     <tr
                       key={tx.id}
                       className="hover:bg-slate-50/70 dark:hover:bg-slate-800/30 transition-colors"
@@ -268,6 +280,16 @@ export const StockHistoryPage: React.FC = () => {
               </tbody>
             </table>
           </div>
+
+          {/* Pagination Footer */}
+          <Pagination
+            currentPage={currentPage}
+            totalPages={totalPages}
+            totalItems={totalItems}
+            itemsPerPage={itemsPerPage}
+            onPageChange={setCurrentPage}
+            onItemsPerPageChange={setItemsPerPage}
+          />
         </div>
       </div>
 

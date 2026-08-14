@@ -5,6 +5,8 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import { CreditCard, Calendar, SlidersHorizontal, User, FileText, Clock, Check, Layers, Receipt } from 'lucide-react';
 import { useData } from '../context/DataContext';
 import { NepaliDatePicker } from '../components/common/NepaliDatePicker';
+import { Pagination } from '../components/common/Pagination';
+import { usePagination } from '../hooks/usePagination';
 
 export const PatientPaymentsPage: React.FC = () => {
   const navigate = useNavigate();
@@ -61,6 +63,16 @@ export const PatientPaymentsPage: React.FC = () => {
       return matchesPatient && matchesSource && matchesSearch;
     });
   }, [patientBills, selectedPatient, selectedSource, searchTerm]);
+
+  const {
+    currentPage,
+    totalPages,
+    totalItems,
+    itemsPerPage,
+    paginatedData: paginatedBills,
+    setCurrentPage,
+    setItemsPerPage,
+  } = usePagination(filteredBills, { initialItemsPerPage: 10 });
 
   // Aggregated KPIs
   const totalLifetimeReceived = useMemo(() => {
@@ -304,13 +316,13 @@ export const PatientPaymentsPage: React.FC = () => {
                     </td>
                   </tr>
                 ) : (
-                  filteredBills.map((b, idx) => (
+                  paginatedBills.map((b, idx) => (
                     <tr
                       key={b.id}
                       className="hover:bg-slate-50/80 dark:hover:bg-[#121f36] transition-colors"
                     >
                       <td className="py-3 px-3 text-center text-slate-400 font-mono text-[11px]">
-                        {idx + 1}
+                        {(currentPage - 1) * itemsPerPage + idx + 1}
                       </td>
                       <td className="py-3 px-4 font-bold text-slate-900 dark:text-white">
                         {b.patientName}
@@ -353,6 +365,16 @@ export const PatientPaymentsPage: React.FC = () => {
               </tbody>
             </table>
           </div>
+
+          {/* Pagination Footer */}
+          <Pagination
+            currentPage={currentPage}
+            totalPages={totalPages}
+            totalItems={totalItems}
+            itemsPerPage={itemsPerPage}
+            onPageChange={setCurrentPage}
+            onItemsPerPageChange={setItemsPerPage}
+          />
         </div>
       </div>
     </div>

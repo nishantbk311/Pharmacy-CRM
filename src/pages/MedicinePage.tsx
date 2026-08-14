@@ -5,6 +5,8 @@ import { Package, Search, X, SlidersHorizontal, Plus, ChevronsUpDown, Eye, Histo
 import { useData } from '../context/DataContext';
 import { MedicineItem } from '../types';
 import { ConfirmDeleteModal } from '../components/common/ConfirmDeleteModal';
+import { Pagination } from '../components/common/Pagination';
+import { usePagination } from '../hooks/usePagination';
 
 export const MedicinePage: React.FC = () => {
   const { medicines, suppliers, manufacturers, addMedicine, updateMedicine, deleteMedicine, stockTransactions } = useData();
@@ -96,6 +98,16 @@ export const MedicinePage: React.FC = () => {
       med.ndcCode.toLowerCase().includes(query)
     );
   });
+
+  const {
+    currentPage,
+    totalPages,
+    totalItems,
+    itemsPerPage,
+    paginatedData: paginatedMedicines,
+    setCurrentPage,
+    setItemsPerPage,
+  } = usePagination(filteredMedicines, { initialItemsPerPage: 10 });
 
   const handleFormSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -236,14 +248,14 @@ export const MedicinePage: React.FC = () => {
                     </td>
                   </tr>
                 ) : (
-                  filteredMedicines.map((med, index) => (
+                  paginatedMedicines.map((med, index) => (
                     <tr
                       key={med.id}
                       className="hover:bg-slate-50/70 dark:hover:bg-slate-800/30 transition-colors"
                     >
                       {/* S.N */}
                       <td className="py-3.5 px-4 font-semibold text-slate-700 dark:text-slate-300">
-                        {index + 1}
+                        {(currentPage - 1) * itemsPerPage + index + 1}
                       </td>
 
                       {/* MEDICINE NAME */}
@@ -356,6 +368,16 @@ export const MedicinePage: React.FC = () => {
               </tbody>
             </table>
           </div>
+
+          {/* Pagination Footer */}
+          <Pagination
+            currentPage={currentPage}
+            totalPages={totalPages}
+            totalItems={totalItems}
+            itemsPerPage={itemsPerPage}
+            onPageChange={setCurrentPage}
+            onItemsPerPageChange={setItemsPerPage}
+          />
         </div>
       </div>
 

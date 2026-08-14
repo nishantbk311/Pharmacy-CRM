@@ -7,6 +7,8 @@ import { useData } from '../context/DataContext';
 import { AppointmentType } from '../types';
 import { Badge } from '../components/common/Badge';
 import { Modal } from '../components/common/Modal';
+import { Pagination } from '../components/common/Pagination';
+import { usePagination } from '../hooks/usePagination';
 
 interface AppointmentsPageProps {
   bookingModalOpen: boolean;
@@ -53,6 +55,16 @@ export const AppointmentsPage: React.FC<AppointmentsPageProps> = ({
 
     return matchesSearch && matchesStatus && matchesType;
   });
+
+  const {
+    currentPage,
+    totalPages,
+    totalItems,
+    itemsPerPage,
+    paginatedData: paginatedAppointments,
+    setCurrentPage,
+    setItemsPerPage,
+  } = usePagination(filteredAppointments, { initialItemsPerPage: 6 });
 
   const handleBookingSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -128,83 +140,102 @@ export const AppointmentsPage: React.FC<AppointmentsPageProps> = ({
       </div>
 
       {/* Appointments Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        {filteredAppointments.map(apt => (
-          <div
-            key={apt.id}
-            className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/80 dark:border-slate-800 p-5 shadow-xs space-y-4 flex flex-col justify-between"
-          >
-            <div className="space-y-3">
-              <div className="flex items-start justify-between gap-3">
-                <div>
-                  <div className="flex items-center gap-2">
-                    <span className="px-2.5 py-0.5 rounded-md bg-teal-50 dark:bg-teal-950/60 text-teal-700 dark:text-teal-300 font-bold text-xs border border-teal-200 dark:border-teal-800">
-                      {apt.time} ({apt.durationMinutes} min)
-                    </span>
+      <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/80 dark:border-slate-800 overflow-hidden shadow-xs">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 p-4">
+          {paginatedAppointments.length === 0 ? (
+            <div className="col-span-full py-12 text-center text-slate-500 dark:text-slate-400 font-medium">
+              No appointments found matching search criteria.
+            </div>
+          ) : (
+            paginatedAppointments.map(apt => (
+              <div
+                key={apt.id}
+                className="bg-slate-50/50 dark:bg-slate-800/40 rounded-xl border border-slate-200/80 dark:border-slate-800 p-4 shadow-2xs space-y-3 flex flex-col justify-between"
+              >
+                <div className="space-y-3">
+                  <div className="flex items-start justify-between gap-3">
+                    <div>
+                      <div className="flex items-center gap-2">
+                        <span className="px-2.5 py-0.5 rounded-md bg-teal-50 dark:bg-teal-950/60 text-teal-700 dark:text-teal-300 font-bold text-xs border border-teal-200 dark:border-teal-800">
+                          {apt.time} ({apt.durationMinutes} min)
+                        </span>
+                        <Badge
+                          variant={apt.isVirtual ? 'indigo' : 'emerald'}
+                          size="sm"
+                        >
+                          {apt.isVirtual ? 'Virtual Telehealth' : 'In-Store Clinic'}
+                        </Badge>
+                      </div>
+                      <h3 className="font-bold text-slate-900 dark:text-slate-100 text-base mt-1.5">
+                        {apt.patientName}
+                      </h3>
+                      <p className="text-xs text-slate-500 dark:text-slate-400 font-medium">
+                        Type: <span className="text-teal-700 dark:text-teal-400 font-semibold">{apt.type}</span>
+                      </p>
+                    </div>
+
                     <Badge
-                      variant={apt.isVirtual ? 'indigo' : 'emerald'}
-                      size="sm"
+                      variant={
+                        apt.status === 'Completed'
+                          ? 'emerald'
+                          : apt.status === 'In Progress'
+                          ? 'indigo'
+                          : apt.status === 'Scheduled'
+                          ? 'sky'
+                          : 'rose'
+                      }
+                      size="md"
+                      dot
                     >
-                      {apt.isVirtual ? 'Virtual Telehealth' : 'In-Store Clinic'}
+                      {apt.status}
                     </Badge>
                   </div>
-                  <h3 className="font-bold text-slate-900 dark:text-slate-100 text-base mt-1.5">
-                    {apt.patientName}
-                  </h3>
-                  <p className="text-xs text-slate-500 dark:text-slate-400 font-medium">
-                    Type: <span className="text-teal-700 dark:text-teal-400 font-semibold">{apt.type}</span>
-                  </p>
+
+                  <div className="p-3 rounded-xl bg-white dark:bg-slate-800/80 border border-slate-200/60 dark:border-slate-700/80 text-xs text-slate-600 dark:text-slate-300 space-y-1">
+                    <p className="flex items-center gap-2">
+                      <User className="w-3.5 h-3.5 text-teal-600 dark:text-teal-400" />
+                      <span>Pharmacist: {apt.pharmacistName}</span>
+                    </p>
+                    <p className="flex items-center gap-2">
+                      <Phone className="w-3.5 h-3.5 text-slate-400" />
+                      <span>Patient Phone: {apt.patientPhone}</span>
+                    </p>
+                    <p className="text-slate-500 dark:text-slate-400 pt-1 border-t border-slate-100 dark:border-slate-700/80">
+                      <span className="font-semibold text-slate-700 dark:text-slate-200">Clinical Note:</span> {apt.notes}
+                    </p>
+                  </div>
                 </div>
 
-                <Badge
-                  variant={
-                    apt.status === 'Completed'
-                      ? 'emerald'
-                      : apt.status === 'In Progress'
-                      ? 'indigo'
-                      : apt.status === 'Scheduled'
-                      ? 'sky'
-                      : 'rose'
-                  }
-                  size="md"
-                  dot
-                >
-                  {apt.status}
-                </Badge>
+                <div className="pt-3 border-t border-slate-200/60 dark:border-slate-800 flex items-center justify-between text-xs">
+                  <span className="text-slate-400 font-mono">Date: {apt.date}</span>
+                  <div className="flex items-center gap-1.5">
+                    <select
+                      value={apt.status}
+                      onChange={e => updateAppointmentStatus(apt.id, e.target.value as any)}
+                      className="px-2.5 py-1.5 rounded-lg bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 font-semibold text-slate-800 dark:text-slate-200 cursor-pointer"
+                    >
+                      <option value="Scheduled">Scheduled</option>
+                      <option value="In Progress">In Progress</option>
+                      <option value="Completed">Completed</option>
+                      <option value="Cancelled">Cancelled</option>
+                    </select>
+                  </div>
+                </div>
               </div>
+            ))
+          )}
+        </div>
 
-              <div className="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200/60 dark:border-slate-800 text-xs text-slate-600 dark:text-slate-300 space-y-1">
-                <p className="flex items-center gap-2">
-                  <User className="w-3.5 h-3.5 text-teal-600 dark:text-teal-400" />
-                  <span>Pharmacist: {apt.pharmacistName}</span>
-                </p>
-                <p className="flex items-center gap-2">
-                  <Phone className="w-3.5 h-3.5 text-slate-400" />
-                  <span>Patient Phone: {apt.patientPhone}</span>
-                </p>
-                <p className="text-slate-500 dark:text-slate-400 pt-1 border-t border-slate-200/60 dark:border-slate-800">
-                  <span className="font-semibold text-slate-700 dark:text-slate-200">Clinical Note:</span> {apt.notes}
-                </p>
-              </div>
-            </div>
-
-            <div className="pt-3 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between text-xs">
-              <span className="text-slate-400 font-mono">Date: {apt.date}</span>
-              <div className="flex items-center gap-1.5">
-                <select
-                  value={apt.status}
-                  onChange={e => updateAppointmentStatus(apt.id, e.target.value as any)}
-                  className="px-2.5 py-1.5 rounded-lg bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 font-semibold text-slate-800 dark:text-slate-200 cursor-pointer"
-                >
-                  <option value="Scheduled">Scheduled</option>
-                  <option value="In Progress">In Progress</option>
-                  <option value="Completed">Completed</option>
-                  <option value="Cancelled">Cancelled</option>
-                </select>
-              </div>
-            </div>
-          </div>
-        ))}
+        {/* Pagination Footer */}
+        <Pagination
+          currentPage={currentPage}
+          totalPages={totalPages}
+          totalItems={totalItems}
+          itemsPerPage={itemsPerPage}
+          onPageChange={setCurrentPage}
+          onItemsPerPageChange={setItemsPerPage}
+          itemsPerPageOptions={[6, 10, 20]}
+        />
       </div>
 
       {/* Booking Modal */}

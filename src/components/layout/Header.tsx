@@ -170,11 +170,13 @@ export const Header: React.FC<HeaderProps> = React.memo(({
         {/* Left: Mobile Toggle / Desktop Collapse & Page Title */}
         <div className="flex items-center gap-3">
           <button
+            type="button"
             onClick={onMobileMenuToggle}
             className="p-2 rounded-xl text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
             title={isSidebarCollapsed ? "Expand Sidebar" : "Collapse Sidebar"}
+            aria-label={isSidebarCollapsed ? "Expand Sidebar" : "Collapse Sidebar"}
           >
-            <Menu className="w-5 h-5" />
+            <Menu className="w-5 h-5" aria-hidden="true" />
           </button>
           <div>
             <h1 className="text-lg sm:text-xl font-bold text-slate-900 dark:text-slate-100 tracking-tight leading-tight">
@@ -205,10 +207,11 @@ export const Header: React.FC<HeaderProps> = React.memo(({
               }}
               className="relative w-full"
             >
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" aria-hidden="true" />
               <input
                 type="text"
                 placeholder="Global Search (All pages & records)..."
+                aria-label="Global Search across patients, doctors, and prescriptions"
                 value={globalSearch}
                 onFocus={() => setIsSearchFocused(true)}
                 onChange={e => {
@@ -221,13 +224,14 @@ export const Header: React.FC<HeaderProps> = React.memo(({
               {globalSearch && (
                 <button
                   type="button"
+                  aria-label="Clear global search text"
                   onClick={() => {
                     setGlobalSearch('');
                     setIsSearchFocused(false);
                   }}
                   className="absolute right-2.5 top-1/2 -translate-y-1/2 p-0.5 rounded-full hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-400 hover:text-slate-600 transition-colors"
                 >
-                  <X className="w-3.5 h-3.5" />
+                  <X className="w-3.5 h-3.5" aria-hidden="true" />
                 </button>
               )}
             </form>
@@ -437,24 +441,30 @@ export const Header: React.FC<HeaderProps> = React.memo(({
 
           {/* Theme Toggle Button */}
           <button
+            type="button"
             onClick={toggleTheme}
             title={theme === 'dark' ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
-            className="p-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors flex items-center justify-center border border-slate-200/80 dark:border-slate-700/80"
+            aria-label={theme === 'dark' ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
+            className="p-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors flex items-center justify-center border border-slate-200/80 dark:border-slate-700/80 cursor-pointer"
           >
             {theme === 'dark' ? (
-              <Sun className="w-4 h-4 text-amber-400 animate-spin-once" />
+              <Sun className="w-4 h-4 text-amber-400 animate-spin-once" aria-hidden="true" />
             ) : (
-              <Moon className="w-4 h-4 text-slate-600" />
+              <Moon className="w-4 h-4 text-slate-600" aria-hidden="true" />
             )}
           </button>
 
           {/* Quick Action Dropdown */}
           <div className="relative">
             <button
+              type="button"
               onClick={() => setShowQuickMenu(!showQuickMenu)}
+              aria-expanded={showQuickMenu}
+              aria-haspopup="true"
+              aria-label="Create new entry quick actions"
               className="flex items-center gap-1.5 px-3.5 py-2 text-xs font-semibold rounded-xl bg-emerald-600 hover:bg-emerald-700 dark:bg-emerald-500 dark:hover:bg-emerald-600 text-white shadow-xs transition-colors cursor-pointer"
             >
-              <Plus className="w-4 h-4" />
+              <Plus className="w-4 h-4" aria-hidden="true" />
               <span className="hidden sm:inline">New Entry</span>
             </button>
 
@@ -462,49 +472,58 @@ export const Header: React.FC<HeaderProps> = React.memo(({
               <div
                 onClick={() => setShowQuickMenu(false)}
                 className="fixed inset-0 z-40"
+                aria-hidden="true"
               />
             )}
 
             {showQuickMenu && (
-              <div className="absolute right-0 mt-2 w-52 bg-white dark:bg-slate-900 rounded-xl shadow-xl border border-slate-200 dark:border-slate-800 py-1.5 z-50 text-xs text-slate-700 dark:text-slate-200">
+              <div role="menu" className="absolute right-0 mt-2 w-52 bg-white dark:bg-slate-900 rounded-xl shadow-xl border border-slate-200 dark:border-slate-800 py-1.5 z-50 text-xs text-slate-700 dark:text-slate-200">
                 <button
+                  type="button"
+                  role="menuitem"
                   onClick={() => {
                     onQuickAction('add_patient');
                     setShowQuickMenu(false);
                   }}
                   className="w-full text-left px-3.5 py-2.5 hover:bg-emerald-50 dark:hover:bg-slate-800 hover:text-emerald-700 dark:hover:text-emerald-400 flex items-center gap-2.5 transition-colors cursor-pointer"
                 >
-                  <UserPlus className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
+                  <UserPlus className="w-4 h-4 text-emerald-600 dark:text-emerald-400" aria-hidden="true" />
                   <span>Register New Patient</span>
                 </button>
                 <button
+                  type="button"
+                  role="menuitem"
                   onClick={() => {
                     onQuickAction('add_appointment');
                     setShowQuickMenu(false);
                   }}
                   className="w-full text-left px-3.5 py-2.5 hover:bg-sky-50 dark:hover:bg-slate-800 hover:text-sky-700 dark:hover:text-sky-400 flex items-center gap-2.5 transition-colors cursor-pointer"
                 >
-                  <Calendar className="w-4 h-4 text-sky-600 dark:text-sky-400" />
+                  <Calendar className="w-4 h-4 text-sky-600 dark:text-sky-400" aria-hidden="true" />
                   <span>Book Consultation</span>
                 </button>
                 <button
+                  type="button"
+                  role="menuitem"
                   onClick={() => {
                     onQuickAction('add_inquiry');
                     setShowQuickMenu(false);
                   }}
                   className="w-full text-left px-3.5 py-2.5 hover:bg-emerald-50 dark:hover:bg-slate-800 hover:text-emerald-700 dark:hover:text-emerald-400 flex items-center gap-2.5 transition-colors cursor-pointer"
                 >
-                  <HelpCircle className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
+                  <HelpCircle className="w-4 h-4 text-emerald-600 dark:text-emerald-400" aria-hidden="true" />
                   <span>Log Doctor/Clinical Inquiry</span>
                 </button>
                 <button
+                  type="button"
+                  role="menuitem"
                   onClick={() => {
                     onQuickAction('add_doctor');
                     setShowQuickMenu(false);
                   }}
                   className="w-full text-left px-3.5 py-2.5 hover:bg-sky-50 dark:hover:bg-slate-800 hover:text-sky-700 dark:hover:text-sky-400 flex items-center gap-2.5 transition-colors cursor-pointer"
                 >
-                  <Pill className="w-4 h-4 text-sky-600 dark:text-sky-400" />
+                  <Pill className="w-4 h-4 text-sky-600 dark:text-sky-400" aria-hidden="true" />
                   <span>Add Prescribing Physician</span>
                 </button>
               </div>
@@ -514,10 +533,13 @@ export const Header: React.FC<HeaderProps> = React.memo(({
           {/* Notifications Bell */}
           <div className="relative">
             <button
+              type="button"
               onClick={() => setShowNotifications(!showNotifications)}
+              aria-label={`View pharmacy notifications (${unreadCount} unread)`}
+              aria-expanded={showNotifications}
               className="relative p-2 rounded-xl text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
             >
-              <Bell className="w-5 h-5" />
+              <Bell className="w-5 h-5" aria-hidden="true" />
               {unreadCount > 0 && (
                 <span className="absolute top-1.5 right-1.5 w-2.5 h-2.5 rounded-full bg-rose-500 ring-2 ring-white dark:ring-slate-900" />
               )}
@@ -527,6 +549,7 @@ export const Header: React.FC<HeaderProps> = React.memo(({
               <div
                 onClick={() => setShowNotifications(false)}
                 className="fixed inset-0 z-40"
+                aria-hidden="true"
               />
             )}
 

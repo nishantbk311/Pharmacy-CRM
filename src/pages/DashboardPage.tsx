@@ -352,15 +352,47 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
             </button>
           </div>
 
-          <div className="divide-y divide-slate-100 dark:divide-slate-800 mt-2">
-            {inquiries.slice(0, 3).map(inq => (
-              <div key={inq.id} className="py-3 space-y-2">
-                <div className="flex items-start justify-between gap-2">
-                  <div>
-                    <div className="flex items-center gap-2">
-                      <span className="font-mono text-xs font-bold text-slate-500 dark:text-slate-400">
-                        {inq.ticketNumber}
-                      </span>
+          <div className="mt-3 overflow-x-auto">
+            <table className="w-full text-left border-collapse">
+              <thead>
+                <tr className="border-b border-slate-100 dark:border-slate-800 text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">
+                  <th className="pb-2.5 pt-1 px-2">Ticket / Type</th>
+                  <th className="pb-2.5 pt-1 px-2">Subject</th>
+                  <th className="pb-2.5 pt-1 px-2">Patient / Doctor</th>
+                  <th className="pb-2.5 pt-1 px-2">Priority</th>
+                  <th className="pb-2.5 pt-1 px-2 text-right">Status</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-100 dark:divide-slate-800/80 text-xs">
+                {inquiries.slice(0, 4).map(inq => (
+                  <tr
+                    key={inq.id}
+                    onClick={() => navigate('/inquiries')}
+                    className="hover:bg-slate-50/80 dark:hover:bg-slate-800/50 transition-colors cursor-pointer group"
+                  >
+                    <td className="py-2.5 px-2 whitespace-nowrap">
+                      <div className="space-y-0.5">
+                        <span className="font-mono text-xs font-bold text-teal-700 dark:text-teal-300">
+                          {inq.ticketNumber}
+                        </span>
+                        <div>
+                          <Badge variant="purple" size="sm">
+                            {inq.type}
+                          </Badge>
+                        </div>
+                      </div>
+                    </td>
+                    <td className="py-2.5 px-2 min-w-[180px]">
+                      <p className="font-semibold text-slate-900 dark:text-slate-100 group-hover:text-teal-600 dark:group-hover:text-teal-400 transition-colors line-clamp-1">
+                        {inq.subject}
+                      </p>
+                      <p className="text-[10px] text-slate-400 line-clamp-1">{inq.description}</p>
+                    </td>
+                    <td className="py-2.5 px-2 whitespace-nowrap">
+                      <p className="font-semibold text-slate-800 dark:text-slate-200">{inq.patientName}</p>
+                      <p className="text-[10px] text-slate-400">{inq.relatedDoctorName || 'N/A'}</p>
+                    </td>
+                    <td className="py-2.5 px-2 whitespace-nowrap">
                       <Badge
                         variant={
                           inq.priority === 'Urgent'
@@ -370,34 +402,27 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
                             : 'sky'
                         }
                         size="sm"
+                        dot
                       >
                         {inq.priority}
                       </Badge>
-                      <Badge variant="slate" size="sm">
-                        {inq.type}
-                      </Badge>
-                    </div>
-                    <p className="text-xs font-semibold text-slate-900 dark:text-slate-100 mt-1">
-                      {inq.subject}
-                    </p>
-                    <p className="text-xs text-slate-500 dark:text-slate-400">
-                      Patient: <span className="font-medium text-slate-700 dark:text-slate-300">{inq.patientName}</span> &bull; Doctor: <span className="font-medium text-slate-700 dark:text-slate-300">{inq.relatedDoctorName || 'N/A'}</span>
-                    </p>
-                  </div>
-
-                  <select
-                    value={inq.status}
-                    onChange={e => updateInquiryStatus(inq.id, e.target.value as any)}
-                    className="text-xs font-semibold px-2 py-1 rounded-lg bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-200 focus:outline-hidden"
-                  >
-                    <option value="Open">Open</option>
-                    <option value="In Progress">In Progress</option>
-                    <option value="Pending Doctor">Pending Doctor</option>
-                    <option value="Resolved">Resolved</option>
-                  </select>
-                </div>
-              </div>
-            ))}
+                    </td>
+                    <td className="py-2.5 px-2 text-right whitespace-nowrap" onClick={e => e.stopPropagation()}>
+                      <select
+                        value={inq.status}
+                        onChange={e => updateInquiryStatus(inq.id, e.target.value as any)}
+                        className="text-[11px] font-bold px-2 py-1 rounded-lg bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-200 cursor-pointer focus:outline-hidden text-center [text-align-last:center]"
+                      >
+                        <option value="Open" className="bg-white text-slate-900 dark:bg-slate-900 dark:text-slate-100 font-normal text-left">Open</option>
+                        <option value="In Progress" className="bg-white text-slate-900 dark:bg-slate-900 dark:text-slate-100 font-normal text-left">In Progress</option>
+                        <option value="Pending Doctor" className="bg-white text-slate-900 dark:bg-slate-900 dark:text-slate-100 font-normal text-left">Pending Doctor</option>
+                        <option value="Resolved" className="bg-white text-slate-900 dark:bg-slate-900 dark:text-slate-100 font-normal text-left">Resolved</option>
+                      </select>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           </div>
         </div>
 

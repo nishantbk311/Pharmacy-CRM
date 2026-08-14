@@ -5,6 +5,8 @@ import { Plus, CheckCircle2, Edit2, Trash2, X, ShieldCheck, Key, SlidersHorizont
 import { useData } from '../context/DataContext';
 import { SystemRole } from '../types';
 import { ConfirmDeleteModal } from '../components/common/ConfirmDeleteModal';
+import { Pagination } from '../components/common/Pagination';
+import { usePagination } from '../hooks/usePagination';
 
 const ALL_AVAILABLE_PERMISSIONS = [
   'All System Permissions',
@@ -63,6 +65,16 @@ export const RolesPage: React.FC = () => {
       role.description.toLowerCase().includes(searchQuery.toLowerCase());
     return matchesStatus && matchesQuery;
   });
+
+  const {
+    currentPage,
+    totalPages,
+    totalItems,
+    itemsPerPage,
+    paginatedData: paginatedRoles,
+    setCurrentPage,
+    setItemsPerPage,
+  } = usePagination(filteredRoles, { initialItemsPerPage: 10 });
 
   const isFilterApplied = selectedStatus !== 'All' || searchQuery.trim() !== '';
 
@@ -242,14 +254,14 @@ export const RolesPage: React.FC = () => {
                   </td>
                 </tr>
               ) : (
-                filteredRoles.map((role, idx) => (
+                paginatedRoles.map((role, idx) => (
                   <tr
                     key={role.id}
                     className="hover:bg-slate-50/80 dark:hover:bg-slate-800/40 transition-colors"
                   >
                     {/* S.N */}
                     <td className="py-3.5 px-4 text-center text-slate-500 dark:text-slate-400 font-bold">
-                      {idx + 1}
+                      {(currentPage - 1) * itemsPerPage + idx + 1}
                     </td>
 
                     {/* DISPLAY NAME */}
@@ -325,6 +337,18 @@ export const RolesPage: React.FC = () => {
               )}
             </tbody>
           </table>
+        </div>
+
+        {/* Pagination Footer */}
+        <div className="pt-2">
+          <Pagination
+            currentPage={currentPage}
+            totalPages={totalPages}
+            totalItems={totalItems}
+            itemsPerPage={itemsPerPage}
+            onPageChange={setCurrentPage}
+            onItemsPerPageChange={setItemsPerPage}
+          />
         </div>
       </div>
 

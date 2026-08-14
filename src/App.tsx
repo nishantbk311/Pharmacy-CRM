@@ -123,6 +123,14 @@ function MainAppContent() {
 
   return (
     <div className="min-h-screen bg-slate-100/70 dark:bg-slate-950 text-slate-900 dark:text-slate-100 font-sans antialiased flex flex-col transition-colors duration-200">
+      {/* Accessible Skip Link */}
+      <a
+        href="#main-content"
+        className="sr-only focus:not-sr-only focus:absolute focus:top-3 focus:left-3 focus:z-50 focus:px-4 focus:py-2.5 focus:bg-blue-600 focus:text-white focus:font-semibold focus:rounded-xl focus:shadow-xl focus:outline-hidden focus:ring-2 focus:ring-blue-400"
+      >
+        Skip to main content
+      </a>
+
       {/* Sidebar Navigation */}
       <Sidebar
         isMobileOpen={isMobileOpen}
@@ -142,7 +150,7 @@ function MainAppContent() {
         />
 
         {/* Page Views Container with Motion Page Transitions */}
-        <main className="p-4 sm:p-6 lg:p-8 flex-1 max-w-7xl w-full mx-auto">
+        <main id="main-content" tabIndex={-1} aria-label="Clinical Pharmacy Workspace" className="p-4 sm:p-6 lg:p-8 flex-1 max-w-7xl w-full mx-auto focus:outline-hidden">
           <ErrorBoundary>
             <Suspense fallback={<PageLoader />}>
               <AnimatePresence mode="wait">

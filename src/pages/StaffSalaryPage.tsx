@@ -6,6 +6,8 @@ import { CheckCircle2, Coins, AlertCircle, ChevronDown, CreditCard, DollarSign, 
 import { useData } from '../context/DataContext';
 import { StaffSalary, SalaryStatus } from '../types';
 import { ConfirmDeleteModal } from '../components/common/ConfirmDeleteModal';
+import { Pagination } from '../components/common/Pagination';
+import { usePagination } from '../hooks/usePagination';
 
 export const StaffSalaryPage: React.FC = () => {
   const {
@@ -126,6 +128,16 @@ export const StaffSalaryPage: React.FC = () => {
       return true;
     });
   }, [staffSalaries, selectedStaff, selectedYear, selectedMonth, selectedStatus, searchTerm]);
+
+  const {
+    currentPage,
+    totalPages,
+    totalItems,
+    itemsPerPage,
+    paginatedData: paginatedSalaries,
+    setCurrentPage,
+    setItemsPerPage,
+  } = usePagination(filteredSalaries, { initialItemsPerPage: 10 });
 
   // Aggregate stats totals
   const stats = useMemo(() => {
@@ -595,7 +607,7 @@ export const StaffSalaryPage: React.FC = () => {
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-200 dark:divide-slate-700/50">
-              {filteredSalaries.length === 0 ? (
+              {paginatedSalaries.length === 0 ? (
                 <tr>
                   <td colSpan={13} className="py-12 text-center text-slate-500 dark:text-slate-400">
                     <Building2 className="w-10 h-10 mx-auto text-slate-400 dark:text-slate-500 mb-2 opacity-50" />
@@ -604,13 +616,13 @@ export const StaffSalaryPage: React.FC = () => {
                   </td>
                 </tr>
               ) : (
-                filteredSalaries.map((salary, index) => (
+                paginatedSalaries.map((salary, index) => (
                   <tr
                     key={salary.id}
                     className="hover:bg-slate-50 dark:hover:bg-slate-700/30 transition-colors"
                   >
                     <td className="py-3.5 px-4 font-mono text-slate-500 dark:text-slate-400 text-xs">
-                      {index + 1}
+                      {(currentPage - 1) * itemsPerPage + index + 1}
                     </td>
                     <td className="py-3.5 px-4 font-semibold text-slate-900 dark:text-white whitespace-nowrap">
                       {salary.staffName}
@@ -678,6 +690,17 @@ export const StaffSalaryPage: React.FC = () => {
             </tbody>
           </table>
         </div>
+
+        {/* Pagination Footer */}
+        <Pagination
+          currentPage={currentPage}
+          totalPages={totalPages}
+          totalItems={totalItems}
+          itemsPerPage={itemsPerPage}
+          onPageChange={setCurrentPage}
+          onItemsPerPageChange={setItemsPerPage}
+          itemsPerPageOptions={[5, 10, 20, 50]}
+        />
       </div>
 
       {/* ADD / EDIT SALARY MODAL */}

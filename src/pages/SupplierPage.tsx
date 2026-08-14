@@ -5,6 +5,8 @@ import { Truck, Plus, Phone, Mail, SlidersHorizontal, Trash2, Edit2, X, Eye } fr
 import { useData } from '../context/DataContext';
 import { Supplier } from '../types';
 import { ConfirmDeleteModal } from '../components/common/ConfirmDeleteModal';
+import { Pagination } from '../components/common/Pagination';
+import { usePagination } from '../hooks/usePagination';
 
 export const SupplierPage: React.FC = () => {
   const { suppliers, addSupplier, updateSupplier, deleteSupplier } = useData();
@@ -69,6 +71,16 @@ export const SupplierPage: React.FC = () => {
 
     return nameMatch && phoneMatch && emailMatch;
   });
+
+  const {
+    currentPage,
+    totalPages,
+    totalItems,
+    itemsPerPage,
+    paginatedData: paginatedSuppliers,
+    setCurrentPage,
+    setItemsPerPage,
+  } = usePagination(filteredSuppliers, { initialItemsPerPage: 10 });
 
   const handleToggleStatus = (sup: Supplier) => {
     const newStatus = sup.status === 'Active' ? 'Inactive' : 'Active';
@@ -215,7 +227,7 @@ export const SupplierPage: React.FC = () => {
                     </td>
                   </tr>
                 ) : (
-                  filteredSuppliers.map((sup, idx) => {
+                  paginatedSuppliers.map((sup, idx) => {
                     const isActive = sup.status === 'Active' || sup.status === 'Preferred';
 
                     return (
@@ -224,7 +236,7 @@ export const SupplierPage: React.FC = () => {
                         className="hover:bg-slate-50/70 dark:hover:bg-slate-800/40 transition-colors"
                       >
                         <td className="py-3.5 px-4 text-center font-bold text-slate-500 dark:text-slate-400">
-                          {idx + 1}
+                          {(currentPage - 1) * itemsPerPage + idx + 1}
                         </td>
                         <td className="py-3.5 px-4 font-semibold text-slate-900 dark:text-white">
                           {sup.name}
@@ -293,6 +305,16 @@ export const SupplierPage: React.FC = () => {
               </tbody>
             </table>
           </div>
+
+          {/* Pagination Footer */}
+          <Pagination
+            currentPage={currentPage}
+            totalPages={totalPages}
+            totalItems={totalItems}
+            itemsPerPage={itemsPerPage}
+            onPageChange={setCurrentPage}
+            onItemsPerPageChange={setItemsPerPage}
+          />
         </div>
       </div>
 

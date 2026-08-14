@@ -1,0 +1,19 @@
+{
+  "name": "Pharmacy CRM - Clinical & Patient Management",
+  "short_name": "Pharmacy CRM",
+  "description": "Comprehensive Pharmacy CRM and Clinical Management platform for prescription tracking, patient records, appointments, and inventory management.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#090d16",
+  "theme_color": "#2563eb",
+  "orientation": "any",
+  "categories": ["medical", "health", "business", "productivity"],
+  "icons": [
+    {
+      "src": "/favicon.png",
+      "sizes": "any",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ]
+}

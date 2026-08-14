@@ -9,6 +9,8 @@ import { Modal } from '../components/common/Modal';
 import { ConfirmDeleteModal } from '../components/common/ConfirmDeleteModal';
 import { AddPrescriptionModal } from '../components/prescriptions/AddPrescriptionModal';
 import { FollowUpModal } from '../components/patients/FollowUpModal';
+import { Pagination } from '../components/common/Pagination';
+import { usePagination } from '../hooks/usePagination';
 
 interface PatientsPageProps {
   registerModalOpen: boolean;
@@ -164,6 +166,16 @@ export const PatientsPage: React.FC<PatientsPageProps> = ({
       return matchId && matchName && matchEmail && matchTreatment && matchStatus;
     });
   }, [patients, patientIdQuery, fullNameQuery, emailQuery, filterTreatmentStatus, filterStatus]);
+
+  const {
+    currentPage,
+    totalPages,
+    totalItems,
+    itemsPerPage,
+    paginatedData: paginatedPatients,
+    setCurrentPage,
+    setItemsPerPage,
+  } = usePagination(filteredPatients, { initialItemsPerPage: 10 });
 
   const handleRegisterSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -337,7 +349,7 @@ export const PatientsPage: React.FC<PatientsPageProps> = ({
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100 dark:divide-[#192744] text-xs">
-              {filteredPatients.map((patient, index) => {
+              {paginatedPatients.map((patient, index) => {
                 const isCompleted = patient.treatmentStatus === 'Completed';
                 return (
                   <tr
@@ -346,7 +358,7 @@ export const PatientsPage: React.FC<PatientsPageProps> = ({
                   >
                     {/* S.N */}
                     <td className="py-4 px-4 text-center font-medium text-slate-500 dark:text-slate-400">
-                      {index + 1}
+                      {(currentPage - 1) * itemsPerPage + index + 1}
                     </td>
 
                     {/* PATIENT */}
@@ -569,6 +581,16 @@ export const PatientsPage: React.FC<PatientsPageProps> = ({
             </tbody>
           </table>
         </div>
+
+        {/* Pagination Footer */}
+        <Pagination
+          currentPage={currentPage}
+          totalPages={totalPages}
+          totalItems={totalItems}
+          itemsPerPage={itemsPerPage}
+          onPageChange={setCurrentPage}
+          onItemsPerPageChange={setItemsPerPage}
+        />
       </div>
 
       {/* Edit Patient Modal */}

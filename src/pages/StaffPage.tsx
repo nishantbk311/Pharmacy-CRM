@@ -7,6 +7,8 @@ import { useData } from '../context/DataContext';
 import { Staff, UserRole } from '../types';
 import { Modal } from '../components/common/Modal';
 import { ConfirmDeleteModal } from '../components/common/ConfirmDeleteModal';
+import { Pagination } from '../components/common/Pagination';
+import { usePagination } from '../hooks/usePagination';
 
 export const StaffPage: React.FC = () => {
   const { staff, staffSalaries, addStaff, updateStaff, deleteStaff } = useData();
@@ -46,6 +48,16 @@ export const StaffPage: React.FC = () => {
 
     return matchSearch && matchRole;
   });
+
+  const {
+    currentPage,
+    totalPages,
+    totalItems,
+    itemsPerPage,
+    paginatedData: paginatedStaff,
+    setCurrentPage,
+    setItemsPerPage,
+  } = usePagination(filteredStaff, { initialItemsPerPage: 6 });
 
   const handleAddSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -141,12 +153,18 @@ export const StaffPage: React.FC = () => {
       </div>
 
       {/* Staff Roster Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-        {filteredStaff.map(member => (
-          <div
-            key={member.id}
-            className="bg-white dark:bg-[#0c1626] rounded-3xl border border-slate-200/90 dark:border-slate-800/80 p-5 sm:p-5 shadow-md shadow-slate-200/40 dark:shadow-none flex flex-col justify-between overflow-hidden"
-          >
+      <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/80 dark:border-slate-800 overflow-hidden shadow-xs">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 p-4 sm:p-5">
+          {paginatedStaff.length === 0 ? (
+            <div className="col-span-full py-12 text-center text-slate-500 dark:text-slate-400 font-medium">
+              No staff members match the selected criteria.
+            </div>
+          ) : (
+            paginatedStaff.map(member => (
+              <div
+                key={member.id}
+                className="bg-slate-50/50 dark:bg-[#0c1626] rounded-3xl border border-slate-200/90 dark:border-slate-800/80 p-5 shadow-2xs flex flex-col justify-between overflow-hidden"
+              >
             <div>
               {/* Header: Avatar, Name, Role, Dept Tag, and Status Badge */}
               <div className="flex items-start justify-between gap-3">
@@ -264,7 +282,20 @@ export const StaffPage: React.FC = () => {
               </div>
             </div>
           </div>
-        ))}
+        )))
+        }
+        </div>
+
+        {/* Pagination Footer */}
+        <Pagination
+          currentPage={currentPage}
+          totalPages={totalPages}
+          totalItems={totalItems}
+          itemsPerPage={itemsPerPage}
+          onPageChange={setCurrentPage}
+          onItemsPerPageChange={setItemsPerPage}
+          itemsPerPageOptions={[6, 12, 24]}
+        />
       </div>
 
       {/* Confirm Delete Modal */}

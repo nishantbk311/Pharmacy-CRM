@@ -139,17 +139,18 @@ export const LoginPage: React.FC = () => {
         <button
           type="button"
           onClick={toggleTheme}
+          aria-label={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
           className="p-2.5 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white shadow-xs transition-all flex items-center gap-2 text-xs font-semibold cursor-pointer"
           title="Toggle Light / Dark Mode"
         >
           {theme === 'dark' ? (
             <>
-              <Sun className="w-4 h-4 text-amber-500" />
+              <Sun className="w-4 h-4 text-amber-500" aria-hidden="true" />
               <span className="hidden sm:inline">Light Mode</span>
             </>
           ) : (
             <>
-              <Moon className="w-4 h-4 text-blue-600" />
+              <Moon className="w-4 h-4 text-blue-600" aria-hidden="true" />
               <span className="hidden sm:inline">Dark Mode</span>
             </>
           )}
@@ -165,7 +166,7 @@ export const LoginPage: React.FC = () => {
             <div className="space-y-6 relative z-10">
               {/* Brand Icon Badge */}
               <div className="w-12 h-12 rounded-2xl bg-blue-600 text-white flex items-center justify-center shadow-lg shadow-blue-600/30">
-                <Cross className="w-7 h-7 stroke-[2.5]" />
+                <Cross className="w-7 h-7 stroke-[2.5]" aria-hidden="true" />
               </div>
 
               <div>
@@ -181,7 +182,7 @@ export const LoginPage: React.FC = () => {
               <div className="space-y-3 pt-2">
                 <div className="p-4 rounded-2xl bg-white dark:bg-slate-900/80 border border-slate-200 dark:border-slate-800 shadow-xs flex items-start gap-3.5">
                   <div className="p-2.5 rounded-xl bg-blue-50 dark:bg-blue-500/10 text-blue-600 dark:text-blue-400 border border-blue-200 dark:border-blue-500/20 shrink-0">
-                    <Shield className="w-5 h-5" />
+                    <Shield className="w-5 h-5" aria-hidden="true" />
                   </div>
                   <div>
                     <h4 className="text-xs font-bold text-slate-900 dark:text-white">End-to-end protection</h4>
@@ -191,7 +192,7 @@ export const LoginPage: React.FC = () => {
 
                 <div className="p-4 rounded-2xl bg-white dark:bg-slate-900/80 border border-slate-200 dark:border-slate-800 shadow-xs flex items-start gap-3.5">
                   <div className="p-2.5 rounded-xl bg-blue-50 dark:bg-blue-500/10 text-blue-600 dark:text-blue-400 border border-blue-200 dark:border-blue-500/20 shrink-0">
-                    <Smartphone className="w-5 h-5" />
+                    <Smartphone className="w-5 h-5" aria-hidden="true" />
                   </div>
                   <div>
                     <h4 className="text-xs font-bold text-slate-900 dark:text-white">Google Authenticator</h4>
@@ -201,7 +202,7 @@ export const LoginPage: React.FC = () => {
 
                 <div className="p-4 rounded-2xl bg-white dark:bg-slate-900/80 border border-slate-200 dark:border-slate-800 shadow-xs flex items-start gap-3.5">
                   <div className="p-2.5 rounded-xl bg-blue-50 dark:bg-blue-500/10 text-blue-600 dark:text-blue-400 border border-blue-200 dark:border-blue-500/20 shrink-0">
-                    <Users className="w-5 h-5" />
+                    <Users className="w-5 h-5" aria-hidden="true" />
                   </div>
                   <div>
                     <h4 className="text-xs font-bold text-slate-900 dark:text-white">Role-based access</h4>
@@ -276,14 +277,16 @@ export const LoginPage: React.FC = () => {
 
                     <form onSubmit={handleFactor1Submit} className="space-y-4">
                       <div>
-                        <label className="block text-[11px] font-bold uppercase tracking-wider text-slate-600 dark:text-slate-400 mb-1.5">
+                        <label htmlFor="login-email-input" className="block text-[11px] font-bold uppercase tracking-wider text-slate-600 dark:text-slate-400 mb-1.5">
                           Email Address
                         </label>
                         <div className="relative">
-                          <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 dark:text-slate-500" />
+                          <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 dark:text-slate-500" aria-hidden="true" />
                           <input
+                            id="login-email-input"
                             type="email"
                             required
+                            autoComplete="email"
                             value={email}
                             onChange={e => setEmail(e.target.value)}
                             className="w-full pl-10 pr-4 py-3 rounded-xl bg-slate-50 dark:bg-slate-950/90 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white text-sm focus:outline-hidden focus:border-blue-600 dark:focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all placeholder-slate-400 dark:placeholder-slate-600"
@@ -293,14 +296,16 @@ export const LoginPage: React.FC = () => {
                       </div>
 
                       <div>
-                        <label className="block text-[11px] font-bold uppercase tracking-wider text-slate-600 dark:text-slate-400 mb-1.5">
+                        <label htmlFor="login-password-input" className="block text-[11px] font-bold uppercase tracking-wider text-slate-600 dark:text-slate-400 mb-1.5">
                           Password
                         </label>
                         <div className="relative">
-                          <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 dark:text-slate-500" />
+                          <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 dark:text-slate-500" aria-hidden="true" />
                           <input
+                            id="login-password-input"
                             type={showPassword ? 'text' : 'password'}
                             required
+                            autoComplete="current-password"
                             value={password}
                             onChange={e => setPassword(e.target.value)}
                             className="w-full pl-10 pr-10 py-3 rounded-xl bg-slate-50 dark:bg-slate-950/90 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white text-sm focus:outline-hidden focus:border-blue-600 dark:focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all placeholder-slate-400 dark:placeholder-slate-600"
@@ -308,10 +313,11 @@ export const LoginPage: React.FC = () => {
                           />
                           <button
                             type="button"
+                            aria-label={showPassword ? "Hide password" : "Show password"}
                             onClick={() => setShowPassword(!showPassword)}
-                            className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-300"
+                            className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 cursor-pointer"
                           >
-                            {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                            {showPassword ? <EyeOff className="w-4 h-4" aria-hidden="true" /> : <Eye className="w-4 h-4" aria-hidden="true" />}
                           </button>
                         </div>
                       </div>
@@ -427,14 +433,17 @@ export const LoginPage: React.FC = () => {
 
                     <form onSubmit={handleFactor2Submit} className="space-y-5">
                       {/* 6 Digit Input Boxes */}
-                      <div className="grid grid-cols-6 gap-2 sm:gap-3">
+                      <div className="grid grid-cols-6 gap-2 sm:gap-3" role="group" aria-label="Two-factor authentication 6-digit code">
                         {otpDigits.map((digit, index) => (
                           <input
                             key={index}
                             id={`otp-input-${index}`}
                             type="text"
+                            inputMode="numeric"
+                            autoComplete={index === 0 ? "one-time-code" : "off"}
                             maxLength={6}
                             value={digit}
+                            aria-label={`Digit ${index + 1} of 6-digit security code`}
                             onChange={e => handleOtpChange(index, e.target.value)}
                             onKeyDown={e => handleOtpKeyDown(index, e)}
                             className="h-12 sm:h-14 text-center text-xl font-bold rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-blue-600 dark:text-blue-400 focus:outline-hidden focus:border-blue-600 dark:focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all font-mono"

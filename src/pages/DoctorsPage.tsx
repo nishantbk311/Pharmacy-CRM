@@ -7,6 +7,8 @@ import { useData } from '../context/DataContext';
 import { Doctor } from '../types';
 import { Modal } from '../components/common/Modal';
 import { ConfirmDeleteModal } from '../components/common/ConfirmDeleteModal';
+import { Pagination } from '../components/common/Pagination';
+import { usePagination } from '../hooks/usePagination';
 
 interface DoctorsPageProps {
   doctorModalOpen?: boolean;
@@ -109,6 +111,16 @@ export const DoctorsPage: React.FC<DoctorsPageProps> = ({
 
     return true;
   });
+
+  const {
+    currentPage,
+    totalPages,
+    totalItems,
+    itemsPerPage,
+    paginatedData: paginatedDoctors,
+    setCurrentPage,
+    setItemsPerPage,
+  } = usePagination(filteredDoctors, { initialItemsPerPage: 10 });
 
   const handleAddSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -307,7 +319,7 @@ export const DoctorsPage: React.FC<DoctorsPageProps> = ({
                   </td>
                 </tr>
               ) : (
-                filteredDoctors.map((doc, idx) => {
+                paginatedDoctors.map((doc, idx) => {
                   const feeValue = doc.consultationFee
                     ? Number(doc.consultationFee).toLocaleString('en-US', {
                         minimumFractionDigits: 2,
@@ -326,7 +338,7 @@ export const DoctorsPage: React.FC<DoctorsPageProps> = ({
                       className="hover:bg-slate-50/60 dark:hover:bg-slate-800/30 transition-colors"
                     >
                       <td className="py-3.5 px-4 font-mono text-slate-500 dark:text-slate-400 text-xs">
-                        {doc.sn || idx + 1}
+                        {(currentPage - 1) * itemsPerPage + idx + 1}
                       </td>
 
                       <td className="py-3.5 px-4 font-semibold text-slate-900 dark:text-slate-100 whitespace-nowrap">
@@ -444,6 +456,16 @@ export const DoctorsPage: React.FC<DoctorsPageProps> = ({
               )}
             </tbody>
           </table>
+
+          {/* Pagination Footer */}
+          <Pagination
+            currentPage={currentPage}
+            totalPages={totalPages}
+            totalItems={totalItems}
+            itemsPerPage={itemsPerPage}
+            onPageChange={setCurrentPage}
+            onItemsPerPageChange={setItemsPerPage}
+          />
         </div>
       </div>
 

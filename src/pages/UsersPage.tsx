@@ -6,6 +6,8 @@ import { useData } from '../context/DataContext';
 import { SystemUser } from '../types';
 import { Modal } from '../components/common/Modal';
 import { ConfirmDeleteModal } from '../components/common/ConfirmDeleteModal';
+import { Pagination } from '../components/common/Pagination';
+import { usePagination } from '../hooks/usePagination';
 
 export const UsersPage: React.FC = () => {
   const { systemUsers, roles, addSystemUser, updateSystemUser, deleteSystemUser } = useData();
@@ -76,6 +78,16 @@ export const UsersPage: React.FC = () => {
 
     return matchesUsername && matchesEmail && matchesPhone && matchesStatus && matchesRole;
   });
+
+  const {
+    currentPage,
+    totalPages,
+    totalItems,
+    itemsPerPage,
+    paginatedData: paginatedUsers,
+    setCurrentPage,
+    setItemsPerPage,
+  } = usePagination(filteredUsers, { initialItemsPerPage: 10 });
 
   const handleAddSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -301,7 +313,7 @@ export const UsersPage: React.FC = () => {
                   </td>
                 </tr>
               ) : (
-                filteredUsers.map(user => (
+                paginatedUsers.map(user => (
                   <tr
                     key={user.id}
                     className="hover:bg-slate-50 dark:hover:bg-[#121c38]/60 transition-colors group"
@@ -437,6 +449,18 @@ export const UsersPage: React.FC = () => {
               )}
             </tbody>
           </table>
+        </div>
+
+        {/* Pagination Footer */}
+        <div className="pt-2">
+          <Pagination
+            currentPage={currentPage}
+            totalPages={totalPages}
+            totalItems={totalItems}
+            itemsPerPage={itemsPerPage}
+            onPageChange={setCurrentPage}
+            onItemsPerPageChange={setItemsPerPage}
+          />
         </div>
       </div>
 

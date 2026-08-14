@@ -5,6 +5,8 @@ import { Factory, Phone, Mail, SlidersHorizontal, Plus, Eye, Edit2, Trash2, X } 
 import { useData } from '../context/DataContext';
 import { Manufacturer } from '../types';
 import { ConfirmDeleteModal } from '../components/common/ConfirmDeleteModal';
+import { Pagination } from '../components/common/Pagination';
+import { usePagination } from '../hooks/usePagination';
 
 export const ManufacturerPage: React.FC = () => {
   const { manufacturers, addManufacturer, updateManufacturer, deleteManufacturer } = useData();
@@ -66,6 +68,16 @@ export const ManufacturerPage: React.FC = () => {
 
     return nameMatch && phoneMatch && emailMatch;
   });
+
+  const {
+    currentPage,
+    totalPages,
+    totalItems,
+    itemsPerPage,
+    paginatedData: paginatedManufacturers,
+    setCurrentPage,
+    setItemsPerPage,
+  } = usePagination(filteredManufacturers, { initialItemsPerPage: 10 });
 
   const handleToggleStatus = (mfg: Manufacturer) => {
     const newStatus = mfg.status === 'Active' ? 'Inactive' : 'Active';
@@ -210,7 +222,7 @@ export const ManufacturerPage: React.FC = () => {
                     </td>
                   </tr>
                 ) : (
-                  filteredManufacturers.map((mfg, idx) => {
+                  paginatedManufacturers.map((mfg, idx) => {
                     const isActive = mfg.status === 'Active';
 
                     return (
@@ -219,7 +231,7 @@ export const ManufacturerPage: React.FC = () => {
                         className="hover:bg-slate-50/70 dark:hover:bg-slate-800/40 transition-colors"
                       >
                         <td className="py-3.5 px-4 text-center font-bold text-slate-500 dark:text-slate-400">
-                          {idx + 1}
+                          {(currentPage - 1) * itemsPerPage + idx + 1}
                         </td>
                         <td className="py-3.5 px-4 font-semibold text-slate-900 dark:text-white">
                           {mfg.name}
@@ -285,6 +297,16 @@ export const ManufacturerPage: React.FC = () => {
               </tbody>
             </table>
           </div>
+
+          {/* Pagination Footer */}
+          <Pagination
+            currentPage={currentPage}
+            totalPages={totalPages}
+            totalItems={totalItems}
+            itemsPerPage={itemsPerPage}
+            onPageChange={setCurrentPage}
+            onItemsPerPageChange={setItemsPerPage}
+          />
         </div>
       </div>
 

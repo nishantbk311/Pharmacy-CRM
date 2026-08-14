@@ -2,11 +2,23 @@
 
 import React, { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { FileText, Search, SlidersHorizontal, Plus, Pencil, Trash2, User, ArrowRight, Stethoscope } from 'lucide-react';
+import {
+  FileText,
+  Search,
+  SlidersHorizontal,
+  Plus,
+  Pencil,
+  Trash2,
+  Stethoscope,
+  Pill,
+  Calendar,
+} from 'lucide-react';
 import { useData } from '../context/DataContext';
 import { Prescription, RxStatus } from '../types';
 import { Modal } from '../components/common/Modal';
 import { ConfirmDeleteModal } from '../components/common/ConfirmDeleteModal';
+import { Pagination } from '../components/common/Pagination';
+import { usePagination } from '../hooks/usePagination';
 
 export const PrescriptionsPage: React.FC = () => {
   const [searchParams] = useSearchParams();
@@ -127,6 +139,16 @@ export const PrescriptionsPage: React.FC = () => {
     return true;
   });
 
+  const {
+    currentPage,
+    totalPages,
+    totalItems,
+    itemsPerPage,
+    paginatedData: paginatedPrescriptions,
+    setCurrentPage,
+    setItemsPerPage,
+  } = usePagination(filteredPrescriptions, { initialItemsPerPage: 10 });
+
   const handleOpenAddModal = () => {
     setEditingRx(null);
     setFormData({
@@ -195,257 +217,201 @@ export const PrescriptionsPage: React.FC = () => {
   };
 
   return (
-    <div className="space-y-5 text-slate-800 dark:text-slate-100">
-      {/* Prescription Workflow Card */}
-      <div className="p-5 rounded-2xl bg-white dark:bg-[#0f172a] border border-slate-200 dark:border-slate-800 shadow-sm dark:shadow-xl space-y-4 transition-colors">
-        <div>
-          <h2 className="text-base font-bold text-slate-900 dark:text-white tracking-tight">
-            Prescription workflow
-          </h2>
-          <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
-            Doctor submits &rarr; Pharmacy checks stock &rarr; Confirm or cancel
-          </p>
-      </div>
-
-        {/* 3 Workflow Step Cards */}
-        <div className="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3">
-          {/* Step 1 */}
-          <div className="flex-1 p-4 rounded-xl bg-slate-50 dark:bg-[#1e293b]/60 border border-slate-200 dark:border-slate-800 flex items-start gap-3">
-            <div className="w-6 h-6 rounded-full bg-blue-600 text-white font-bold text-xs flex items-center justify-center shrink-0 mt-0.5">
-              1
-            </div>
-            <div>
-              <h3 className="text-xs font-bold text-slate-900 dark:text-white">Doctor writes</h3>
-              <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">
-                Prescription starts as Pending Review
-              </p>
-            </div>
-          </div>
-
-          <div className="hidden md:flex items-center justify-center text-slate-400 dark:text-slate-600 shrink-0 px-1">
-            <ArrowRight className="w-4 h-4" />
-          </div>
-
-          {/* Step 2 */}
-          <div className="flex-1 p-4 rounded-xl bg-slate-50 dark:bg-[#1e293b]/60 border border-slate-200 dark:border-slate-800 flex items-start gap-3">
-            <div className="w-6 h-6 rounded-full bg-blue-600 text-white font-bold text-xs flex items-center justify-center shrink-0 mt-0.5">
-              2
-            </div>
-            <div>
-              <h3 className="text-xs font-bold text-slate-900 dark:text-white">Admin reviews</h3>
-              <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">
-                Check if medicines are available
-              </p>
-            </div>
-          </div>
-
-          <div className="hidden md:flex items-center justify-center text-slate-400 dark:text-slate-600 shrink-0 px-1">
-            <ArrowRight className="w-4 h-4" />
-          </div>
-
-          {/* Step 3 */}
-          <div className="flex-1 p-4 rounded-xl bg-slate-50 dark:bg-[#1e293b]/60 border border-slate-200 dark:border-slate-800 flex items-start gap-3">
-            <div className="w-6 h-6 rounded-full bg-blue-600 text-white font-bold text-xs flex items-center justify-center shrink-0 mt-0.5">
-              3
-            </div>
-            <div>
-              <h3 className="text-xs font-bold text-slate-900 dark:text-white">Confirm or Cancel</h3>
-              <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">
-                Confirm if in stock &middot; Cancel if unavailable
-              </p>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Status Filter Tabs / Pills */}
-      <div className="flex items-center gap-2 overflow-x-auto pb-1 text-xs font-semibold">
-        <button
-          onClick={() => setActiveTab('all')}
-          className={`px-4 py-2 rounded-full transition-all cursor-pointer whitespace-nowrap ${
-            activeTab === 'all'
-              ? 'bg-blue-600 text-white shadow-md'
-              : 'bg-white dark:bg-[#1e293b]/80 border border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800'
-          }`}
-        >
-          All
-        </button>
-
-        <button
-          onClick={() => setActiveTab('Confirmed')}
-          className={`px-3.5 py-2 rounded-full transition-all cursor-pointer whitespace-nowrap flex items-center gap-2 ${
-            activeTab === 'Confirmed'
-              ? 'bg-blue-600 text-white shadow-md'
-              : 'bg-white dark:bg-[#1e293b]/80 border border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800'
-          }`}
-        >
-          <span>Confirmed</span>
-          <span className="px-1.5 py-0.2 rounded-full bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-200 text-[10px] font-bold">
-            {countConfirmed}
-          </span>
-        </button>
-
-        <button
-          onClick={() => setActiveTab('Completed')}
-          className={`px-3.5 py-2 rounded-full transition-all cursor-pointer whitespace-nowrap flex items-center gap-2 ${
-            activeTab === 'Completed'
-              ? 'bg-blue-600 text-white shadow-md'
-              : 'bg-white dark:bg-[#1e293b]/80 border border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800'
-          }`}
-        >
-          <span>Completed</span>
-          <span className="px-1.5 py-0.2 rounded-full bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-200 text-[10px] font-bold">
-            {countCompleted}
-          </span>
-        </button>
-
-        <button
-          onClick={() => setActiveTab('Cancelled')}
-          className={`px-3.5 py-2 rounded-full transition-all cursor-pointer whitespace-nowrap flex items-center gap-2 ${
-            activeTab === 'Cancelled'
-              ? 'bg-blue-600 text-white shadow-md'
-              : 'bg-white dark:bg-[#1e293b]/80 border border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800'
-          }`}
-        >
-          <span>Cancelled</span>
-          <span className="px-1.5 py-0.2 rounded-full bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-200 text-[10px] font-bold">
-            {countCancelled}
-          </span>
-        </button>
-      </div>
-
+    <div className="space-y-6 text-slate-800 dark:text-slate-100">
       {/* Main Table Container with Integrated Filter Toolbar */}
-      <div className="bg-white dark:bg-[#0b1329] border border-slate-200 dark:border-slate-800 rounded-2xl overflow-hidden shadow-xs dark:shadow-2xl transition-colors">
-        {/* Toolbar Bar */}
-        <div className="p-4 bg-slate-50 dark:bg-[#0f172a]/90 border-b border-slate-200 dark:border-slate-800/80 flex flex-col md:flex-row md:items-end justify-between gap-4">
-          {/* Dropdowns & Search Input */}
-          <form onSubmit={handleSearchSubmit} className="flex flex-wrap items-end gap-3 flex-1">
-            {/* Search Input */}
-            <div className="flex flex-col flex-1 min-w-[180px] sm:min-w-[220px]">
-              <label className="text-[10px] font-semibold text-slate-500 dark:text-slate-400 mb-1 flex items-center gap-1">
-                <Search className="w-3 h-3" />
-                Search Prescriptions
-              </label>
-              <div className="relative">
-                <Search className="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+      <div className="bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 rounded-2xl overflow-hidden shadow-xs">
+        {/* Top Control Header */}
+        <div className="p-4 sm:p-5 border-b border-slate-200/80 dark:border-slate-800 space-y-3.5">
+          {/* Top Row: Search input, Patient select, Doctor select, & New Prescription button */}
+          <div className="flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-3">
+            <form onSubmit={handleSearchSubmit} className="flex flex-wrap items-center gap-2.5 flex-1">
+              {/* Search Box */}
+              <div className="relative flex-1 min-w-[220px]">
+                <Search className="w-3.5 h-3.5 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
                 <input
                   type="text"
-                  placeholder="Search medicine, patient, doctor..."
+                  placeholder="Search medicine, patient, doctor, Rx#..."
                   value={searchQuery}
                   onChange={e => setSearchQuery(e.target.value)}
-                  className="w-full bg-white dark:bg-[#1e293b] border border-slate-300 dark:border-slate-700/80 rounded-xl pl-9 pr-3 h-[34px] text-xs font-medium text-slate-800 dark:text-white focus:outline-none focus:border-blue-500 placeholder:text-slate-400 transition-colors"
+                  className="w-full bg-slate-50 dark:bg-slate-800/80 border border-slate-200/80 dark:border-slate-700/80 rounded-xl pl-9 pr-3 py-2 text-xs font-medium text-slate-900 dark:text-white focus:outline-hidden focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 placeholder:text-slate-400 transition-all"
                 />
               </div>
-            </div>
 
-            {/* Patient Select */}
-            <div className="flex flex-col min-w-[130px]">
-              <label className="text-[10px] font-semibold text-slate-500 dark:text-slate-400 mb-1 flex items-center gap-1">
-                <User className="w-3 h-3" />
-                Patient
-              </label>
-              <select
-                value={selectedPatient}
-                onChange={e => setSelectedPatient(e.target.value)}
-                className="bg-white dark:bg-[#1e293b] border border-slate-300 dark:border-slate-700/80 rounded-xl px-3 h-[34px] text-xs font-medium text-slate-800 dark:text-white focus:outline-none focus:border-blue-500 cursor-pointer"
-              >
-                <option value="All">All Patients</option>
-                {Array.from(
-                  new Set([
-                    ...prescriptions.map(p => p.patientName).filter(Boolean),
-                    ...patients.map(p => `${p.firstName} ${p.lastName}`),
-                  ])
-                ).map(name => (
-                  <option key={name} value={name}>
-                    {name}
-                  </option>
-                ))}
-              </select>
-            </div>
+              {/* Patient Select */}
+              <div className="relative min-w-[140px]">
+                <select
+                  value={selectedPatient}
+                  onChange={e => setSelectedPatient(e.target.value)}
+                  className="w-full bg-slate-50 dark:bg-slate-800/80 border border-slate-200/80 dark:border-slate-700/80 rounded-xl px-3 py-2 text-xs font-medium text-slate-800 dark:text-slate-200 focus:outline-hidden focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 cursor-pointer"
+                >
+                  <option value="All">All Patients</option>
+                  {Array.from(
+                    new Set([
+                      ...prescriptions.map(p => p.patientName).filter(Boolean),
+                      ...patients.map(p => `${p.firstName} ${p.lastName}`),
+                    ])
+                  ).map(name => (
+                    <option key={name} value={name} className="bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 text-left">
+                      {name}
+                    </option>
+                  ))}
+                </select>
+              </div>
 
-            {/* Doctor Select */}
-            <div className="flex flex-col min-w-[130px]">
-              <label className="text-[10px] font-semibold text-slate-500 dark:text-slate-400 mb-1 flex items-center gap-1">
-                <Stethoscope className="w-3 h-3" />
-                Doctor
-              </label>
-              <select
-                value={selectedDoctor}
-                onChange={e => setSelectedDoctor(e.target.value)}
-                className="bg-white dark:bg-[#1e293b] border border-slate-300 dark:border-slate-700/80 rounded-xl px-3 h-[34px] text-xs font-medium text-slate-800 dark:text-white focus:outline-none focus:border-blue-500 cursor-pointer"
-              >
-                <option value="All">All Doctors</option>
-                {Array.from(
-                  new Set([
-                    ...prescriptions.map(d => d.doctorName).filter(Boolean),
-                    ...doctors.map(d => `Dr. ${d.firstName} ${d.lastName}`),
-                  ])
-                ).map(name => (
-                  <option key={name} value={name}>
-                    {name}
-                  </option>
-                ))}
-              </select>
-            </div>
-          </form>
+              {/* Doctor Select */}
+              <div className="relative min-w-[140px]">
+                <select
+                  value={selectedDoctor}
+                  onChange={e => setSelectedDoctor(e.target.value)}
+                  className="w-full bg-slate-50 dark:bg-slate-800/80 border border-slate-200/80 dark:border-slate-700/80 rounded-xl px-3 py-2 text-xs font-medium text-slate-800 dark:text-slate-200 focus:outline-hidden focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 cursor-pointer"
+                >
+                  <option value="All">All Doctors</option>
+                  {Array.from(
+                    new Set([
+                      ...prescriptions.map(d => d.doctorName).filter(Boolean),
+                      ...doctors.map(d => `Dr. ${d.firstName} ${d.lastName}`),
+                    ])
+                  ).map(name => (
+                    <option key={name} value={name} className="bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 text-left">
+                      {name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            </form>
 
-          {/* Action Buttons */}
-          <div className="flex items-center gap-2.5 shrink-0 self-end">
-            {isFilterApplied && (
-              <button
-                onClick={handleClearFilter}
-                className="px-3.5 h-[34px] rounded-xl bg-white dark:bg-[#1e293b] hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 border border-slate-300 dark:border-slate-700/80 text-xs font-medium flex items-center justify-center gap-1.5 cursor-pointer transition-colors shrink-0"
-              >
-                <SlidersHorizontal className="w-3.5 h-3.5" />
-                <span>Clear Filter</span>
-              </button>
-            )}
-
+            {/* Primary Action Button */}
             <button
               onClick={handleOpenAddModal}
-              className="px-4 h-[34px] rounded-xl bg-blue-600 hover:bg-blue-500 active:scale-95 text-white text-xs font-bold flex items-center justify-center gap-1.5 cursor-pointer transition-all shadow-md shrink-0 whitespace-nowrap"
+              className="px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-500 active:scale-98 text-white text-xs font-bold flex items-center justify-center gap-2 cursor-pointer transition-all shadow-xs shrink-0 whitespace-nowrap"
             >
               <Plus className="w-4 h-4" />
-              <span>Add Prescription</span>
+              <span>New Prescription</span>
             </button>
+          </div>
+
+          {/* Bottom Row: Status Tabs Bar & Clear Filters Button */}
+          <div className="flex flex-wrap items-center gap-2.5 pt-1">
+            <div className="flex items-center gap-1.5 p-1 bg-slate-100/80 dark:bg-slate-800/80 rounded-xl">
+              <button
+                onClick={() => setActiveTab('all')}
+                className={`px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer whitespace-nowrap ${
+                  activeTab === 'all'
+                    ? 'bg-blue-600 text-white shadow-xs'
+                    : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+                }`}
+              >
+                All Prescriptions
+              </button>
+
+              <button
+                onClick={() => setActiveTab('Confirmed')}
+                className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer whitespace-nowrap flex items-center gap-1.5 ${
+                  activeTab === 'Confirmed'
+                    ? 'bg-blue-600 text-white shadow-xs'
+                    : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+                }`}
+              >
+                <span>Confirmed</span>
+                <span
+                  className={`px-1.5 py-0.2 rounded-md text-[10px] font-bold ${
+                    activeTab === 'Confirmed'
+                      ? 'bg-white/20 text-white'
+                      : 'bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-300'
+                  }`}
+                >
+                  {countConfirmed}
+                </span>
+              </button>
+
+              <button
+                onClick={() => setActiveTab('Completed')}
+                className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer whitespace-nowrap flex items-center gap-1.5 ${
+                  activeTab === 'Completed'
+                    ? 'bg-blue-600 text-white shadow-xs'
+                    : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+                }`}
+              >
+                <span>Completed</span>
+                <span
+                  className={`px-1.5 py-0.2 rounded-md text-[10px] font-bold ${
+                    activeTab === 'Completed'
+                      ? 'bg-white/20 text-white'
+                      : 'bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-300'
+                  }`}
+                >
+                  {countCompleted}
+                </span>
+              </button>
+
+              <button
+                onClick={() => setActiveTab('Cancelled')}
+                className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer whitespace-nowrap flex items-center gap-1.5 ${
+                  activeTab === 'Cancelled'
+                    ? 'bg-blue-600 text-white shadow-xs'
+                    : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+                }`}
+              >
+                <span>Cancelled</span>
+                <span
+                  className={`px-1.5 py-0.2 rounded-md text-[10px] font-bold ${
+                    activeTab === 'Cancelled'
+                      ? 'bg-white/20 text-white'
+                      : 'bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-300'
+                  }`}
+                >
+                  {countCancelled}
+                </span>
+              </button>
+            </div>
+
+            {/* Clear Filters Button placed beside the status tabs */}
+            {isFilterApplied && (
+              <button
+                type="button"
+                onClick={handleClearFilter}
+                className="px-3 py-1.5 rounded-xl bg-rose-50 dark:bg-rose-950/60 text-rose-600 dark:text-rose-400 hover:bg-rose-100 border border-rose-200/80 dark:border-rose-900/80 text-xs font-semibold flex items-center gap-1.5 cursor-pointer transition-colors shrink-0"
+              >
+                <SlidersHorizontal className="w-3.5 h-3.5" />
+                <span>Clear Filters</span>
+              </button>
+            )}
           </div>
         </div>
 
         {/* Data Table */}
         <div className="overflow-x-auto w-full">
-          <table className="w-full text-left text-xs min-w-[900px]">
+          <table className="w-full text-left text-xs min-w-[980px]">
             <thead>
-              <tr className="border-b border-slate-200 dark:border-slate-800/80 bg-slate-100/80 dark:bg-[#0c1328] text-slate-600 dark:text-slate-400 font-bold uppercase text-[10px] tracking-wider whitespace-nowrap">
-                <th className="py-3.5 px-4">S.N</th>
-                <th className="py-3.5 px-4">PATIENT</th>
-                <th className="py-3.5 px-4">DOCTOR</th>
-                <th className="py-3.5 px-4">MEDICINE NAME</th>
-                <th className="py-3.5 px-4">DOSAGE</th>
-                <th className="py-3.5 px-4">FREQUENCY</th>
-                <th className="py-3.5 px-4">ROUTE</th>
-                <th className="py-3.5 px-4">DURATION</th>
-                <th className="py-3.5 px-4">START DATE</th>
-                <th className="py-3.5 px-4">END DATE</th>
-                <th className="py-3.5 px-4 text-center">STATUS</th>
-                <th className="py-3.5 px-4 text-right">ACTION</th>
+              <tr className="border-b border-slate-200/80 dark:border-slate-800 bg-slate-50/70 dark:bg-slate-800/40 text-slate-500 dark:text-slate-400 font-bold uppercase text-[10px] tracking-wider whitespace-nowrap">
+                <th className="py-3 px-4 w-12 text-center">#</th>
+                <th className="py-3 px-4">PATIENT</th>
+                <th className="py-3 px-4">PRESCRIBER</th>
+                <th className="py-3 px-4">MEDICINE & DOSAGE</th>
+                <th className="py-3 px-4">FREQUENCY</th>
+                <th className="py-3 px-4">ROUTE</th>
+                <th className="py-3 px-4">DURATION</th>
+                <th className="py-3 px-4">DATE RANGE</th>
+                <th className="py-3 px-4 text-center">STATUS</th>
+                <th className="py-3 px-4 text-right">ACTION</th>
               </tr>
             </thead>
 
-            <tbody className="divide-y divide-slate-200 dark:divide-slate-800/60 font-medium text-slate-700 dark:text-slate-200">
+            <tbody className="divide-y divide-slate-200/80 dark:divide-slate-800/60 font-medium text-slate-700 dark:text-slate-200">
               {filteredPrescriptions.length === 0 ? (
                 <tr>
-                  <td colSpan={12} className="py-12 text-center text-slate-500 dark:text-slate-400">
+                  <td colSpan={10} className="py-12 text-center text-slate-500 dark:text-slate-400">
                     <div className="flex flex-col items-center justify-center space-y-2">
                       <FileText className="w-8 h-8 text-slate-400 dark:text-slate-600" />
-                      <p className="text-sm font-semibold">No prescriptions found</p>
+                      <p className="text-sm font-semibold">No prescriptions match criteria</p>
                       <p className="text-xs text-slate-500">
-                        Try adjusting your search criteria or clearing filters.
+                        Try clearing active filters or searching for another query.
                       </p>
                     </div>
                   </td>
                 </tr>
               ) : (
-                filteredPrescriptions.map((rx, idx) => {
+                paginatedPrescriptions.map((rx, idx) => {
                   const isCompleted =
                     rx.status === 'Completed' || rx.status === 'Filled';
                   const isCancelled =
@@ -454,58 +420,68 @@ export const PrescriptionsPage: React.FC = () => {
                   return (
                     <tr
                       key={rx.id}
-                      className="hover:bg-slate-50 dark:hover:bg-slate-800/40 transition-colors"
+                      className="hover:bg-slate-50/80 dark:hover:bg-slate-800/40 transition-colors group"
                     >
                       {/* S.N */}
-                      <td className="py-4 px-4 text-slate-500 dark:text-slate-400 whitespace-nowrap">{idx + 1}</td>
+                      <td className="py-3.5 px-4 text-center text-slate-400 dark:text-slate-500 text-[11px] font-semibold whitespace-nowrap">
+                        {(currentPage - 1) * itemsPerPage + idx + 1}
+                      </td>
 
                       {/* PATIENT */}
-                      <td className="py-4 px-4 font-semibold text-slate-900 dark:text-white whitespace-nowrap">
+                      <td className="py-3.5 px-4 font-semibold text-slate-900 dark:text-white whitespace-nowrap">
                         {rx.patientName}
                       </td>
 
                       {/* DOCTOR */}
-                      <td className="py-4 px-4 text-slate-700 dark:text-slate-300 whitespace-nowrap">
-                        {rx.doctorName}
+                      <td className="py-3.5 px-4 text-slate-700 dark:text-slate-300 whitespace-nowrap">
+                        <div className="flex items-center gap-1.5">
+                          <Stethoscope className="w-3.5 h-3.5 text-slate-400" />
+                          <span>{rx.doctorName}</span>
+                        </div>
                       </td>
 
-                      {/* MEDICINE NAME */}
-                      <td className="py-4 px-4 text-slate-800 dark:text-slate-200 font-semibold whitespace-nowrap">
-                        {rx.drugName}
-                      </td>
-
-                      {/* DOSAGE */}
-                      <td className="py-4 px-4 text-slate-700 dark:text-slate-300 whitespace-nowrap">
-                        {rx.dosage || rx.strength || '500mg'}
+                      {/* MEDICINE & DOSAGE */}
+                      <td className="py-3.5 px-4 whitespace-nowrap">
+                        <div className="flex items-center gap-2">
+                          <Pill className="w-3.5 h-3.5 text-blue-500" />
+                          <span className="font-bold text-slate-900 dark:text-white">
+                            {rx.drugName}
+                          </span>
+                          <span className="px-2 py-0.5 rounded-md bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 text-[11px] font-medium border border-slate-200 dark:border-slate-700/60">
+                            {rx.dosage || rx.strength || '500mg'}
+                          </span>
+                        </div>
                       </td>
 
                       {/* FREQUENCY */}
-                      <td className="py-4 px-4 text-slate-700 dark:text-slate-300 whitespace-nowrap">
-                        {rx.frequency || rx.directions || '2 times'}
+                      <td className="py-3.5 px-4 text-slate-600 dark:text-slate-300 whitespace-nowrap">
+                        {rx.frequency || rx.directions || '2 times daily'}
                       </td>
 
                       {/* ROUTE */}
-                      <td className="py-4 px-4 text-slate-700 dark:text-slate-300 whitespace-nowrap">
-                        {rx.route || 'Oral / 32'}
+                      <td className="py-3.5 px-4 text-slate-600 dark:text-slate-300 whitespace-nowrap">
+                        <span className="px-2 py-0.5 rounded-md bg-slate-100 dark:bg-slate-800/80 text-slate-700 dark:text-slate-300 text-[11px]">
+                          {rx.route || 'Oral'}
+                        </span>
                       </td>
 
                       {/* DURATION */}
-                      <td className="py-4 px-4 text-slate-700 dark:text-slate-300 whitespace-nowrap">
+                      <td className="py-3.5 px-4 text-slate-600 dark:text-slate-300 whitespace-nowrap">
                         {rx.duration || '7 days'}
                       </td>
 
-                      {/* START DATE */}
-                      <td className="py-4 px-4 text-slate-700 dark:text-slate-300 whitespace-nowrap">
-                        {rx.startDate || rx.prescribedDate}
-                      </td>
-
-                      {/* END DATE */}
-                      <td className="py-4 px-4 text-slate-700 dark:text-slate-300 whitespace-nowrap">
-                        {rx.endDate || rx.fillDueDate || '2026-08-11'}
+                      {/* DATE RANGE */}
+                      <td className="py-3.5 px-4 text-slate-500 dark:text-slate-400 text-[11px] whitespace-nowrap">
+                        <div className="flex items-center gap-1">
+                          <Calendar className="w-3 h-3 text-slate-400" />
+                          <span>{rx.startDate || rx.prescribedDate}</span>
+                          <span className="text-slate-300 dark:text-slate-600">&rarr;</span>
+                          <span>{rx.endDate || rx.fillDueDate || '2026-08-11'}</span>
+                        </div>
                       </td>
 
                       {/* STATUS BADGE / DROPDOWN */}
-                      <td className="py-4 px-4 text-center whitespace-nowrap">
+                      <td className="py-3.5 px-4 text-center whitespace-nowrap">
                         <select
                           value={
                             isCompleted
@@ -518,28 +494,27 @@ export const PrescriptionsPage: React.FC = () => {
                             const newStatus = e.target.value as 'Confirmed' | 'Completed' | 'Cancelled';
                             updatePrescriptionStatus(rx.id, newStatus);
                           }}
-                          className={`px-2 py-0.5 rounded-full font-bold text-[11px] border cursor-pointer focus:outline-none transition-colors shadow-2xs w-auto min-w-[88px] max-w-[105px] text-center ${
+                          className={`px-3 py-1 rounded-xl font-bold text-[11px] border cursor-pointer focus:outline-hidden transition-all shadow-2xs text-center ${
                             isCompleted
-                              ? 'bg-sky-50 dark:bg-sky-950/70 text-sky-800 dark:text-sky-300 border-sky-300 dark:border-sky-700/60'
+                              ? 'bg-sky-50 dark:bg-sky-950/70 text-sky-700 dark:text-sky-300 border-sky-200 dark:border-sky-800'
                               : isCancelled
-                              ? 'bg-rose-50 dark:bg-rose-950/70 text-rose-800 dark:text-rose-300 border-rose-300 dark:border-rose-700/60'
-                              : 'bg-emerald-50 dark:bg-emerald-950/70 text-emerald-800 dark:text-emerald-300 border-emerald-300 dark:border-emerald-700/60'
+                              ? 'bg-rose-50 dark:bg-rose-950/70 text-rose-700 dark:text-rose-300 border-rose-200 dark:border-rose-800'
+                              : 'bg-emerald-50 dark:bg-emerald-950/70 text-emerald-700 dark:text-emerald-300 border-emerald-200 dark:border-emerald-800'
                           }`}
                         >
-                          <option value="Confirmed" className="bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-100 font-medium">Confirmed</option>
-                          <option value="Completed" className="bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-100 font-medium">Completed</option>
-                          <option value="Cancelled" className="bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-100 font-medium">Cancelled</option>
+                          <option value="Confirmed" className="bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 font-normal text-left">Confirmed</option>
+                          <option value="Completed" className="bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 font-normal text-left">Completed</option>
+                          <option value="Cancelled" className="bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 font-normal text-left">Cancelled</option>
                         </select>
                       </td>
 
                       {/* ACTIONS */}
-                      <td className="py-4 px-4 text-right whitespace-nowrap">
-                        <div className="flex items-center justify-end gap-1.5 whitespace-nowrap">
-
+                      <td className="py-3.5 px-4 text-right whitespace-nowrap">
+                        <div className="flex items-center justify-end gap-1">
                           <button
                             onClick={() => handleOpenEditModal(rx)}
                             title="Edit Prescription"
-                            className="p-1.5 text-slate-500 hover:text-blue-600 dark:text-slate-400 dark:hover:text-blue-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors cursor-pointer"
+                            className="p-1.5 text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors cursor-pointer"
                           >
                             <Pencil className="w-3.5 h-3.5" />
                           </button>
@@ -547,7 +522,7 @@ export const PrescriptionsPage: React.FC = () => {
                           <button
                             onClick={() => setDeletingRx(rx)}
                             title="Delete Prescription"
-                            className="p-1.5 text-slate-500 hover:text-rose-600 dark:text-slate-400 dark:hover:text-rose-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors cursor-pointer"
+                            className="p-1.5 text-slate-400 hover:text-rose-600 dark:hover:text-rose-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors cursor-pointer"
                           >
                             <Trash2 className="w-3.5 h-3.5" />
                           </button>
@@ -560,6 +535,16 @@ export const PrescriptionsPage: React.FC = () => {
             </tbody>
           </table>
         </div>
+
+        {/* Pagination Footer */}
+        <Pagination
+          currentPage={currentPage}
+          totalPages={totalPages}
+          totalItems={totalItems}
+          itemsPerPage={itemsPerPage}
+          onPageChange={setCurrentPage}
+          onItemsPerPageChange={setItemsPerPage}
+        />
       </div>
 
       {/* Modal for Adding or Editing Prescriptions */}
@@ -567,8 +552,8 @@ export const PrescriptionsPage: React.FC = () => {
         <Modal
           isOpen={isModalOpen}
           onClose={() => setIsModalOpen(false)}
-          title={editingRx ? 'Edit Prescription' : 'Add New Prescription'}
-          subtitle={editingRx ? `Rx#: ${editingRx.rxNumber}` : 'Create a new medical prescription record'}
+          title={editingRx ? 'Edit Prescription' : 'New Prescription'}
+          subtitle={editingRx ? `Rx#: ${editingRx.rxNumber}` : 'Issue a new clinical drug prescription'}
           icon={<FileText className="w-5 h-5 text-blue-600 dark:text-blue-400" />}
           maxWidth="2xl"
         >
@@ -586,13 +571,13 @@ export const PrescriptionsPage: React.FC = () => {
                     setFormData({ ...formData, patientName: e.target.value })
                   }
                   placeholder="Patient Full Name"
-                  className="w-full bg-slate-50 dark:bg-[#182238] border border-slate-200 dark:border-[#283552] text-slate-900 dark:text-slate-100 rounded-xl px-3.5 py-2.5 text-xs sm:text-sm focus:outline-hidden focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 transition-all placeholder:text-slate-400 dark:placeholder:text-slate-500"
+                  className="w-full bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-slate-100 rounded-xl px-3.5 py-2.5 text-xs sm:text-sm focus:outline-hidden focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 transition-all placeholder:text-slate-400"
                 />
               </div>
 
               <div>
                 <label className="block text-slate-700 dark:text-slate-300 font-semibold mb-1 text-xs">
-                  Doctor Name <span className="text-rose-500">*</span>
+                  Prescribing Physician <span className="text-rose-500">*</span>
                 </label>
                 <select
                   required
@@ -600,13 +585,13 @@ export const PrescriptionsPage: React.FC = () => {
                   onChange={e =>
                     setFormData({ ...formData, doctorName: e.target.value })
                   }
-                  className="w-full bg-slate-50 dark:bg-[#182238] border border-slate-200 dark:border-[#283552] text-slate-900 dark:text-slate-100 rounded-xl px-3.5 py-2.5 text-xs sm:text-sm focus:outline-hidden focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 transition-all cursor-pointer"
+                  className="w-full bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-slate-100 rounded-xl px-3.5 py-2.5 text-xs sm:text-sm focus:outline-hidden focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 transition-all cursor-pointer"
                 >
                   <option value="">Select Doctor</option>
                   {doctors.map(doc => {
                     const docName = `Dr. ${doc.firstName} ${doc.lastName}`;
                     return (
-                      <option key={doc.id} value={docName}>
+                      <option key={doc.id} value={docName} className="bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 text-left">
                         {docName} ({doc.specialty})
                       </option>
                     );
@@ -628,13 +613,13 @@ export const PrescriptionsPage: React.FC = () => {
                     setFormData({ ...formData, drugName: e.target.value })
                   }
                   placeholder="e.g. Paracetamol"
-                  className="w-full bg-slate-50 dark:bg-[#182238] border border-slate-200 dark:border-[#283552] text-slate-900 dark:text-slate-100 rounded-xl px-3.5 py-2.5 text-xs sm:text-sm focus:outline-hidden focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 transition-all placeholder:text-slate-400 dark:placeholder:text-slate-500"
+                  className="w-full bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-slate-100 rounded-xl px-3.5 py-2.5 text-xs sm:text-sm focus:outline-hidden focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 transition-all placeholder:text-slate-400"
                 />
               </div>
 
               <div>
                 <label className="block text-slate-700 dark:text-slate-300 font-semibold mb-1 text-xs">
-                  Dosage <span className="text-rose-500">*</span>
+                  Dosage / Strength <span className="text-rose-500">*</span>
                 </label>
                 <input
                   type="text"
@@ -644,7 +629,7 @@ export const PrescriptionsPage: React.FC = () => {
                     setFormData({ ...formData, dosage: e.target.value })
                   }
                   placeholder="e.g. 500mg"
-                  className="w-full bg-slate-50 dark:bg-[#182238] border border-slate-200 dark:border-[#283552] text-slate-900 dark:text-slate-100 rounded-xl px-3.5 py-2.5 text-xs sm:text-sm focus:outline-hidden focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 transition-all placeholder:text-slate-400 dark:placeholder:text-slate-500"
+                  className="w-full bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-slate-100 rounded-xl px-3.5 py-2.5 text-xs sm:text-sm focus:outline-hidden focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 transition-all placeholder:text-slate-400"
                 />
               </div>
             </div>
@@ -662,7 +647,7 @@ export const PrescriptionsPage: React.FC = () => {
                     setFormData({ ...formData, frequency: e.target.value })
                   }
                   placeholder="e.g. 2 times daily"
-                  className="w-full bg-slate-50 dark:bg-[#182238] border border-slate-200 dark:border-[#283552] text-slate-900 dark:text-slate-100 rounded-xl px-3.5 py-2.5 text-xs sm:text-sm focus:outline-hidden focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 transition-all placeholder:text-slate-400 dark:placeholder:text-slate-500"
+                  className="w-full bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-slate-100 rounded-xl px-3.5 py-2.5 text-xs sm:text-sm focus:outline-hidden focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 transition-all placeholder:text-slate-400"
                 />
               </div>
 
@@ -678,7 +663,7 @@ export const PrescriptionsPage: React.FC = () => {
                     setFormData({ ...formData, route: e.target.value })
                   }
                   placeholder="e.g. Oral"
-                  className="w-full bg-slate-50 dark:bg-[#182238] border border-slate-200 dark:border-[#283552] text-slate-900 dark:text-slate-100 rounded-xl px-3.5 py-2.5 text-xs sm:text-sm focus:outline-hidden focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 transition-all placeholder:text-slate-400 dark:placeholder:text-slate-500"
+                  className="w-full bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-slate-100 rounded-xl px-3.5 py-2.5 text-xs sm:text-sm focus:outline-hidden focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 transition-all placeholder:text-slate-400"
                 />
               </div>
 
@@ -694,7 +679,7 @@ export const PrescriptionsPage: React.FC = () => {
                     setFormData({ ...formData, duration: e.target.value })
                   }
                   placeholder="e.g. 7 days"
-                  className="w-full bg-slate-50 dark:bg-[#182238] border border-slate-200 dark:border-[#283552] text-slate-900 dark:text-slate-100 rounded-xl px-3.5 py-2.5 text-xs sm:text-sm focus:outline-hidden focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 transition-all placeholder:text-slate-400 dark:placeholder:text-slate-500"
+                  className="w-full bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-slate-100 rounded-xl px-3.5 py-2.5 text-xs sm:text-sm focus:outline-hidden focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 transition-all placeholder:text-slate-400"
                 />
               </div>
             </div>
@@ -711,7 +696,7 @@ export const PrescriptionsPage: React.FC = () => {
                   onChange={e =>
                     setFormData({ ...formData, startDate: e.target.value })
                   }
-                  className="w-full bg-slate-50 dark:bg-[#182238] border border-slate-200 dark:border-[#283552] text-slate-900 dark:text-slate-100 rounded-xl px-3.5 py-2.5 text-xs sm:text-sm focus:outline-hidden focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 transition-all"
+                  className="w-full bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-slate-100 rounded-xl px-3.5 py-2.5 text-xs sm:text-sm focus:outline-hidden focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 transition-all"
                 />
               </div>
 
@@ -726,25 +711,25 @@ export const PrescriptionsPage: React.FC = () => {
                   onChange={e =>
                     setFormData({ ...formData, endDate: e.target.value })
                   }
-                  className="w-full bg-slate-50 dark:bg-[#182238] border border-slate-200 dark:border-[#283552] text-slate-900 dark:text-slate-100 rounded-xl px-3.5 py-2.5 text-xs sm:text-sm focus:outline-hidden focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 transition-all"
+                  className="w-full bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-slate-100 rounded-xl px-3.5 py-2.5 text-xs sm:text-sm focus:outline-hidden focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 transition-all"
                 />
               </div>
             </div>
 
             <div>
               <label className="block text-slate-700 dark:text-slate-300 font-semibold mb-1 text-xs">
-                Status <span className="text-rose-500">*</span>
+                Fulfillment Status <span className="text-rose-500">*</span>
               </label>
               <select
                 value={formData.status}
                 onChange={e =>
                   setFormData({ ...formData, status: e.target.value as RxStatus })
                 }
-                className="w-full bg-slate-50 dark:bg-[#182238] border border-slate-200 dark:border-[#283552] text-slate-900 dark:text-slate-100 rounded-xl px-3.5 py-2.5 text-xs sm:text-sm focus:outline-hidden focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 transition-all"
+                className="w-full bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-slate-100 rounded-xl px-3.5 py-2.5 text-xs sm:text-sm focus:outline-hidden focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 transition-all cursor-pointer"
               >
-                <option value="Confirmed">Confirmed</option>
-                <option value="Completed">Completed</option>
-                <option value="Cancelled">Cancelled</option>
+                <option value="Confirmed" className="bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100">Confirmed</option>
+                <option value="Completed" className="bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100">Completed</option>
+                <option value="Cancelled" className="bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100">Cancelled</option>
               </select>
             </div>
 
@@ -753,7 +738,7 @@ export const PrescriptionsPage: React.FC = () => {
               <button
                 type="button"
                 onClick={() => setIsModalOpen(false)}
-                className="px-4 py-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 hover:bg-slate-200 dark:hover:bg-slate-700/80 font-medium text-xs sm:text-sm transition-colors cursor-pointer"
+                className="px-4 py-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 hover:bg-slate-200 dark:hover:bg-slate-700 font-medium text-xs sm:text-sm transition-colors cursor-pointer"
               >
                 Cancel
               </button>
@@ -785,3 +770,4 @@ export const PrescriptionsPage: React.FC = () => {
     </div>
   );
 };
+

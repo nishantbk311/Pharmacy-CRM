@@ -7,6 +7,8 @@ import { useData } from '../context/DataContext';
 import { DoctorPayment } from '../types';
 import { NepaliDatePicker } from '../components/common/NepaliDatePicker';
 import { ConfirmDeleteModal } from '../components/common/ConfirmDeleteModal';
+import { Pagination } from '../components/common/Pagination';
+import { usePagination } from '../hooks/usePagination';
 
 export const DoctorPaymentsPage: React.FC = () => {
   const { doctors, doctorPayments, addDoctorPayment, deleteDoctorPayment } = useData();
@@ -99,6 +101,16 @@ export const DoctorPaymentsPage: React.FC = () => {
       return matchesDoctor && matchesType && matchesDate && matchesSearch;
     });
   }, [doctorPayments, selectedDoctor, selectedType, fromBsDate, toBsDate, searchQuery, isTodayFilterActive]);
+
+  const {
+    currentPage,
+    totalPages,
+    totalItems,
+    itemsPerPage,
+    paginatedData: paginatedTransactions,
+    setCurrentPage,
+    setItemsPerPage,
+  } = usePagination(filteredTransactions, { initialItemsPerPage: 10 });
 
   // Aggregated KPI Stats
   const previousDayAmount = useMemo(() => {
@@ -380,13 +392,13 @@ export const DoctorPaymentsPage: React.FC = () => {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-200 dark:divide-slate-800/60 text-slate-800 dark:text-slate-200">
-                  {filteredTransactions.map((tx, idx) => (
+                  {paginatedTransactions.map((tx, idx) => (
                     <tr
                       key={tx.id}
                       className="hover:bg-slate-50/80 dark:hover:bg-[#122036]/60 transition-colors"
                     >
                       <td className="px-4 py-3 text-center font-medium text-slate-500 dark:text-slate-400">
-                        {idx + 1}
+                        {(currentPage - 1) * itemsPerPage + idx + 1}
                       </td>
                       <td className="px-4 py-3 font-semibold text-slate-900 dark:text-white">
                         {tx.doctorName}
@@ -421,6 +433,16 @@ export const DoctorPaymentsPage: React.FC = () => {
                   ))}
                 </tbody>
               </table>
+
+              {/* Pagination Footer */}
+              <Pagination
+                currentPage={currentPage}
+                totalPages={totalPages}
+                totalItems={totalItems}
+                itemsPerPage={itemsPerPage}
+                onPageChange={setCurrentPage}
+                onItemsPerPageChange={setItemsPerPage}
+              />
             </div>
           ) : (
             /* Empty State Container */
